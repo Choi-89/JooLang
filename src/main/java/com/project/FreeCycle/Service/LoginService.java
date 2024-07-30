@@ -1,2 +1,7 @@
-package com.project.FreeCycle.Service;public class LoginService {
+package com.project.FreeCycle.Service;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class LoginService {
 }
