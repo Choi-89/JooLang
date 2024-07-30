@@ -9,14 +9,10 @@ import lombok.Setter;
 @Table
 @Getter
 @Setter
-public class Post {
-
+public class Product_Display {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column()
-    private long id;
-
-
+    private Long id;
 
 }
