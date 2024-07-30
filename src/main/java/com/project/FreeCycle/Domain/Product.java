@@ -23,6 +23,7 @@ public class Product {
     @Column(name = "name", nullable = false)
     private String name;
 
+
     @Column(name = "content")
     private String content;
 
@@ -33,6 +34,7 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
 
     @ManyToOne
     @JoinColumn(name = "Product_Display_id", nullable = false)
