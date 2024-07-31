@@ -11,6 +11,11 @@ public class JoinService {
     private UserRepository userRepository;
 
     public void save(User user){
+        
+        // 중복회원 검사 추가 해야 함.
+
+
         userRepository.save(user);
+        
     }
 }
