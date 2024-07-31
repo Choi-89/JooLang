@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
     User save(User user);
-    String findByUserId(String userId);
-    String findByName(String name);
-    String findByNickname(String nickname);
-    String findByLocation(String location);
+    User findByUserId(String userId);
+    User findByName(String name);
+    User findByNickname(String nickname);
+    User findByLocation(String location);
 
 
 }

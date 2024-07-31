@@ -29,6 +29,9 @@ public class PostController {
         return "home";
     }
 
+    //글 조회
+
+
     //글 작성
     @GetMapping(value = "/post/write")
     public String writePage() {
@@ -37,7 +40,7 @@ public class PostController {
 
     @PostMapping(value = "/post/write")
     public String writePost(Product product, HttpServletRequest request, HttpSession session){
-        String nickname = postService.findNickname((String)session.getAttribute("nickname"));
+        String nickname = postService.findNickname((String)session.getAttribute("nickname")).getNickname();
         if (nickname == null) {
             request.setAttribute("msg", "중복되는 닉네임이 있습니다. 다른 닉네임을 사용해주세요."); //창
             request.setAttribute("url", "/post/write");
@@ -46,6 +49,9 @@ public class PostController {
         postService.postProduct(product, nickname);
         return "redirect:/";
     }
+
+    //글 수정
+    @
 
 
 

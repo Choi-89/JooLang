@@ -1,6 +1,7 @@
 package com.project.FreeCycle.Service;
 
 import com.project.FreeCycle.Domain.Product;
+import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Repository.ProductRepository;
 import com.project.FreeCycle.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +35,15 @@ public class PostService {
         product.setName(nickname);
 
         //게시글 저장
-        Product savedProduct = productRepository.save(product);
+        Product saveProduct = productRepository.save(product);
 
-        product.setUser(userRepository.findBy(nickname));
+        //게시물 주인 지정
+        product.setUser(userRepository.findByNickname(nickname));
 
+        //해당User의 ProductList에 product추가
+        User user = userRepository.findByNickname(nickname);
+        user.getProducts().add(saveProduct);
+        userRepository.save(user);
     }
 
     //글 수정
@@ -47,7 +53,9 @@ public class PostService {
     public void postDelete(){}
 
     //조회수 증가
-    public void checkViews(){}
+    public void checkViews(Product product){
+        product.setView(product.getView() + 1);
+    }
 
     //게시글 목록 조회
     public Page<Product> getPosts(Pageable pageable) {
@@ -55,11 +63,11 @@ public class PostService {
     }
 
     //
-    public String findUserId(String userid){
+    public User findUserId(String userid){
         return userRepository.findByUserId(userid);
     }
 
-    public String findNickname(String nickname){
+    public User findNickname(String nickname){
         return userRepository.findByNickname(nickname);
     }
 
