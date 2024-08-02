@@ -3,6 +3,9 @@ package com.project.FreeCycle.Domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Chat_List")
@@ -14,14 +17,18 @@ public class Chat_List {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(name = "user_chat", nullable = true)
     private String user_chat;
 
-    @Column
+    @Column(name = "other_chat", nullable = true)
     private String other_chat;
 
-    @Column
-    private String chat_time;
+    @CreatedDate
+    @Column(name = "chat_time", nullable = false)
+    private LocalDateTime chat_time;
+
+    @Column(name = "content", nullable = false)
+    private String content;
 
     @ManyToOne
     private Chat chat;
