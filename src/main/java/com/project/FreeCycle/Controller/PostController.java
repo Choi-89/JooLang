@@ -51,7 +51,7 @@ public class PostController {
     }
 
     //글 수정
-
+    @
 
 
 
