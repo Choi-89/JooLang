@@ -7,6 +7,7 @@ import com.project.FreeCycle.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -51,10 +52,10 @@ public class PostService {
 
     //글 삭제
     public ResponseEntity<String> postDelete(long id){
-        if()
+        
 
 
-        return
+        return ResponseEntity.ok("Post deleted successfully");
     }
 
     //조회수 증가
