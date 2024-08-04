@@ -50,7 +50,12 @@ public class PostService {
     public void postEdit(){}
 
     //글 삭제
-    public void postDelete(){}
+    public ResponseEntity<String> postDelete(long id){
+        if()
+
+
+        return
+    }
 
     //조회수 증가
     public void checkViews(Product product){
