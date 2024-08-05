@@ -2,34 +2,47 @@ package com.project.FreeCycle.Dto;
 
 import com.project.FreeCycle.Domain.User;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.*;
 
 
-public class CustomUserDetail implements UserDetails {
+// OAuth방식 로그인
+public class CustomUserDetail implements UserDetails, OAuth2User {
 
     private final User user;
+    private Map<String, Object> attributes;
 
-    public CustomUserDetail(User user) {
+    public CustomUserDetail(User user,Map<String, Object> attributes) {
         this.user = user;
+        this.attributes = attributes;
+    }
+
+    @Override
+    public String getName() {
+        return user.getName();
+    }
+
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return Collections.unmodifiableMap(attributes);
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
-        Collection<GrantedAuthority> collection = new ArrayList<>();
-
-        collection.add(new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-
-                return user.getRole();
-            }
-        });
-
-        return collection;
+        return Stream.of(new SimpleGrantedAuthority(user.getRole()))
+                .collect(toList());
     }
 
 
@@ -63,4 +76,6 @@ public class CustomUserDetail implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 }

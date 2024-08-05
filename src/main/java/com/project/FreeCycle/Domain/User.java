@@ -3,8 +3,6 @@ package com.project.FreeCycle.Domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 
 @Entity
 @Table(name = "user")
@@ -21,7 +19,7 @@ public class User {
     @Column(name = "userName")
     private String name;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password")
     private String password;
 
     @Column(name = "nickname")
@@ -34,10 +32,12 @@ public class User {
     @Column(name = "role")
     private String role;
 
-    //유저가 가지고 있는 게시물(마이페이지 기능 구현 유리)
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<Product> products;
+    // provider : 접속한 회사이름 들어감 ( 아직은 네이버 뿐)
+    @Column(name = "provider")
+    private String provider;
 
-
+    // providerId : 네이버 로그인 한 유저의 고유 ID가 들어감
+    @Column(name = "provider_id")
+    private String providerId;
 
 }
