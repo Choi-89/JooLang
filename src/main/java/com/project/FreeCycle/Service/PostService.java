@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 public class PostService {
 
     private final ProductRepository productRepository;
-    private final UserRepository userRepository;
+    private final UserRepository userRepository; // 안녕
 
     @Autowired
     public PostService(ProductRepository productRepository, UserRepository userRepository){
