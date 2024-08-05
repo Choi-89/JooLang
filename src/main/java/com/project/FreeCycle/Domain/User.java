@@ -19,7 +19,7 @@ public class User {
     @Column(name = "userName")
     private String name;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password")
     private String password;
 
     @Column(name = "nickname")
@@ -32,6 +32,12 @@ public class User {
     @Column(name = "role")
     private String role;
 
+    // provider : 접속한 회사이름 들어감 ( 아직은 네이버 뿐)
+    @Column(name = "provider")
+    private String provider;
 
+    // providerId : 네이버 로그인 한 유저의 고유 ID가 들어감
+    @Column(name = "provider_id")
+    private String providerId;
 
 }

@@ -64,8 +64,27 @@
         </div>
         <button type="submit">로그인</button>
     </form>
+
+    <p> </p>
+    <div id="naver_id_login"></div>
+
+    <a th:href="@{https://nid.naver.com/oauth2.0/authorize(client_id=${naverClientId}, redirect_uri=${naverRedirectUri}, response_type='code', state=${state})}">
+        <button type = "submit">네이버 로그인</button>
+    </a>
+
+    <div>
+        <p>naverClientId: <span th:text="${naverClientId}"></span></p>
+        <p>naverRedirectUri: <span th:text="${naverRedirectUri}"></span></p>
+        <p>state: <span th:text="${state}"></span></p>
+    </div>
+
+
     <div th:if="${param.error}" class="error">
         <p>로그인 실패: 아이디나 비밀번호를 확인해주세요.</p>
+    </div>
+
+    <div th:if="${errorMsg != null}" class="error">
+        <p th:text="${errorMsg}"></p>
     </div>
 </div>
 </body>

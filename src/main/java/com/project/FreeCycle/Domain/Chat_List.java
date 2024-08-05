@@ -24,5 +24,6 @@ public class Chat_List {
     private String chat_time;
 
     @ManyToOne
+    @JoinColumn(name ="Chat_id")
     private Chat chat;
 }
