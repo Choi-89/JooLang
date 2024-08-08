@@ -37,7 +37,4 @@ public class User {
     //유저가 가지고 있는 게시물(마이페이지 기능 구현 유리)
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Product> products;
-
-
-
 }

@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface ChatRepository extends JpaRepository<Chat, Integer> {
     List<Chat> findAll(User user);
+    Chat findChat(User user);
 }

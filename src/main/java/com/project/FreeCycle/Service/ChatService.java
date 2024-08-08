@@ -6,6 +6,9 @@ import com.project.FreeCycle.Repository.ChatRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class ChatService {
     private final ChatRepository chatRepository;
@@ -26,7 +29,12 @@ public class ChatService {
         chatRepository.delete(chat);
     }
 
-    public void findAll(User user){
-        chatRepository.findAll(user);
+    public Optional<List<Chat>> findAll(User user){
+        return Optional.ofNullable(chatRepository.findAll(user));
+    }
+
+    //자신의 채팅 리스트에 상대방과의 채팅이 있는지 확인
+    public Optional<Chat> findOtheruser(User user){
+        return Optional.ofNullable(chatRepository.findChat(user));
     }
 }
