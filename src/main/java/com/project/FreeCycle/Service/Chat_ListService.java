@@ -33,7 +33,7 @@ public class Chat_ListService {
         chatListRepository.delete(chat);
     }
 
-    public List<Chat_List> findAll(Chat chat){
+    public List<Chat_List> findChat(Chat chat){
         return chatListRepository.findAll(chat);
     }
 }
