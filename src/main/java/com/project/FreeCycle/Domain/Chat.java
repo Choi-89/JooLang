@@ -14,6 +14,9 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
+    private Long othername;
+
     @ManyToOne
     private User user;
 }
