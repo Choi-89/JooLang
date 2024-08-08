@@ -5,12 +5,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
@@ -21,6 +18,7 @@ public class CustomUserDetail implements UserDetails, OAuth2User {
 
     private final User user;
     private Map<String, Object> attributes;
+
 
     public CustomUserDetail(User user,Map<String, Object> attributes) {
         this.user = user;

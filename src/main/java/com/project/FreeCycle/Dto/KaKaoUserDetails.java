@@ -6,14 +6,9 @@ import lombok.AllArgsConstructor;
 import java.util.Map;
 
 @AllArgsConstructor
-public class NaverUserDetails implements OAuth2UserInfo {
+public class KaKaoUserDetails implements OAuth2UserInfo {
 
     private Map<String, Object> attributes;
-
-    @Override
-    public String getProvider() {
-        return "Naver";
-    }
 
 
     @Override
@@ -22,13 +17,17 @@ public class NaverUserDetails implements OAuth2UserInfo {
     }
 
     @Override
-    public String getName() {
-        return (String) attributes.get("name");
+    public String getProvider() {
+        return "Kakao";
     }
 
+    @Override
     public String getNickname() {
         return (String) attributes.get("nickname");
     }
 
-
+    @Override
+    public String getName() {
+        return (String) attributes.get("name");
+    }
 }

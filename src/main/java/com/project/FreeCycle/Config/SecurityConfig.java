@@ -5,18 +5,22 @@ import com.project.FreeCycle.Service.CustomOauth2UserService;
 import com.project.FreeCycle.Service.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.firewall.HttpFirewall;
-import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
+
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 @Slf4j
 @Configuration
@@ -24,23 +28,28 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-
     private final CustomOauth2UserService customOauth2UserService;
+    private final UserRepository userRepository;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new CustomUserDetailService(userRepository);
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/","/home/login","/home/join",
-                                "/joinProc","/loginProc","/auth/**","/error"
+                                "/joinProc","/loginProc","/auth/**","/error",
+                                "/static/**","/favicon.ico"
                         ).permitAll()
+                        .requestMatchers("/report").hasRole("USER")
                         .anyRequest().authenticated()
                 );
 
@@ -50,7 +59,7 @@ public class SecurityConfig {
                         .passwordParameter("password")
                         .loginPage("/home/login")
                         .loginProcessingUrl("/loginProc")
-                        .defaultSuccessUrl("/home_user", true)
+                        .successHandler(new SimpleUrlAuthenticationSuccessHandler("/home_user"))
                         .failureUrl("/home/login?error=true")
                         .permitAll()
                 );
@@ -66,13 +75,20 @@ public class SecurityConfig {
         http
                 .oauth2Login(oauth -> oauth
                         .loginPage("/home/login")
-                        .userInfoEndpoint(userInfo -> userInfo.userService(customOauth2UserService))
-                        .defaultSuccessUrl("/home/user", true)
-                        .failureUrl("/home/login?error=true")
+                        .userInfoEndpoint(userInfo -> {
+                            log.info("OAuth2 UserService 설정됨");
+                            userInfo.userService(customOauth2UserService);
+                        })
+                        .successHandler((request, response, authentication) -> {
+                            log.info("OAuth2 로그인 성공: " + authentication.getName());
+                            SecurityContextHolder.getContext().setAuthentication(authentication);
+                            new SimpleUrlAuthenticationSuccessHandler("/home_user").onAuthenticationSuccess(request, response, authentication);
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            log.error("OAuth2 로그인 실패: " + exception.getMessage());
+                            response.sendRedirect("/home/login?error=true");
+                        })
         );
-
-        http
-                .csrf((csrf) -> csrf.disable());
 
         http
                 .exceptionHandling(exception -> {
@@ -82,8 +98,25 @@ public class SecurityConfig {
                         response.sendRedirect("/home/login?error=true");
                     });
                 });
+
+        http
+                .csrf((csrf) -> csrf.disable());
+
+
+        http
+        .sessionManagement(session -> session
+                .sessionFixation().newSession() // 세션 고정 공격 방지
+                .sessionAuthenticationStrategy(sessionAuthenticationStrategy())
+        )
+        .securityContext(securityContext -> securityContext
+                .securityContextRepository(httpSessionSecurityContextRepository())
+        );
+
+
         return http.build();
     }
+
+
 
     // 사용자 정보를 데이터베이스에서 조회하고,
     // 사용자가 입력한 비밀번호가 데이터베이스에 저장된 비밀번호와 일치하는지 확인하는 데 사용
@@ -92,36 +125,30 @@ public class SecurityConfig {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
         // 사용자 정보를 데이터베이스에서 조회할 수 있게 함
-        authProvider.setUserDetailsService(userDetailsService(null));
+        authProvider.setUserDetailsService(userDetailsService());
         // 비밀번호를 비교할 때 사용할 입력된 비밀번호를 암호화 하여 비교함
         authProvider.setPasswordEncoder(bCryptPasswordEncoder());
         return authProvider;
     }
 
-    // WebSecurityCustomizer 빈 설정 - 커스터마이즈된 HttpFirewall 설정 적용
+
+
+    // 세션 고정 공격 방지를 위한 세션 인증 전략 설정
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.httpFirewall(allowAllHttpFirewall());
+    public SessionAuthenticationStrategy sessionAuthenticationStrategy() {
+        return new SessionFixationProtectionStrategy();
     }
 
-
-
     @Bean
-    public UserDetailsService userDetailsService(UserRepository userRepository) {
-        return new CustomUserDetailService(userRepository);
+    public HttpSessionSecurityContextRepository httpSessionSecurityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
     }
 
-    // 커스터마이즈된 HttpFirewall 빈 설정
-    @Bean
-    public HttpFirewall allowAllHttpFirewall() {
-        StrictHttpFirewall firewall = new StrictHttpFirewall();
-        firewall.setAllowSemicolon(true); // 세미콜론을 허용하도록 설정
-        firewall.setAllowUrlEncodedSlash(true); // URL 인코딩된 슬래시를 허용하도록 설정
-        firewall.setAllowUrlEncodedPercent(true); // URL 인코딩된 퍼센트를 허용하도록 설정
-        firewall.setAllowBackSlash(true); // 백슬래시를 허용하도록 설정
-        firewall.setAllowUrlEncodedPeriod(true); // URL 인코딩된 점을 허용하도록 설정
-        firewall.setAllowUrlEncodedDoubleSlash(true); // URL 인코딩된 이중 슬래시를 허용하도록 설정
-        return firewall;
-    }
+//    // 세션 이벤트를 처리하기 위한 HttpSessionEventPublisher를 빈으로 등록
+//    @Bean
+//    public HttpSessionEventPublisher httpSessionEventPublisher() {
+//        return new HttpSessionEventPublisher();
+//    }
+
 
 }

@@ -72,15 +72,22 @@
         <button type = "submit">네이버 로그인</button>
     </a>
 
+
+    <a th:href="@{https://kauth.kakao.com/oauth/authorize(client_id=${KakaoClientId}, redirect_uri=${KakaoRedirectUri}, response_type='code', state=${state})}">
+        <img src="/static/images/kakao_login_medium_narrow.png" alt="카카오 로그인" >
+    </a>
+
+<!--    <div>-->
+<!--        <p>naverClientId: <span th:text="${naverClientId}"></span></p>-->
+<!--        <p>naverRedirectUri: <span th:text="${naverRedirectUri}"></span></p>-->
+<!--        <p>state: <span th:text="${state}"></span></p>-->
+<!--    </div>-->
+
+
     <div>
-        <p>naverClientId: <span th:text="${naverClientId}"></span></p>
-        <p>naverRedirectUri: <span th:text="${naverRedirectUri}"></span></p>
+        <p>kakaoClientId: <span th:text="${KakaoClientId}"></span></p>
+        <p>kakaoRedirectUri: <span th:text="${KakaoRedirectUri}"></span></p>
         <p>state: <span th:text="${state}"></span></p>
-    </div>
-
-
-    <div th:if="${param.error}" class="error">
-        <p>로그인 실패: 아이디나 비밀번호를 확인해주세요.</p>
     </div>
 
     <div th:if="${errorMsg != null}" class="error">
