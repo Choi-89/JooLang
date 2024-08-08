@@ -31,5 +31,6 @@ public class Chat_List {
     private String content;
 
     @ManyToOne
+    @JoinColumn(name ="Chat_id")
     private Chat chat;
 }

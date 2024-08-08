@@ -18,5 +18,6 @@ public class Chat {
     private Long othername;
 
     @ManyToOne
+    @JoinColumn(name ="user_id")
     private User user;
 }
