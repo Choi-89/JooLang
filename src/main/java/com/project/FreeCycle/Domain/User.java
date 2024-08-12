@@ -38,6 +38,9 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Product> products;
 
+    //찜목록
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    private List<Product> dibs; //dibs == 찜
 
 
 }

@@ -1,0 +1,26 @@
+package com.project.FreeCycle.Service;
+
+import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserService {
+
+    UserRepository userRepository;
+
+    @Autowired
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public User getUserById(long id){
+        return userRepository.findById(id);
+    }
+
+    public User getUser(String username){
+        return userRepository.findByName(username);
+    }
+
+}

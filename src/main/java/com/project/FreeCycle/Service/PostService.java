@@ -36,11 +36,9 @@ public class PostService {
         //조회수 초기화
         product.setView(0);
 
-        //글쓴이 작성 시간 저장, 닉네임 저장, (작성 시간 FORMATTER로 형식 변환 후 다시 LocalDateTime으로 타입 변환)
+        //글쓴이 작성 시간 저장, (작성 시간 FORMATTER로 형식 변환 후 다시 LocalDateTime으로 타입 변환)
         String localDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         product.setUpload_time(LocalDateTime.parse(localDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))) ;
-
-        product.setName(nickname);
 
         //게시글 저장
         Product saveProduct = productRepository.save(product);
@@ -59,7 +57,7 @@ public class PostService {
         Product product = productRepository.findById(id).get();
         if(!name.isEmpty()){
             product.setName(name);
-        }
+        } //비어있으면 기존 제목 다시 사용
         product.setContent(content);
 
         productRepository.save(product);
@@ -67,17 +65,19 @@ public class PostService {
 
     //글 삭제
     public ResponseEntity<String> postDelete(long id){
-        String redirectUrl = "/게시글목록";
+//        String redirectUrl = "redirect:/postlist";
         if(productRepository.findById(id).isPresent()){
             productRepository.delete(productRepository.findById(id).get());
-            return ResponseEntity.ok("<script>alert('삭제되었습니다.');"
-                    + "window.location.href='" + redirectUrl + "';"
-                    + "</script>");
+//            return ResponseEntity.ok("<script>alert('삭제되었습니다.');"
+//                    + "window.location.href='" + redirectUrl + "';"
+//                    + "</script>");
+            return ResponseEntity.ok("deleted successfully");
         }
         else{
-            return new ResponseEntity<>("<script>alert('이미 삭제된 게시글.');"
-                + "window.location.href='" + redirectUrl + "';"
-                + "</script>", HttpStatus.NOT_FOUND);
+//            return new ResponseEntity<>("<script>alert('이미 삭제된 게시글.');"
+//                + "window.location.href='" + redirectUrl + "';"
+//                + "</script>", HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("delete fail");
         }
     }
 
@@ -107,5 +107,9 @@ public class PostService {
         return userRepository.findByNickname(nickname);
     }
 
-
+    public void saveDibs(String userId , Product product){
+        User user = userRepository.findByUserId(userId);
+        if(user.getDibs().contains(product)) user.getDibs().remove(product);
+        else user.getDibs().add(product);
+    }
 }

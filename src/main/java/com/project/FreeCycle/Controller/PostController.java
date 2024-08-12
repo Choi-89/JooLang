@@ -13,6 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @Controller
 @RequiredArgsConstructor
 public class PostController {
@@ -30,35 +32,42 @@ public class PostController {
 
     //글 조회 >> 삭제버튼 db별로 다르게 출력
     @GetMapping(value = "post/{id}")
-    public String viewPost(@PathVariable Long id, Model model) {
+    public String viewPost(@PathVariable Long id, Model model,HttpSession session) {
         Product product = postService.checkViews(id);
         model.addAttribute("product", product);
-        return "Post/post";
+        String userId = session.getAttribute("userId").toString();
+        if(userId == product.getUser().getUserId()) {
+            return "Post/button_post"; // 게시글 수정,삭제 버튼 있는 포스트
+        }
+        else {
+            return "Post/post"; //수정, 삭제, 버튼 없는 포스트
+        }
     }
 
     //글 작성
     @GetMapping(value = "/post/write")
-    public String writePage() {
+    public String writePage(HttpServletRequest request, HttpSession session) {
+        String nickname = postService.findNickname((String)session.getAttribute("nickname")).getNickname();
+        if (nickname == null) {
+            request.setAttribute("msg", "로그인을 해주세요"); //창
+            request.setAttribute("url", "/postlist");
+            return "Post/alert";
+        }
         return "write-post";
     }
 
     @PostMapping(value = "/post/write")
-    public String writePost(Product product, HttpServletRequest request, HttpSession session){
+    public String writePost(HttpSession session){
         String nickname = postService.findNickname((String)session.getAttribute("nickname")).getNickname();
-        if (nickname == null) {
-            request.setAttribute("msg", "중복되는 닉네임이 있습니다. 다른 닉네임을 사용해주세요."); //창
-            request.setAttribute("url", "/post/write");
-            return "Post/alert";
-        }
-        postService.postProduct(product, nickname);
-        return "redirect:/";
+        postService.postProduct(new Product(), nickname);
+        return "redirect:/postlist";
     }
 
     //글 수정
     @GetMapping(value = "/post/{id}/edit")
     public String editPost(@PathVariable long id, Model model) {
         Product product = postService.getProduct(id).orElse(null);
-        model.addAttribute("product", product);
+        model.addAttribute("product", product); //product의 제목 내용 필요
         return "edit-post";
     }
 
@@ -66,6 +75,7 @@ public class PostController {
     public String editPost(@PathVariable long id, String name, String content) {
         postService.postEdit(id , name, content);
         return "redirect:/post/{id}";
+        //return "redirect:/post/"+id;
     }
 
     //글 삭제
@@ -84,6 +94,19 @@ public class PostController {
         return postService.postDelete(id);
     }
 
-
+    //글 찜버튼
+    @PostMapping(value = "/post/{id}/dibs")
+    public String dibs(@PathVariable long id, HttpSession session, HttpServletRequest request) {
+        String userId = String.valueOf(session.getAttribute("userId"));
+        if(userId == null){
+            request.setAttribute("msg", "로그인을 해주세요"); //창
+            request.setAttribute("url", "/post/"+id+"/dibs");// 로그인창 뜨게 경로설정 해야됨
+            return "/Post/alert";
+        }
+        else {
+            postService.saveDibs(userId, postService.getProduct(id).orElse(null));
+            return "redirect:/post/" + id +"/dibs";
+        }
+    }
 
 }
