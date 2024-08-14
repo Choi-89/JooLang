@@ -9,18 +9,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
+//import org.springframework.web.servlet.config.annotation.CorsRegistry;
+//import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 @Slf4j
 @Configuration
@@ -76,12 +74,18 @@ public class SecurityConfig {
                 .oauth2Login(oauth -> oauth
                         .loginPage("/home/login")
                         .userInfoEndpoint(userInfo -> {
-                            log.info("OAuth2 UserService 설정됨");
-                            userInfo.userService(customOauth2UserService);
+                            try {
+                                log.info("OAuth2 UserService 설정 시도 중...");
+                                userInfo.userService(customOauth2UserService);
+                                log.info("OAuth2 UserService 설정됨");
+                            } catch (Exception e) {
+                                log.error("OAuth2 UserService 설정 중 오류 발생: ", e);
+                            }
                         })
                         .successHandler((request, response, authentication) -> {
                             log.info("OAuth2 로그인 성공: " + authentication.getName());
                             SecurityContextHolder.getContext().setAuthentication(authentication);
+                            log.info("SecurityContext에 저장된 인증 정보: " + SecurityContextHolder.getContext().getAuthentication());
                             new SimpleUrlAuthenticationSuccessHandler("/home_user").onAuthenticationSuccess(request, response, authentication);
                         })
                         .failureHandler((request, response, exception) -> {
@@ -103,20 +107,9 @@ public class SecurityConfig {
                 .csrf((csrf) -> csrf.disable());
 
 
-        http
-        .sessionManagement(session -> session
-                .sessionFixation().newSession() // 세션 고정 공격 방지
-                .sessionAuthenticationStrategy(sessionAuthenticationStrategy())
-        )
-        .securityContext(securityContext -> securityContext
-                .securityContextRepository(httpSessionSecurityContextRepository())
-        );
-
 
         return http.build();
     }
-
-
 
     // 사용자 정보를 데이터베이스에서 조회하고,
     // 사용자가 입력한 비밀번호가 데이터베이스에 저장된 비밀번호와 일치하는지 확인하는 데 사용
@@ -131,24 +124,18 @@ public class SecurityConfig {
         return authProvider;
     }
 
-
-
-    // 세션 고정 공격 방지를 위한 세션 인증 전략 설정
-    @Bean
-    public SessionAuthenticationStrategy sessionAuthenticationStrategy() {
-        return new SessionFixationProtectionStrategy();
-    }
-
-    @Bean
-    public HttpSessionSecurityContextRepository httpSessionSecurityContextRepository() {
-        return new HttpSessionSecurityContextRepository();
-    }
-
-//    // 세션 이벤트를 처리하기 위한 HttpSessionEventPublisher를 빈으로 등록
 //    @Bean
-//    public HttpSessionEventPublisher httpSessionEventPublisher() {
-//        return new HttpSessionEventPublisher();
+//    public WebMvcConfigurer corsConfigurer() {
+//        return new WebMvcConfigurer() {
+//
+//            @Override
+//            public void addCorsMappings(CorsRegistry registry) {
+//                registry.addMapping("/**")  // 모든 경로에 대해 CORS 설정 적용
+//                        .allowedOrigins("http://localhost:3000")  // React 앱의 주소
+//                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")  // 허용할 HTTP 메소드
+//                        .allowedHeaders("*")  // 모든 헤더 허용
+//                        .allowCredentials(true);  // 자격 증명(쿠키, 인증 정보 등) 허용
+//            }
+//        };
 //    }
-
-
 }

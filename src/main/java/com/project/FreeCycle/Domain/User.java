@@ -3,6 +3,8 @@ package com.project.FreeCycle.Domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 
 @Entity
 @Table(name = "user")
@@ -25,8 +27,8 @@ public class User {
     @Column(name = "nickname")
     private String nickname;
 
-    @Column(name = "location")
-    private int location;
+    @Column(name = "email")
+    private String email;
 
     // 시큐리티 활용하여 admin, user 둘로 나눠서 저장 할 예정
     @Column(name = "role")
@@ -40,4 +42,15 @@ public class User {
     @Column(name = "provider_id")
     private String providerId;
 
+    // 우편번호
+    @Column(name = "postcode")
+    private String postcode;
+
+    // 주소
+    @Column(name = "address")
+    private String address;
+
+    // 상세 주소
+    @Column(name = "detail_address")
+    private String detailAddress;
 }

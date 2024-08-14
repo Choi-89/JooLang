@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 
-// 기존 form 로그인
+// 기존 form 방식 로그인
 public class CustomUserSecurityDetail implements UserDetails {
     private final User user;
 
