@@ -29,7 +29,6 @@ public class NaverApi {
     @Value("${spring.security.oauth2.client.registration.naver.client-secret}")
     private String NaverClientSecret;
 
-
 }
 
 
