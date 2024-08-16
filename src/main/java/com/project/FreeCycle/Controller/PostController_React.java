@@ -113,6 +113,7 @@ public class PostController_React {
         else {
 //            postService.saveDibs(userId, postService.getProduct(id).orElse(null));
 //            return "redirect:/post/" + id +"/dibs";
+
             return ResponseEntity.ok("dibs complete");
         }
     }
