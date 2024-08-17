@@ -43,4 +43,8 @@ public class UserService{
         return false;
     }
 
+    public User getUser(String username){
+        return userRepository.findByName(username);
+    }
+
 }
