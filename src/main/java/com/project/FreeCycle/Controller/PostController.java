@@ -104,7 +104,7 @@ public class PostController {
             return "/Post/alert";
         }
         else {
-            postService.saveDibs(userId, postService.getProduct(id).orElse(null));
+//            postService.saveDibs(userId, postService.getProduct(id).orElse(null));
             return "redirect:/post/" + id +"/dibs";
         }
     }
