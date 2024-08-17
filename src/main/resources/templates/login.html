@@ -34,6 +34,12 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -43,11 +49,19 @@
             background-color: #4CAF50;
             color: #fff;
         }
+        .find-button {
+            background-color: #008CBA;
+        }
         .error {
             color: red;
             margin-top: 20px;
         }
     </style>
+    <script>
+        function openPopup(url, title) {
+            window.open(url, title, "width=500,height=400,scrollbars=no,resizable=no");
+        }
+    </script>
 </head>
 <body>
 <div class="container">
@@ -62,7 +76,12 @@
             <label for="password">패스워드</label>
             <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
         </div>
-        <button type="submit">로그인</button>
+
+        <div class="button-group">
+            <button type="submit">로그인</button>
+            <button type="button" class="find-button" onclick="openPopup1('/findId', '아이디 찾기')">아이디 찾기</button>
+            <button type="button" class="find-button" onclick="openPopup1('/findPassword', '비밀번호 찾기')">비밀번호 찾기</button>
+        </div>
     </form>
 
     <p> </p>
@@ -76,5 +95,12 @@
         <p th:text="${errorMsg}"></p>
     </div>
 </div>
+
+<script>
+    function openPopup1(url, title) {
+        window.open(url, title, "width=500,height=400,scrollbars=no,resizable=no");
+    }
+</script>
+
 </body>
 </html>

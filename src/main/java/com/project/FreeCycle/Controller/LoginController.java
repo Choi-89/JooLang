@@ -39,5 +39,15 @@ public class LoginController {
 //        return ResponseEntity.ok(response.toString());  // 200 OK와 함께 기본 메시지 반환
         return "login";
     }
+
+    @GetMapping("/findId")
+    public String findId(){
+        return "findId";
+    }
+
+    @GetMapping("/findPassword")
+    public String findPassword(){
+        return "findPassword";
+    }
 }
 

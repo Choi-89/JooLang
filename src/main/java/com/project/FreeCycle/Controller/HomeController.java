@@ -3,6 +3,7 @@ package com.project.FreeCycle.Controller;
 //import org.springframework.http.ResponseEntity;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Repository.UserRepository;
+import com.project.FreeCycle.Service.LocationService;
 import com.project.FreeCycle.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -28,10 +29,12 @@ public class HomeController {
 
 
     private final UserService userService;
+    private final LocationService locationService;
     private final UserRepository userRepository;
 
-    public HomeController(UserService userService, UserRepository userRepository) {
+    public HomeController(UserService userService, LocationService locationService, UserRepository userRepository) {
         this.userService = userService;
+        this.locationService = locationService;
         this.userRepository = userRepository;
     }
 
@@ -57,9 +60,10 @@ public class HomeController {
     public String delete(@RequestParam("password") String password, Model model, Principal principal){
         String userId = principal.getName();  // 현재 로그인 되어있는 이름 가져옴
         User user = userRepository.findByUserId(userId);
-        
+        long user_id = user.getId();
+
         if(userService.checkPassword(userId, password)){
-            if(userService.deleteUser(userId)){
+            if(locationService.deleteLocation(user_id) && userService.deleteUser(userId)){
                 return "redirect:/logout";
             } else{
                 model.addAttribute("errormsg", "계정 삭제에 실패했습니다.");
@@ -70,6 +74,5 @@ public class HomeController {
             return "redirect:/home_user";
         }
     }
-
 
 }

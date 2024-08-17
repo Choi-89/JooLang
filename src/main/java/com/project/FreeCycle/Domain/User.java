@@ -42,15 +42,6 @@ public class User {
     @Column(name = "provider_id")
     private String providerId;
 
-    // 우편번호
-    @Column(name = "postcode")
-    private String postcode;
 
-    // 주소
-    @Column(name = "address")
-    private String address;
 
-    // 상세 주소
-    @Column(name = "detail_address")
-    private String detailAddress;
 }

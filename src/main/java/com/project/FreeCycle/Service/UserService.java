@@ -1,6 +1,8 @@
 package com.project.FreeCycle.Service;
 
+import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Repository.LocationRepository;
 import com.project.FreeCycle.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,13 +15,15 @@ public class UserService{
     @Autowired
     private UserRepository userRepository;
 
+
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     // 유저 저장
-    public void save(User user){
+    public User save(User user){
         // 중복회원 검사 추가 해야 함.
         userRepository.save(user);
+        return user;
     }
 
     // 비밀번호 체크 

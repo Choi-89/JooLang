@@ -9,14 +9,46 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5;
+            background-image: url('/images/cover.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .top-right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .top-right button {
+            padding: 10px 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            color: white;
+        }
+        .btn-mypage {
+            background-color: #FF5722;
+        }
+        .btn-logout {
+            background-color: #4CAF50;
+        }
+        .btn-delete {
+            background-color: #F44336;
         }
         .container {
-            width: 50%;
-            margin: 100px auto;
+            margin: auto;
             text-align: center;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 8px;
         }
-        button {
+        .container button {
             padding: 10px 20px;
             font-size: 16px;
             border: none;
@@ -24,22 +56,23 @@
             cursor: pointer;
             margin: 10px;
         }
-        .btn-login {
-            background-color: #4CAF50;
-            color: #fff;
-        }
-        .btn-join {
+        .btn-postlist {
             background-color: #2196F3;
             color: #fff;
         }
     </style>
 </head>
 <body>
+<div class="top-right">
+    <a href="/mypage"><button class="btn-mypage">마이페이지</button></a>
+    <a href="/logout"><button class="btn-logout">로그아웃</button></a>
+    <button class="btn-delete" onclick="openPopup()">계정 삭제</button>
+</div>
+
 <div class="container">
     <h1>홈페이지</h1>
-    <a href="/logout"><button class="btn-join">로그아웃</button></a>
     <div>
-        <button onclick="openPopup()">계정 삭제</button>
+        <a href="/postlist"><button class="btn-postlist">게시물 리스트</button></a>
     </div>
 </div>
 
@@ -54,14 +87,12 @@
         <button type="button" onclick="closePopup()">취소</button>
     </form>
 
-
     <div th:if="${errorMsg != null}" class="error">
         <p th:text="${errorMsg}"></p>
     </div>
 </div>
 
 <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 999;" onclick="closePopup()"></div>
-
 
 <script>
     function openPopup() {
@@ -73,7 +104,6 @@
         document.getElementById('popup').style.display = 'none';
         document.getElementById('overlay').style.display = 'none';
     }
-
 </script>
 </body>
 </html>
