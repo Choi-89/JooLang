@@ -19,14 +19,7 @@ public class UserService{
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    // 유저 저장
-    public User save(User user){
-        // 중복회원 검사 추가 해야 함.
-        userRepository.save(user);
-        return user;
-    }
-
-    // 비밀번호 체크 
+    // 비밀번호 체크
     public boolean checkPassword(String userId,String password){
         User user = userRepository.findByUserId(userId);
 

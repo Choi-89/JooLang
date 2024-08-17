@@ -12,7 +12,7 @@ public class LocationService {
     @Autowired
     private LocationRepository locationRepository;
 
-    public void save(Location location) {
+    public void LocationSave(Location location) {
         locationRepository.save(location);
     }
 

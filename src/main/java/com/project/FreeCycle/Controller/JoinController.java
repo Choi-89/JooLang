@@ -5,6 +5,7 @@ import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Repository.UserRepository;
 //import org.springframework.http.HttpStatus;
 //import org.springframework.http.ResponseEntity;
+import com.project.FreeCycle.Service.JoinService;
 import com.project.FreeCycle.Service.LocationService;
 import com.project.FreeCycle.Service.UserService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,17 +21,31 @@ public class JoinController {
     private final LocationService locationService;
     private final UserService userService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JoinService joinService;
 
-    public JoinController(LocationService locationService, UserService userService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public JoinController(LocationService locationService, UserService userService, BCryptPasswordEncoder bCryptPasswordEncoder, JoinService joinService) {
         this.locationService = locationService;
         this.userService = userService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.joinService = joinService;
     }
 
     @GetMapping("/home/join")
     public String ShowJoin(){
         return "join";
     }
+
+//    @PostMapping("/joinProc")
+//    public String JoinProc(@ModelAttribute User user, @ModelAttribute Location location, Model model){
+//        try {
+//            joinService.UserSave(user);
+//            locationService.LocationSave(location);
+//            return "home_user";
+//        } catch (IllegalArgumentException e) {
+//            model.addAttribute("error", "Invalid username or password");
+//            return "join";
+//        }
+//    }
 
     @PostMapping("/joinProc")
     public String JoinProc(@RequestParam("userName") String name, @RequestParam("nickname") String nickname,
@@ -39,33 +54,24 @@ public class JoinController {
                                            @RequestParam("detail_address") String detailAddress, Model model
                                            ){
 
-        User user = new User();
-
-
-        user.setName(name);
-        user.setNickname(nickname);
-        user.setPassword(bCryptPasswordEncoder.encode(password));  // 비밀번호 인코딩
-        user.setUserId(userId);
-        user.setRole("ROLE_USER"); // user 역할로 저장
 
 
         try{
-            User savedUser = userService.save(user);
+            User user = new User();
+            user.setName(name);
+            user.setNickname(nickname);
+            user.setUserId(userId);
+            user.setPassword(password);
+
+            User savedUser = joinService.UserSave(user);
 
             Location location = new Location();
             location.setAddress(address);
             location.setDetailAddress(detailAddress);
             location.setPostcode(postcode);
             location.setUser(savedUser);
-            locationService.save(location);
+            locationService.LocationSave(location);
 
-            model.addAttribute("userName", name);
-            model.addAttribute("nickname", nickname);
-            model.addAttribute("password", password);
-            model.addAttribute("userId", userId);
-            model.addAttribute("postcode", postcode);
-            model.addAttribute("address", address);
-            model.addAttribute("detail_address", detailAddress);
 
 //            return ResponseEntity.ok().body("User registered successfully");
             return "redirect:/";

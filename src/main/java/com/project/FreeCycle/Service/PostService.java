@@ -41,12 +41,6 @@ public class PostService {
         //글쓴이 작성 시간 저장, 닉네임 저장, (작성 시간 FORMATTER로 형식 변환 후 다시 LocalDateTime으로 타입 변환)
         String localDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         product.setUpload_time(LocalDateTime.parse(localDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))) ;
-//
-//        product.setName(nickname);
-
-//        User user = userRepository.findByNickname(nickname);
-//        //게시물 주인 지정
-//        product.setUser(user);
 
         //게시글 저장
         Product saveProduct = productRepository.save(product);
