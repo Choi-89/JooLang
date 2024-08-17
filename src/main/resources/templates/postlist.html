@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시물 리스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+        }
+        .post-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .post-title {
+            font-size: 24px;
+            margin: 0;
+        }
+        .post-meta {
+            color: #777;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        .post-content {
+            color: #333;
+            font-size: 16px;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        .buttons a {
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            margin-right: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .buttons a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <h1>게시물 리스트</h1>
+
+    <ul class="post-list">
+        <!-- Product 리스트를 동적으로 출력 -->
+        <li th:each="product : ${products}" class="post-item">
+            <h2 class="post-title" th:text="${product.name}">게시물 제목</h2>
+            <div class="post-meta">
+                작성자: <span th:text="${product.user.nickname}">사용자</span>
+                날짜: <span th:text="${#temporals.format(product.upload_time, 'yyyy-MM-dd HH:mm:ss')}">날짜</span>
+                조회수: <span th:text="${product.view}">조회수</span>
+            </div>
+            <p class="post-content" th:text="${product.content}">이것은 게시물 내용의 일부입니다. 자세한 내용을 보려면 클릭하세요...</p>
+        </li>
+    </ul>
+</div>
+
+<div>
+    <a href="/post/write"><button>게시물 작성</button></a>
+</div>
+
+</body>
+</html>

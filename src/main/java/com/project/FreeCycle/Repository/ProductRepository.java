@@ -10,8 +10,5 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     Optional<Product> findById(Long integer);
-    Optional<Product> findByName(String name);
-    Optional<Product> findByContent(String content);
-    Optional<Product> findByUpload_time(@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime upload_time);
-    
+
 }

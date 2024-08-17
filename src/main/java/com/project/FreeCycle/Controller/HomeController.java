@@ -58,7 +58,8 @@ public class HomeController {
 
     @PostMapping("/delete")
     public String delete(@RequestParam("password") String password, Model model, Principal principal){
-        String userId = principal.getName();  // 현재 로그인 되어있는 이름 가져옴
+        String userId = principal.getName();// 현재 로그인 되어있는 이름 가져옴
+//        System.out.println("까꿍~~~~: "+userId);
         User user = userRepository.findByUserId(userId);
         long user_id = user.getId();
 

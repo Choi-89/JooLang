@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/","/home/login","/home/join",
                                 "/joinProc","/loginProc","/auth/**","/error",
-                                "/static/**","/favicon.ico"
+                                "/static/**","/favicon.ico","/post/write","/postlist"
                         ).permitAll()
                         .requestMatchers("/report").hasRole("USER")
                         .anyRequest().authenticated()

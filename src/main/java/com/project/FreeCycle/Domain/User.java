@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
-
-
+    
 @Entity
 @Table(name = "user")
 @Data
@@ -42,6 +41,8 @@ public class User {
     @Column(name = "provider_id")
     private String providerId;
 
-
+    // 유저가 가지고 있는 게시물
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Product> products;
 
 }

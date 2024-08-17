@@ -34,14 +34,11 @@ public class Product {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") //Controller에서 @RequestParam 다음 @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") 어노테이션 사용
     private LocalDateTime upload_time;
 
-    @Column(name = "views", nullable = false)
-    private int views;
-
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "Product_Display_id", nullable = false)
-    private Product_Display product_display;
+//    @ManyToOne
+//    @JoinColumn(name = "Product_Display_id", nullable = false)
+//    private Product_Display product_display;
 }
