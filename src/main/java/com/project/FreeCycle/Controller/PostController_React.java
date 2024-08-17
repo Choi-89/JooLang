@@ -44,7 +44,8 @@ public class PostController_React {
 
     //글 조회 >> 삭제버튼 db별로 다르게 출력
     @GetMapping(value = "/post_detail/{id}")
-    public String viewPost(@PathVariable Long id, Model model, Principal principal) {
+    public String viewPost(@PathVariable("id") Long id, Model model, Principal principal) {
+        //PathVariable 다음에 ("id") 안해주면 MacOs에선 Parameter 못찾음
         Product product = postService.checkViews(id);
 
         String userId = principal.getName();
