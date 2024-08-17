@@ -49,7 +49,7 @@ public class PostController_React {
 
         String userId = principal.getName();
         User user = userRepository.findByUserId(userId);
-        String nickname = user.getNickname();
+        String nickname = user.getNickname();   // 프론트에서 nickname이 같으면 수정,삭제 버튼 나오게 사용할 수 있게 model에 추가
         model.addAttribute("product", product);
         model.addAttribute("nickname", nickname);
 
@@ -70,7 +70,7 @@ public class PostController_React {
         User user = userRepository.findByUserId(userID);
         String nickname = user.getNickname();
 
-        // 게시물 주인 설정
+        // 게시물 작성자 설정
         product.setUser(user);
 
         postService.postProduct(product , nickname);
