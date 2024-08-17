@@ -59,7 +59,9 @@
     <ul class="post-list">
         <!-- Product 리스트를 동적으로 출력 -->
         <li th:each="product : ${products}" class="post-item">
-            <h2 class="post-title" th:text="${product.name}">게시물 제목</h2>
+            <a th:href="@{/post/{id}(id=${product.id})}">
+                <h2 class="post-title" th:text="${product.name}">게시물 제목</h2>
+            </a>
             <div class="post-meta">
                 작성자: <span th:text="${product.user.nickname}">사용자</span>
                 날짜: <span th:text="${#temporals.format(product.upload_time, 'yyyy-MM-dd HH:mm:ss')}">날짜</span>
@@ -69,6 +71,7 @@
         </li>
     </ul>
 </div>
+
 
 <div>
     <a href="/post/write"><button>게시물 작성</button></a>

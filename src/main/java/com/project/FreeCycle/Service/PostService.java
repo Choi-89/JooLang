@@ -94,12 +94,13 @@ public class PostService {
 //        }
 //    }
 
-//    //조회수 증가
-//    public Product checkViews(Long id){
-//        Product product = productRepository.findById(id).get();
-//        product.setView(product.getView() + 1);
-//        return product;
-//    }
+    //조회수 증가
+    public Product checkViews(Long id){
+        Product product = productRepository.findById(id).get();
+        product.setView(product.getView() + 1);
+        productRepository.save(product);
+        return product;
+    }
 
 
 //

@@ -32,6 +32,7 @@ public class PostController_React {
 
     @GetMapping(value = "/postlist")
     public String postList(Model model) {
+
         // Product 리스트를 가져오는 로직 (예: 서비스 레이어에서 가져오기)
         List<Product> products = postService.getAllProducts(); // productService는 Product를 관리하는 서비스 클래스
 
@@ -41,20 +42,20 @@ public class PostController_React {
         // postlist 템플릿으로 이동
         return "postlist";
     }
-//
-//    //글 조회 >> 삭제버튼 db별로 다르게 출력
-//    @GetMapping(value = "post/{id}")
-//    public String viewPost(@PathVariable Long id, Model model, HttpSession session) {
-//        Product product = postService.checkViews(id);
-//        model.addAttribute("product", product);
-//        String userId = session.getAttribute("userId").toString();
-//        if(userId == product.getUser().getUserId()) {
-//            return "Post/button_post"; // 게시글 수정,삭제 버튼 있는 포스트
-//        }
-//        else {
-//            return "Post/post"; //수정, 삭제, 버튼 없는 포스트
-//        }
-//    }
+
+    //글 조회 >> 삭제버튼 db별로 다르게 출력
+    @GetMapping(value = "post/{id}")
+    public String viewPost(@PathVariable("id") Long id, Model model, Principal principal) {
+        Product product = postService.checkViews(id);
+        model.addAttribute("product", product);
+        String userId = principal.getName();
+        if(userId.equals(product.getUser().getUserId())) {
+            return "button_post"; // 게시글 수정,삭제 버튼 있는 포스트
+        }
+        else {
+            return "post"; //수정, 삭제, 버튼 없는 포스트
+        }
+    }
 
     //글 작성
     @GetMapping(value = "/post/write")
