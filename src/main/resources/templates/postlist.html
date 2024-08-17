@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,71 +8,98 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
-            background-color: #f9f9f9;
+            padding: 0;
+            background-color: #f5f5f5;
         }
         h1 {
             text-align: center;
+            padding: 15px;
+            font-size: 18px;
+            color: #333;
+            background-color: white;
+            margin: 0;
+            border-bottom: 1px solid #ddd;
         }
         .post-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 10px;
+            max-width: 100%;
+        }
+        .post-item {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        .post-item:hover {
+            transform: translateY(-5px);
+        }
+        .post-item img {
+            width: 100%;
+            height: auto;
+            display: block;
         }
         .post-title {
-            font-size: 24px;
-            margin: 0;
+            font-size: 16px;
+            color: #333;
+            margin: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .post-meta {
             color: #777;
-            font-size: 14px;
-            margin: 10px 0;
+            font-size: 12px;
+            margin: 0 10px 10px 10px;
         }
         .post-content {
-            color: #333;
-            font-size: 16px;
+            font-size: 14px;
+            color: #555;
+            margin: 0 10px 10px 10px;
         }
         .buttons {
-            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
         }
         .buttons a {
             text-decoration: none;
             padding: 10px 20px;
             border-radius: 5px;
-            background-color: #007bff;
+            background-color: #ff5a5f;
             color: white;
-            margin-right: 10px;
+            font-weight: bold;
             transition: background-color 0.3s ease;
+            display: inline-block;
         }
         .buttons a:hover {
-            background-color: #0056b3;
+            background-color: #e04848;
         }
     </style>
 </head>
 <body>
-<div>
-    <h1>게시물 리스트</h1>
+<h1>게시물 리스트</h1>
 
-    <ul class="post-list">
-        <!-- Product 리스트를 동적으로 출력 -->
-        <li th:each="product : ${products}" class="post-item">
-            <h2 class="post-title" th:text="${product.name}">게시물 제목</h2>
-            <div class="post-meta">
-                작성자: <span th:text="${product.user.nickname}">사용자</span>
-                날짜: <span th:text="${#temporals.format(product.upload_time, 'yyyy-MM-dd HH:mm:ss')}">날짜</span>
-                조회수: <span th:text="${product.view}">조회수</span>
-            </div>
-            <p class="post-content" th:text="${product.content}">이것은 게시물 내용의 일부입니다. 자세한 내용을 보려면 클릭하세요...</p>
-        </li>
-    </ul>
+<div class="post-container">
+    <!-- Product 리스트를 동적으로 출력 -->
+    <a th:each="product : ${products}" th:href="@{/post_detail/{id}(id=${product.id})}" class="post-item">
+<!--        <img th:src="${product.imageUrl}" alt="Product Image">-->
+        <h2 class="post-title" th:text="${product.name}">게시물 제목</h2>
+        <div class="post-meta">
+            <span th:text="${product.user.nickname}">사용자</span>
+            &bull; <span th:text="${#temporals.format(product.upload_time, 'yyyy-MM-dd')}">날짜</span>
+            &bull; 조회수: <span th:text="${product.view}">조회수</span>
+        </div>
+    </a>
 </div>
 
-<div>
-    <a href="/post/write"><button>게시물 작성</button></a>
+<div class="buttons">
+    <a href="/post/write">게시물 작성</a>
 </div>
-
 </body>
 </html>

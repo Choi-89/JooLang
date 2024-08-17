@@ -51,15 +51,10 @@ public class PostService {
         userRepository.save(user);
     }
 
-    //게시글 목록 조회
-    public Page<Product> getPosts(Pageable pageable) {
-        return productRepository.findAll(pageable);
-    }
-
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
-    // 지선생
+
 //
 //    //글 수정
 //    public void postEdit(long id , String name , String content){
@@ -88,12 +83,12 @@ public class PostService {
 //        }
 //    }
 
-//    //조회수 증가
-//    public Product checkViews(Long id){
-//        Product product = productRepository.findById(id).get();
-//        product.setView(product.getView() + 1);
-//        return product;
-//    }
+    //조회수 증가
+    public Product checkViews(Long id){
+        Product product = productRepository.findById(id).get();
+        product.setView(product.getView() + 1);
+        return productRepository.save(product);
+    }
 
 
 //

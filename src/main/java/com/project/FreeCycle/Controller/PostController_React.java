@@ -41,20 +41,20 @@ public class PostController_React {
         // postlist 템플릿으로 이동
         return "postlist";
     }
-//
-//    //글 조회 >> 삭제버튼 db별로 다르게 출력
-//    @GetMapping(value = "post/{id}")
-//    public String viewPost(@PathVariable Long id, Model model, HttpSession session) {
-//        Product product = postService.checkViews(id);
-//        model.addAttribute("product", product);
-//        String userId = session.getAttribute("userId").toString();
-//        if(userId == product.getUser().getUserId()) {
-//            return "Post/button_post"; // 게시글 수정,삭제 버튼 있는 포스트
-//        }
-//        else {
-//            return "Post/post"; //수정, 삭제, 버튼 없는 포스트
-//        }
-//    }
+
+    //글 조회 >> 삭제버튼 db별로 다르게 출력
+    @GetMapping(value = "/post_detail/{id}")
+    public String viewPost(@PathVariable Long id, Model model, Principal principal) {
+        Product product = postService.checkViews(id);
+
+        String userId = principal.getName();
+        User user = userRepository.findByUserId(userId);
+        String nickname = user.getNickname();
+        model.addAttribute("product", product);
+        model.addAttribute("nickname", nickname);
+
+        return "post_detail";
+    }
 
     //글 작성
     @GetMapping(value = "/post/write")
@@ -79,14 +79,14 @@ public class PostController_React {
     }
 
 //    //글 수정
-//    @GetMapping(value = "/post/{id}/edit")
+//    @GetMapping(value = "/post_detail/edit/{id}")
 //    public String editPost(@PathVariable long id, Model model) {
 //        Product product = postService.getProduct(id).orElse(null);
 //        model.addAttribute("product", product); //product의 제목 내용 필요
 //        return "edit-post";
 //    }
 //
-//    @PostMapping(value = "/post/{id}/edit")
+//    @PostMapping(value = "/post_detail/edit/{id}")
 //    public ResponseEntity<String> editPost(@PathVariable long id, String name, String content) {
 //        postService.postEdit(id , name, content);
 //        return ResponseEntity.ok("edit complete");
@@ -94,7 +94,7 @@ public class PostController_React {
 //    }
 //
 //    //글 삭제
-//    @PostMapping(value ="/post/{id}/delete")
+//    @PostMapping(value ="/post/delete/{id}")
 //    public ResponseEntity<String> deletePost(@PathVariable long id, HttpServletRequest request) {
 ////        if(postService.postDelete(id)) {
 ////            request.setAttribute("msg", "삭제되었습니다."); //창

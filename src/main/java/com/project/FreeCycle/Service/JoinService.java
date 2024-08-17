@@ -20,7 +20,9 @@ public class JoinService {
             throw new IllegalArgumentException("이미 존재하는 회원입니다.");
         }
 
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));  // 비밀번호 인코딩
+        if (user.getPassword() != null) {
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword())); // 비밀번호 인코딩
+        }
         user.setRole("ROLE_USER");
         return userRepository.save(user);
     }
