@@ -51,9 +51,12 @@ public class PostService {
         userRepository.save(user);
     }
 
+    // 지선생
+    // 게시글 목록 조회
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
+
 
 
     //글 수정
@@ -67,24 +70,27 @@ public class PostService {
         productRepository.save(product);
     }
 
-    // 글 삭제
+
+
+    //글 삭제
     public void postDelete(long id){
-    //        String redirectUrl = "/게시글목록";
-    //        if(productRepository.findById(id).isPresent()){
-        productRepository.delete(productRepository.findById(id).get());
-    //        }
-    //        else{
-    //            return new ResponseEntity<>("<script>alert('이미 삭제된 게시글.');"
-    //                    + "window.location.href='" + redirectUrl + "';"
-    //                    + "</script>", HttpStatus.NOT_FOUND);
-    //        }
+//        String redirectUrl = "/게시글목록";
+//        if(productRepository.findById(id).isPresent()){
+            productRepository.delete(productRepository.findById(id).get());
+//        }
+//        else{
+//            return new ResponseEntity<>("<script>alert('이미 삭제된 게시글.');"
+//                    + "window.location.href='" + redirectUrl + "';"
+//                    + "</script>", HttpStatus.NOT_FOUND);
+//        }
     }
 
     //조회수 증가
     public Product checkViews(Long id){
         Product product = productRepository.findById(id).get();
         product.setView(product.getView() + 1);
-        return productRepository.save(product);
+        productRepository.save(product);
+        return product;
     }
 
 
@@ -94,6 +100,7 @@ public class PostService {
         return productRepository.findById(id);
     }
 
+//
 //
 //    public User findUserId(String userid){
 //        return userRepository.findByUserId(userid);
