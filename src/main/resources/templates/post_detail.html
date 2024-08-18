@@ -95,14 +95,12 @@
         <p th:text="${product.content}"></p>
     </div><br>
 
-
     <div class="post-actions" th:if="${nickname == product.user.nickname}">
         <a th:href="@{/post/{id}/edit(id=${product.id})}"><button type="button">수정</button></a>
-        <form th:action="@{/post/{id}/delete(id=${product.id})}" method="post" style="display:inline;">
-            <button type="submit">삭제</button>
+        <form th:action="@{/post/{id}/delete(id=${product.id})}" method="post" style="display:inline;" id="delete-form">
+            <button type="button" onclick="confirmDelete()">삭제</button>
         </form>
     </div>
-
 
     <div>
         <a href="/home_user"><button>메인 홈</button></a><br>
@@ -111,9 +109,16 @@
     <div>
         <a href="/postlist"><button type="button"> 게시물 리스트</button> </a>
     </div>
-
-
 </div>
 
+<script>
+    function confirmDelete() {
+        if (confirm("정말 삭제하시겠습니까?")) {
+            document.getElementById("delete-form").submit();
+        } else {
+            window.location.href = "/post_detail/"+id;
+        }
+    }
+</script>
 </body>
 </html>
