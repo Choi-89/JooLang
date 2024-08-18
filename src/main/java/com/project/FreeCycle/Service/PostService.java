@@ -55,33 +55,30 @@ public class PostService {
         return productRepository.findAll();
     }
 
-//
-//    //글 수정
-//    public void postEdit(long id , String name , String content){
-//        Product product = productRepository.findById(id).get();
-//        if(!name.isEmpty()){
-//            product.setName(name);
-//        }
-//        product.setContent(content);
-//
-//        productRepository.save(product);
-//    }
-//
-//    //글 삭제
-//    public ResponseEntity<String> postDelete(long id){
-//        String redirectUrl = "/게시글목록";
-//        if(productRepository.findById(id).isPresent()){
-//            productRepository.delete(productRepository.findById(id).get());
-//            return ResponseEntity.ok("<script>alert('삭제되었습니다.');"
-//                    + "window.location.href='" + redirectUrl + "';"
-//                    + "</script>");
-//        }
-//        else{
-//            return new ResponseEntity<>("<script>alert('이미 삭제된 게시글.');"
-//                    + "window.location.href='" + redirectUrl + "';"
-//                    + "</script>", HttpStatus.NOT_FOUND);
-//        }
-//    }
+
+    //글 수정
+    public void postEdit(long id , String name , String content){
+        Product product = productRepository.findById(id).get();
+        if(!name.isEmpty()){
+            product.setName(name);
+        }
+        product.setContent(content);
+
+        productRepository.save(product);
+    }
+
+    // 글 삭제
+    public void postDelete(long id){
+    //        String redirectUrl = "/게시글목록";
+    //        if(productRepository.findById(id).isPresent()){
+        productRepository.delete(productRepository.findById(id).get());
+    //        }
+    //        else{
+    //            return new ResponseEntity<>("<script>alert('이미 삭제된 게시글.');"
+    //                    + "window.location.href='" + redirectUrl + "';"
+    //                    + "</script>", HttpStatus.NOT_FOUND);
+    //        }
+    }
 
     //조회수 증가
     public Product checkViews(Long id){
@@ -91,12 +88,12 @@ public class PostService {
     }
 
 
-//
-////    //
-//    public Optional<Product> getProduct(long id){
-//        return productRepository.findById(id);
-//    }
-//
+
+    //
+    public Optional<Product> getProduct(long id){
+        return productRepository.findById(id);
+    }
+
 //
 //    public User findUserId(String userid){
 //        return userRepository.findByUserId(userid);

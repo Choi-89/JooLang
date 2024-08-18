@@ -97,8 +97,8 @@
 
 
     <div class="post-actions" th:if="${nickname == product.user.nickname}">
-        <a th:href="@{/post_detail/edit/{id}(id=${product.id})}"><button type="button">수정</button></a>
-        <form th:action="@{/post/delete/{id}(id=${product.id})}" method="post" style="display:inline;">
+        <a th:href="@{/post/{id}/edit(id=${product.id})}"><button type="button">수정</button></a>
+        <form th:action="@{/post/{id}/delete(id=${product.id})}" method="post" style="display:inline;">
             <button type="submit">삭제</button>
         </form>
     </div>
@@ -112,20 +112,6 @@
         <a href="/postlist"><button type="button"> 게시물 리스트</button> </a>
     </div>
 
-
-    <div class="comments-section">
-        <h2>댓글</h2>
-        <div class="comment">
-            <div class="author">댓글 작성자 1</div>
-            <div class="date">2024-07-27 14:23</div>
-            <div class="content">첫 번째 댓글 내용입니다. 게시물에 대한 의견이나 질문을 작성할 수 있습니다.</div>
-        </div>
-        <div class="comment">
-            <div class="author">댓글 작성자 2</div>
-            <div class="date">2024-07-27 15:45</div>
-            <div class="content">두 번째 댓글 내용입니다. 추가적인 정보나 생각을 공유할 수 있습니다.</div>
-        </div>
-    </div>
 
 </div>
 
