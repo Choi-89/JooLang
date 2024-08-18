@@ -1,51 +1,133 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>게시물 상세</title>
+    <title>게시물 상세페이지</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f9f9f9;
+        .post-actions {
+            display: flex;
+            justify-content: flex-end; /* 오른쪽으로 정렬 */
+            margin-top: 20px; /* 상단과의 간격 조정 */
         }
-        .post-container {
-            max-width: 800px;
-            margin: 0 auto;
+
+        .post-actions button {
+            margin-left: 10px; /* 버튼 간격 조정 */
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .post-actions button:hover {
+            background-color: #0056b3;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
             background-color: #fff;
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
         }
-        .post-title {
-            font-size: 24px;
-            margin: 0;
+
+        .post-header {
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
         }
-        .post-meta {
-            color: #777;
-            font-size: 14px;
-            margin: 10px 0;
-        }
+
         .post-content {
-            color: #333;
+            margin-bottom: 30px;
             font-size: 16px;
-            margin-top: 20px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .comments-section {
+            margin-top: 50px;
+        }
+
+        .comments-section h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+
+        .comment {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+
+        .comment .author {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .comment .date {
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .comment .content {
+            margin-top: 5px;
+            font-size: 14px;
+            color: #555;
         }
     </style>
 </head>
+
 <body>
-<div class="post-container">
-    <h2 class="post-title" th:text="${product.name}">게시물 제목</h2>
-    <div class="post-meta">
-        작성자: <span th:text="${product.user.nickname}">작성자 이름</span> |
-        날짜: <span th:text="${#temporals.format(product.upload_time, 'yyyy-MM-dd HH:mm:ss')}">2023-01-01 12:00:00</span> |
-        조회수: <span th:text="${product.view}">100</span>
+<div class="container">
+    <div class="post-header">
+        <h1 th:text ="${product.name}"></h1>
+        <p th:text ="${product.user.nickname}"> 작성자 </p>
+        <div class="meta"> <p th:text ="${#temporals.format(product.upload_time, 'yyyy-MM-dd HH:mm:ss')}">수정일</p></div>
     </div>
-    <div class="post-content" th:text="${product.content}">
-        <!-- 게시물 내용 -->
+    <div class="post-content">
+        <p th:text="${product.content}"></p>
+    </div><br>
+
+
+    <div class="post-actions" th:if="${nickname.equals(product.user.nickname)}">
+        <a th:href="@{/post_detail/edit/{id}(id=${product.id})}"><button type="button">수정</button></a>
+        <form th:action="@{/post/delete/{id}(id=${product.id})}" method="post" style="display:inline;">
+            <button type="submit">삭제</button>
+        </form>
     </div>
+
+
+    <div>
+        <a href="/home_user"><button>메인 홈</button></a><br>
+    </div>
+
+    <div>
+        <a href="/postlist"><button type="button"> 게시물 리스트</button> </a>
+    </div>
+
+
+    <div class="comments-section">
+        <h2>댓글</h2>
+        <div class="comment">
+            <div class="author">댓글 작성자 1</div>
+            <div class="date">2024-07-27 14:23</div>
+            <div class="content">첫 번째 댓글 내용입니다. 게시물에 대한 의견이나 질문을 작성할 수 있습니다.</div>
+        </div>
+        <div class="comment">
+            <div class="author">댓글 작성자 2</div>
+            <div class="date">2024-07-27 15:45</div>
+            <div class="content">두 번째 댓글 내용입니다. 추가적인 정보나 생각을 공유할 수 있습니다.</div>
+        </div>
+    </div>
+
 </div>
+
 </body>
 </html>
