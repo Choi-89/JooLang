@@ -115,6 +115,17 @@ public class PostController_React {
         return "redirect:/postlist";
     }
 
+    //글 찜버튼
+    @PostMapping(value = "/post/{id}/dibs")
+    public String dibs(@PathVariable("id") long id, Principal principal) {
+        String userId = principal.getName();
+
+        postService.saveDibs(userId, id);
+
+        return "redirect:/post/" + id;
+
+    }
+
 
 
 }

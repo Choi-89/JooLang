@@ -1,6 +1,7 @@
 package com.project.FreeCycle.Service;
 
 import com.project.FreeCycle.Domain.Location;
+import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Repository.LocationRepository;
 import com.project.FreeCycle.Repository.UserRepository;
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class UserService{
@@ -51,4 +54,11 @@ public class UserService{
         return userRepository.findByName(username);
     }
 
+    public List<Product> getUserPosts(String userId){
+        return userRepository.findByUserId(userId).getProducts();
+    }
+
+    public List<Product> getDibsPosts(String userId){
+        return userRepository.findByUserId(userId).getDibs();
+    }
 }

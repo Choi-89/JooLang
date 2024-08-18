@@ -38,6 +38,8 @@ public class Product {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+
+
 //    @ManyToOne
 //    @JoinColumn(name = "Product_Display_id", nullable = false)
 //    private Product_Display product_display;

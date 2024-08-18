@@ -99,8 +99,6 @@ public class PostService {
         return product;
     }
 
-
-
 //    //
     public Optional<Product> getProduct(long id){
         return productRepository.findById(id);
@@ -115,5 +113,11 @@ public class PostService {
 //        return userRepository.findByNickname(nickname);
 //    }
 
+    public void saveDibs(String userId , long postId){
+        List<Product> userDibs = userRepository.findByUserId(userId).getDibs();
+        Product product = productRepository.findById(postId).orElse(null);
+        if(userDibs.contains(product)) userDibs.remove(product);
+        else userDibs.add(product);
+    }
 
 }

@@ -36,17 +36,35 @@
         .buttons {
             margin-top: 20px;
         }
-        .buttons a {
+        .buttons a, .buttons button {
             text-decoration: none;
             padding: 10px 20px;
             border-radius: 5px;
-            background-color: #007bff;
-            color: white;
             margin-right: 10px;
+            border: none;
+            cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        .buttons a:hover {
+        .edit-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .edit-button:hover {
             background-color: #0056b3;
+        }
+        .delete-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .delete-button:hover {
+            background-color: #0056b3;
+        }
+        .dib-button {
+            background-color: /*[[${product.isDibbed}]]*/ 'true' ? '#ff0000' : '#808080'; /* 찜했을 때 빨간색, 찜하지 않았을 때 회색 */
+            color: white;
+        }
+        .dib-button:hover {
+            background-color: /*[[${product.isDibbed}]]*/ 'true' ? '#cc0000' : '#606060'; /* 찜했을 때 더 진한 빨간색, 찜하지 않았을 때 더 진한 회색 */
         }
     </style>
 </head>
@@ -63,14 +81,11 @@
     </div>
 
     <div class="buttons">
-        <a th:href="@{/post/{id}/edit(id=${product.id})}">수정</a>
-<!--        <a th:href="@{/post/{id}/delete(id=${product.id})}">삭제</a>-->
-        <form th:action="@{/post/{id}/delete(id=${product.id})}" method="post" style="display: inline;">
-            <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer;">
-                삭제
-            </button>
-        </form>
+        <a th:href="@{/post/{id}/edit(id=${product.id})}" class="edit-button">수정</a>
 
+        <form th:action="@{/post/{id}/delete(id=${product.id})}" method="post" style="display: inline;">
+            <button type="submit" class="delete-button">삭제</button>
+        </form>
     </div>
 </div>
 </body>
