@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -32,8 +33,10 @@ public class PostController_React {
 
     @GetMapping(value = "/postlist")
     public String postList(Model model) {
+
         // Product 리스트를 가져오는 로직 (예: 서비스 레이어에서 가져오기)
         List<Product> products = postService.getAllProducts(); // productService는 Product를 관리하는 서비스 클래스
+        Collections.reverse(products); //글 최신순으로 정렬
 
         // 모델에 products 리스트를 추가
         model.addAttribute("products", products);
@@ -43,18 +46,17 @@ public class PostController_React {
     }
 
     //글 조회 >> 삭제버튼 db별로 다르게 출력
-    @GetMapping(value = "/post_detail/{id}")
+    @GetMapping(value = "post/{id}")
     public String viewPost(@PathVariable("id") Long id, Model model, Principal principal) {
-        //PathVariable 다음에 ("id") 안해주면 MacOs에선 Parameter 못찾음
         Product product = postService.checkViews(id);
-
-        String userId = principal.getName();
-        User user = userRepository.findByUserId(userId);
-        String nickname = user.getNickname();   // 프론트에서 nickname이 같으면 수정,삭제 버튼 나오게 사용할 수 있게 model에 추가
         model.addAttribute("product", product);
-        model.addAttribute("nickname", nickname);
-
-        return "post_detail";
+        String userId = principal.getName();
+        if(userId.equals(product.getUser().getUserId())) {
+            return "button_post"; // 게시글 수정,삭제 버튼 있는 포스트
+        }
+        else {
+            return "post"; //수정, 삭제, 버튼 없는 포스트
+        }
     }
 
     //글 작성
@@ -71,7 +73,7 @@ public class PostController_React {
         User user = userRepository.findByUserId(userID);
         String nickname = user.getNickname();
 
-        // 게시물 작성자 설정
+        // 게시물 주인 설정
         product.setUser(user);
 
         postService.postProduct(product , nickname);
@@ -79,36 +81,39 @@ public class PostController_React {
         return "redirect:/postlist";
     }
 
-//    //글 수정
-//    @GetMapping(value = "/post_detail/edit/{id}")
-//    public String editPost(@PathVariable long id, Model model) {
-//        Product product = postService.getProduct(id).orElse(null);
-//        model.addAttribute("product", product); //product의 제목 내용 필요
-//        return "edit-post";
-//    }
-//
-//    @PostMapping(value = "/post_detail/edit/{id}")
-//    public ResponseEntity<String> editPost(@PathVariable long id, String name, String content) {
-//        postService.postEdit(id , name, content);
+    //글 수정
+    @GetMapping(value = "/post/{id}/edit")
+    public String editPost(@PathVariable("id") long id, Model model) {
+        Product product = postService.getProduct(id).orElse(null);
+        model.addAttribute("product", product); //product의 제목 내용 필요
+        return "edit-post";
+    }
+
+    @PostMapping(value = "/post/{id}/edit")
+    public String editPost(@PathVariable("id") long id,
+                           @RequestParam("name") String name,
+                           @RequestParam("content") String content) {
+        postService.postEdit(id , name, content);
 //        return ResponseEntity.ok("edit complete");
-//        //return "redirect:/post/"+id;
-//    }
-//
-//    //글 삭제
-//    @PostMapping(value ="/post/delete/{id}")
-//    public ResponseEntity<String> deletePost(@PathVariable long id, HttpServletRequest request) {
-////        if(postService.postDelete(id)) {
-////            request.setAttribute("msg", "삭제되었습니다."); //창
-////            request.setAttribute("url", "/post/write");
-////            return ResponseEntity.ok().body("Post/alert"); // 삭제 완!
-////        }
-////        else{
-////            request.setAttribute("msg", "존재하지 않습니다."); //창
-////            request.setAttribute("url", "/post/list");
-////            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post/alert"); // 이미 삭제된 게시글!
-////        }
-//        return postService.postDelete(id);
-//    }
+        return "redirect:/post/"+id;
+    }
+
+    //글 삭제
+    @PostMapping(value ="/post/{id}/delete")
+    public String deletePost(@PathVariable("id") long id ) {
+//        if(postService.postDelete(id)) {
+//            request.setAttribute("msg", "삭제되었습니다."); //창
+//            request.setAttribute("url", "/post/write");
+//            return ResponseEntity.ok().body("Post/alert"); // 삭제 완!
+//        }
+//        else{
+//            request.setAttribute("msg", "존재하지 않습니다."); //창
+//            request.setAttribute("url", "/post/list");
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post/alert"); // 이미 삭제된 게시글!
+//        }
+        postService.postDelete(id);
+        return "redirect:/postlist";
+    }
 
 
 

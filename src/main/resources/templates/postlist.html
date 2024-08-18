@@ -87,7 +87,7 @@
 
 <div class="post-container">
     <!-- Product 리스트를 동적으로 출력 -->
-    <a th:each="product : ${products}" th:href="@{/post_detail/{id}(id=${product.id})}" class="post-item">
+    <a th:each="product : ${products}" th:href="@{/post/{id}(id=${product.id})}" class="post-item">
 <!--        <img th:src="${product.imageUrl}" alt="Product Image">-->
         <h2 class="post-title" th:text="${product.name}">게시물 제목</h2>
         <div class="post-meta">
