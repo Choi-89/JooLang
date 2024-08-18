@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -35,6 +36,7 @@ public class PostController_React {
 
         // Product 리스트를 가져오는 로직 (예: 서비스 레이어에서 가져오기)
         List<Product> products = postService.getAllProducts(); // productService는 Product를 관리하는 서비스 클래스
+        Collections.reverse(products); //글 최신순으로 정렬
 
         // 모델에 products 리스트를 추가
         model.addAttribute("products", products);
@@ -79,36 +81,39 @@ public class PostController_React {
         return "redirect:/postlist";
     }
 
-//    //글 수정
-//    @GetMapping(value = "/post/{id}/edit")
-//    public String editPost(@PathVariable long id, Model model) {
-//        Product product = postService.getProduct(id).orElse(null);
-//        model.addAttribute("product", product); //product의 제목 내용 필요
-//        return "edit-post";
-//    }
-//
-//    @PostMapping(value = "/post/{id}/edit")
-//    public ResponseEntity<String> editPost(@PathVariable long id, String name, String content) {
-//        postService.postEdit(id , name, content);
+    //글 수정
+    @GetMapping(value = "/post/{id}/edit")
+    public String editPost(@PathVariable("id") long id, Model model) {
+        Product product = postService.getProduct(id).orElse(null);
+        model.addAttribute("product", product); //product의 제목 내용 필요
+        return "edit-post";
+    }
+
+    @PostMapping(value = "/post/{id}/edit")
+    public String editPost(@PathVariable("id") long id,
+                           @RequestParam("name") String name,
+                           @RequestParam("content") String content) {
+        postService.postEdit(id , name, content);
 //        return ResponseEntity.ok("edit complete");
-//        //return "redirect:/post/"+id;
-//    }
-//
-//    //글 삭제
-//    @PostMapping(value ="/post/{id}/delete")
-//    public ResponseEntity<String> deletePost(@PathVariable long id, HttpServletRequest request) {
-////        if(postService.postDelete(id)) {
-////            request.setAttribute("msg", "삭제되었습니다."); //창
-////            request.setAttribute("url", "/post/write");
-////            return ResponseEntity.ok().body("Post/alert"); // 삭제 완!
-////        }
-////        else{
-////            request.setAttribute("msg", "존재하지 않습니다."); //창
-////            request.setAttribute("url", "/post/list");
-////            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post/alert"); // 이미 삭제된 게시글!
-////        }
-//        return postService.postDelete(id);
-//    }
+        return "redirect:/post/"+id;
+    }
+
+    //글 삭제
+    @PostMapping(value ="/post/{id}/delete")
+    public String deletePost(@PathVariable("id") long id ) {
+//        if(postService.postDelete(id)) {
+//            request.setAttribute("msg", "삭제되었습니다."); //창
+//            request.setAttribute("url", "/post/write");
+//            return ResponseEntity.ok().body("Post/alert"); // 삭제 완!
+//        }
+//        else{
+//            request.setAttribute("msg", "존재하지 않습니다."); //창
+//            request.setAttribute("url", "/post/list");
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post/alert"); // 이미 삭제된 게시글!
+//        }
+        postService.postDelete(id);
+        return "redirect:/postlist";
+    }
 
 
 
