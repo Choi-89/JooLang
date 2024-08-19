@@ -1,5 +1,6 @@
 package com.project.FreeCycle.Service;
 
+import com.project.FreeCycle.Domain.Dibs;
 import com.project.FreeCycle.Domain.Product;
 
 import com.project.FreeCycle.Domain.Product;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.http.ResponseEntity.ok;
+
 @Service
 public class PostService {
 
@@ -114,10 +117,24 @@ public class PostService {
 //    }
 
     public void saveDibs(String userId , long postId){
-        List<Product> userDibs = userRepository.findByUserId(userId).getDibs();
+        //유저의 찜 목록 불러오기
+        User user = userRepository.findByUserId(userId);
+        List<Product> userDibs = user.getDibs(); //도메인 dibs 추가 전
+
+//        Dibs dibs = user.getMyDibs(); //도메인 dibs 추가 후
+//        List<Product> userDibs = dibs.getDibs();
+        //해당 글
         Product product = productRepository.findById(postId).orElse(null);
-        if(userDibs.contains(product)) userDibs.remove(product);
-        else userDibs.add(product);
+        if(userDibs.contains(product)){
+            userDibs.remove(product);
+        }
+        else {
+            userDibs.add(product);
+        }
+
+        user.setDibs(userDibs); //도메인 dibs 추가 전
+//        user.setMyDibs(dibs);//도메인 dibs 추가 후
+        userRepository.save(user);
     }
 
 }

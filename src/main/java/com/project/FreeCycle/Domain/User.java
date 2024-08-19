@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
-    
+import java.util.Optional;
+
 @Entity
 @Table(name = "user")
 @Data
@@ -48,5 +49,11 @@ public class User {
     //찜목록
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private List<Product> dibs; //dibs == 찜
+
+//    @OneToOne(fetch = FetchType.LAZY)
+//    private Dibs myDibs;
+
+
+
 
 }

@@ -46,12 +46,14 @@ public class MyPageController {
     }
 
     //내 찜목록
-    @GetMapping("/{id}/dibs")
+    @GetMapping("/{id}/mydibs")
     public String mydibs(Principal principal, Model model){
 
         List<Product> products = userService.getDibsPosts(principal.getName());
-        Collections.reverse(products);
+//        List<Product> products = userService.getDibs(principal.getName()).get().getDibs();
+        Collections.reverse(products); //최신순으로 정렬
 
+        // 모델에 dibs 리스트 삽입
         model.addAttribute("products", products);
         return "postlist";
     }

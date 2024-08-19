@@ -46,17 +46,17 @@ public class PostController_React {
     }
 
     //글 조회 >> 삭제버튼 db별로 다르게 출력
-    @GetMapping(value = "post/{id}")
+    @GetMapping(value = "/post_detail/{id}")
     public String viewPost(@PathVariable("id") Long id, Model model, Principal principal) {
         Product product = postService.checkViews(id);
-        model.addAttribute("product", product);
+
         String userId = principal.getName();
-        if(userId.equals(product.getUser().getUserId())) {
-            return "button_post"; // 게시글 수정,삭제 버튼 있는 포스트
-        }
-        else {
-            return "post"; //수정, 삭제, 버튼 없는 포스트
-        }
+        User user = userRepository.findByUserId(userId);
+        String nickname = user.getNickname();   // 프론트에서 nickname이 같으면 수정,삭제 버튼 나오게 사용할 수 있게 model에 추가
+        model.addAttribute("product", product);
+        model.addAttribute("nickname", nickname);
+
+        return "post_detail";
     }
 
     //글 작성
@@ -122,7 +122,7 @@ public class PostController_React {
 
         postService.saveDibs(userId, id);
 
-        return "redirect:/post/" + id;
+        return "redirect:/post_detail/" + id;
 
     }
 

@@ -59,7 +59,7 @@
     <ul class="post-list">
         <!-- Product 리스트를 동적으로 출력 -->
         <li th:each="product : ${products}" class="post-item">
-            <a th:href="@{/post/{id}(id=${product.id})}">
+            <a th:href="@{/post_detail/{id}(id=${product.id})}">
                 <h2 class="post-title" th:text="${product.name}">게시물 제목</h2>
             </a>
             <div class="post-meta">
