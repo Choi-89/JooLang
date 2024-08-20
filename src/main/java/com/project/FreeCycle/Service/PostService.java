@@ -131,6 +131,7 @@ public class PostService {
         else {
             userDibs.add(product);
         }
+        product.setView(product.getView() - 1);
 
         user.setDibs(userDibs); //도메인 dibs 추가 전
 //        user.setMyDibs(dibs);//도메인 dibs 추가 후

@@ -19,6 +19,7 @@ public class UserService{
 
     @Autowired
     private UserRepository userRepository;
+    private LocationRepository locationRepository;
 
 
     @Autowired
@@ -52,9 +53,28 @@ public class UserService{
         return false;
     }
 
+    // 유저 정보 수정
+    public void userEdit(String userId, String nickname, Location location){
+        User user = userRepository.findByUserId(userId);
+        if(!nickname.isEmpty()){
+            user.setNickname(nickname);
+        }
+        if(!(location.getAddress().isEmpty()
+                || location.getDetailAddress().isEmpty()
+                ||location.getPostcode().isEmpty()) )
+        {
+            location.setUser(user);
+            locationRepository.save(location);
+        }
+
+
+    }
+
+
     public User getUser(String username){
         return userRepository.findByName(username);
     }
+
 
     public List<Product> getUserPosts(String userId){
         return userRepository.findByUserId(userId).getProducts();

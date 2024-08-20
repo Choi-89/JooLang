@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>개인정보 수정</title>
+    <style>
+        /* 기본적인 스타일 설정 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 50%;
+            margin: auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .btn-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #4cae4c;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>개인정보 수정</h2>
+    <form action="/{id}/myinformodify" method="POST">
+        <div class="form-group">
+            <label for="nickname">닉네임</label>
+            <input type="text" id="nickname" name="nickname" value="${user.nickname}" required>
+        </div>
+        <div class="form-group">
+            <label for="postcode">우편번호</label>
+            <input type="text" id="postcode" name="postcode" value="${user.location.postcode}" required readonly>
+            <button type="button" onclick="sample6_execDaumPostcode()">주소 검색</button>
+        </div>
+        <div class="form-group">
+            <label for="address">주소</label>
+            <input type="text" id="address" name="address" value="${user.location.address}" required readonly>
+        </div>
+        <div class="form-group">
+            <label for="detail_address">상세 주소</label>
+            <input type="text" id="detail_address" name="detail_address" value="${user.location.detailAddress}" required>
+        </div>
+        <div class="form-group">
+            <label for="extraAddress">참고항목</label>
+            <input type="text" id="extraAddress" name="extraAddress" readonly>
+        </div>
+        <div class="btn-group">
+            <button type="submit">수정 완료</button>
+        </div>
+    </form>
+</div>
+
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script>
+    function sample6_execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                var addr = '';
+                var extraAddr = '';
+
+                if (data.userSelectedType === 'R') {
+                    addr = data.roadAddress;
+                } else {
+                    addr = data.jibunAddress;
+                }
+
+                if(data.userSelectedType === 'R'){
+                    if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+                        extraAddr += data.bname;
+                    }
+                    if(data.buildingName !== '' && data.apartment === 'Y'){
+                        extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                    }
+                    if(extraAddr !== ''){
+                        extraAddr = ' (' + extraAddr + ')';
+                    }
+                    document.getElementById("extraAddress").value = extraAddr;
+                } else {
+                    document.getElementById("extraAddress").value = '';
+                }
+
+                document.getElementById('postcode').value = data.zonecode;
+                document.getElementById("address").value = addr;
+                document.getElementById("detail_address").focus();
+            }
+        }).open();
+    }
+</script>
+</body>
+</html>

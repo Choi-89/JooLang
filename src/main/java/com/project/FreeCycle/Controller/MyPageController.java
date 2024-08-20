@@ -1,7 +1,9 @@
 package com.project.FreeCycle.Controller;
 
+import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Repository.LocationRepository;
 import com.project.FreeCycle.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
 import java.util.Collections;
@@ -58,6 +61,32 @@ public class MyPageController {
         return "postlist";
     }
 
+    //개인정보 수정
+    @GetMapping("/{id}/modify")
+    public String modify(Principal principal, Model model){
+        User user = userService.getUser(principal.getName());
+        model.addAttribute("user" , user);
+        return "modify";
+    }
+
+
+    @PostMapping("/{id}/myinformodify")
+    public String moodify(Principal principal,
+                          @RequestParam("nickname") String nickname,
+                          @RequestParam("postcode") String postcode,
+                          @RequestParam("address") String address,
+                          @RequestParam("deatail_address") String detailAddress)
+    {
+        String userId = principal.getName();
+        Location location = new Location();
+        location.setPostcode(postcode);
+        location.setAddress(address);
+        location.setDetailAddress(detailAddress);
+
+        userService.userEdit(userId, nickname, location);
+
+        return "redirect:/{id}/mypage";
+    }
 
 
 }
