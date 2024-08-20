@@ -79,9 +79,14 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             user.setEmail(email);
 
             userRepository.save(user);
-
+            
+            // Location 객체를 생성하여 null 값으로 저장
             Location location = new Location();
             location.setUser(user);
+            location.setPostcode(null);
+            location.setAddress(null);
+            location.setDetailAddress(null);
+            
             locationService.LocationSave(location);
 
             log.info("새로운 사용자 저장: {}", userId);

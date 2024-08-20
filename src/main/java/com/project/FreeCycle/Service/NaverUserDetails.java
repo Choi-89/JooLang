@@ -50,4 +50,5 @@ public class NaverUserDetails implements OAuth2UserInfo {
     public String getNickname() {
         return (String) response.get("nickname");
     }
+
 }

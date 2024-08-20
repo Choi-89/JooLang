@@ -3,6 +3,7 @@ package com.project.FreeCycle.Domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
     
 @Entity
@@ -14,7 +15,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column(name = "userId", nullable = false,unique = true)
+    @Column(name = "userId",unique = true)
     private String userId;
 
     @Column(name = "userName")
@@ -42,7 +43,7 @@ public class User {
     private String providerId;
 
     // 유저가 가지고 있는 게시물
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<Product> products;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Product> products = new ArrayList<>();
 
 }
