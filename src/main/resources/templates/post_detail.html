@@ -36,9 +36,6 @@
         }
 
         .post-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             border-bottom: 1px solid #ddd;
             margin-bottom: 20px;
             padding-bottom: 10px;
@@ -84,65 +81,24 @@
             font-size: 14px;
             color: #555;
         }
-
-        .view-count {
-            font-size: 16px;
-            color: #555;
-            background-color: #f1f1f1;
-            padding: 5px 10px;
-            border-radius: 5px;
-            margin-right: 20px;
-        }
-
-        .dib-button {
-            background-color: #ff4d4d;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .dib-button:hover {
-            background-color: #e60000;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-        }
     </style>
 </head>
 
 <body>
 <div class="container">
     <div class="post-header">
-        <div>
-            <h1 th:text ="${product.name}"></h1>
-            <p th:text ="${product.user.nickname}"> 작성자 </p>
-            <div class="meta">
-                <p th:text ="${#temporals.format(product.upload_time, 'yyyy-MM-dd HH:mm:ss')}">수정일</p>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="view-count">
-                조회수: <span th:text="${product.view}">0</span>
-            </div>
-            <form th:action="@{/post/{id}/dibs(id=${product.id})}" method="post">
-                <button type="submit" class="dib-button">찜하기</button>
-            </form>
-        </div>
+        <h1 th:text ="${product.name}"></h1>
+        <p th:text ="${product.user.nickname}"> 작성자 </p>
+        <div class="meta"> <p th:text ="${#temporals.format(product.upload_time, 'yyyy-MM-dd HH:mm:ss')}">수정일</p></div>
     </div>
-
     <div class="post-content">
         <p th:text="${product.content}"></p>
     </div><br>
 
-    <div class="post-actions" th:if="${nickname.equals(product.user.nickname)}">
-        <a th:href="@{/post_detail/edit/{id}(id=${product.id})}"><button type="button">수정</button></a>
-        <form th:action="@{/post/{id}/delete(id=${product.id})}" method="post" style="display:inline;">
-            <button type="submit">삭제</button>
+    <div class="post-actions" th:if="${nickname == product.user.nickname}">
+        <a th:href="@{/post/{id}/edit(id=${product.id})}"><button type="button">수정</button></a>
+        <form th:action="@{/post/{id}/delete(id=${product.id})}" method="post" style="display:inline;" id="delete-form">
+            <button type="button" onclick="confirmDelete()">삭제</button>
         </form>
     </div>
 
@@ -153,20 +109,16 @@
     <div>
         <a href="/postlist"><button type="button"> 게시물 리스트</button> </a>
     </div>
-
-    <div class="comments-section">
-        <h2>댓글</h2>
-        <div class="comment">
-            <div class="author">댓글 작성자 1</div>
-            <div class="date">2024-07-27 14:23</div>
-            <div class="content">첫 번째 댓글 내용입니다. 게시물에 대한 의견이나 질문을 작성할 수 있습니다.</div>
-        </div>
-        <div class="comment">
-            <div class="author">댓글 작성자 2</div>
-            <div class="date">2024-07-27 15:45</div>
-            <div class="content">두 번째 댓글 내용입니다. 추가적인 정보나 생각을 공유할 수 있습니다.</div>
-        </div>
-    </div>
 </div>
+
+<script>
+    function confirmDelete() {
+        if (confirm("정말 삭제하시겠습니까?")) {
+            document.getElementById("delete-form").submit();
+        } else {
+            window.location.href = "/post_detail/"+id;
+        }
+    }
+</script>
 </body>
 </html>

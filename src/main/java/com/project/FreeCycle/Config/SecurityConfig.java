@@ -45,9 +45,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/","/home/login","/home/join",
                                 "/joinProc","/loginProc","/auth/**","/error",
-                                "/static/**","/favicon.ico","/post/write","/postlist"
-                        ).permitAll()
-                        .requestMatchers("/report").hasRole("USER")
+                                "/static/**","/favicon.ico","/certifyUser","/certifyUserProc",
+                                "/verifyCode","/verifyCodeProc","/sendCodeProc",
+                                "/editPassword","/updatePasswordProc").permitAll()
+                        .requestMatchers("/postlist","/post/**","post_detail/**").hasRole("USER")
                         .anyRequest().authenticated()
                 );
 

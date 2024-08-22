@@ -14,7 +14,6 @@ public class JoinService {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-
     public User UserSave(User user){
         // 중복회원 검사 추가 해야 함.
         if (userRepository.existsByUserId(user.getUserId())) {

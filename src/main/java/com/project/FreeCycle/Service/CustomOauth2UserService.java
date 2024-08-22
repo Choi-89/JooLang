@@ -1,6 +1,7 @@
 package com.project.FreeCycle.Service;
 
 
+import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Dto.CustomUserDetail;
 import com.project.FreeCycle.Repository.OAuth2UserInfo;
@@ -25,6 +26,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
 
+    private final LocationService locationService;
 
     @PostConstruct
     public void init() {
@@ -47,14 +49,12 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
 
         String provider = userRequest.getClientRegistration().getClientName();
-
         OAuth2UserInfo oAuth2UserInfo = null;
 
         if(provider.equals("naver")){
             log.info("네이버 로그인");
             oAuth2UserInfo = new NaverUserDetails(oAuth2User.getAttributes());
         }
-
 
 
         String providerId = oAuth2UserInfo.getProviderId();
@@ -77,13 +77,23 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             user.setProvider(provider);
             user.setProviderId(providerId);
             user.setEmail(email);
+
             userRepository.save(user);
+            
+            // Location 객체를 생성하여 null 값으로 저장
+            Location location = new Location();
+            location.setUser(user);
+            location.setPostcode(null);
+            location.setAddress(null);
+            location.setDetailAddress(null);
+            
+            locationService.LocationSave(location);
+
             log.info("새로운 사용자 저장: {}", userId);
         } else {
             user = userOptional.get();
             log.info("기존 사용자 로그인: {}", userId);
         }
-
 
         return new CustomUserDetail(user, oAuth2User.getAttributes());
     }

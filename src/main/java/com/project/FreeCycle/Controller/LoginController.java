@@ -4,7 +4,6 @@ package com.project.FreeCycle.Controller;
 import com.project.FreeCycle.Api.NaverApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.stereotype.Controller;
 //import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,8 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 //import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 //@RestController
@@ -40,14 +37,6 @@ public class LoginController {
         return "login";
     }
 
-    @GetMapping("/findId")
-    public String findId(){
-        return "findId";
-    }
 
-    @GetMapping("/findPassword")
-    public String findPassword(){
-        return "findPassword";
-    }
 }
 

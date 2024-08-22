@@ -79,8 +79,7 @@
 
         <div class="button-group">
             <button type="submit">로그인</button>
-            <button type="button" class="find-button" onclick="openPopup1('/findId', '아이디 찾기')">아이디 찾기</button>
-            <button type="button" class="find-button" onclick="openPopup1('/findPassword', '비밀번호 찾기')">비밀번호 찾기</button>
+            <a href="/certifyUser"><button type="button" class="find-button">비밀번호 찾기</button></a>
         </div>
     </form>
 
@@ -96,11 +95,6 @@
     </div>
 </div>
 
-<script>
-    function openPopup1(url, title) {
-        window.open(url, title, "width=500,height=400,scrollbars=no,resizable=no");
-    }
-</script>
 
 </body>
 </html>

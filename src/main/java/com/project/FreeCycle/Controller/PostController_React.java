@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -33,10 +32,8 @@ public class PostController_React {
 
     @GetMapping(value = "/postlist")
     public String postList(Model model) {
-
         // Product 리스트를 가져오는 로직 (예: 서비스 레이어에서 가져오기)
         List<Product> products = postService.getAllProducts(); // productService는 Product를 관리하는 서비스 클래스
-        Collections.reverse(products); //글 최신순으로 정렬
 
         // 모델에 products 리스트를 추가
         model.addAttribute("products", products);
@@ -73,7 +70,7 @@ public class PostController_React {
         User user = userRepository.findByUserId(userID);
         String nickname = user.getNickname();
 
-        // 게시물 주인 설정
+        // 게시물 작성자 설정
         product.setUser(user);
 
         postService.postProduct(product , nickname);
@@ -90,17 +87,15 @@ public class PostController_React {
     }
 
     @PostMapping(value = "/post/{id}/edit")
-    public String editPost(@PathVariable("id") long id,
-                           @RequestParam("name") String name,
-                           @RequestParam("content") String content) {
+    public String editPost(@PathVariable("id") long id, String name, String content) {
         postService.postEdit(id , name, content);
 //        return ResponseEntity.ok("edit complete");
-        return "redirect:/post/"+id;
+        return "redirect:/post_detail/"+id;
     }
 
     //글 삭제
     @PostMapping(value ="/post/{id}/delete")
-    public String deletePost(@PathVariable("id") long id ) {
+    public String deletePost(@PathVariable("id") long id) {
 //        if(postService.postDelete(id)) {
 //            request.setAttribute("msg", "삭제되었습니다."); //창
 //            request.setAttribute("url", "/post/write");

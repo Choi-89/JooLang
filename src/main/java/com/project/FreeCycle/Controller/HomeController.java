@@ -59,14 +59,14 @@ public class HomeController {
     @PostMapping("/delete")
     public String delete(@RequestParam("password") String password, Model model, Principal principal){
         String userId = principal.getName();// 현재 로그인 되어있는 이름 가져옴
-//        System.out.println("까꿍~~~~: "+userId);
         User user = userRepository.findByUserId(userId);
         long user_id = user.getId();
 
         if(userService.checkPassword(userId, password)){
             if(locationService.deleteLocation(user_id) && userService.deleteUser(userId)){
-                return "redirect:/logout";
+                return "redirect:/";
             } else{
+                System.out.println("계정 삭제에 실패했습니다.");
                 model.addAttribute("errormsg", "계정 삭제에 실패했습니다.");
                 return "redirect:/home_user";
             }
