@@ -14,7 +14,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
 
     @Column(name = "userId",unique = true)
     private String userId;
@@ -42,6 +42,9 @@ public class User {
     // providerId : 네이버 로그인 한 유저의 고유 ID가 들어감
     @Column(name = "provider_id")
     private String providerId;
+
+    @OneToOne(mappedBy = "user")
+    private Location location;
 
     // 유저가 가지고 있는 게시물
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

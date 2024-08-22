@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "Location")
+@Table
 @Data
 public class Location {
 
@@ -24,7 +24,7 @@ public class Location {
     @Column(name = "detail_address")
     private String detailAddress;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 

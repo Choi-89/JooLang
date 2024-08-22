@@ -39,6 +39,7 @@
             border-bottom: 1px solid #ddd;
             margin-bottom: 20px;
             padding-bottom: 10px;
+            position: relative; /* 자식 요소의 절대 위치 설정을 위해 필요 */
         }
 
         .post-content {
@@ -81,16 +82,50 @@
             font-size: 14px;
             color: #555;
         }
+        .dib-button {
+            background-color: #ff4d4d;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .dib-button:hover {
+            background-color: #e60000;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
     </style>
 </head>
 
 <body>
+
 <div class="container">
     <div class="post-header">
         <h1 th:text ="${product.name}"></h1>
         <p th:text ="${product.user.nickname}"> 작성자 </p>
-        <div class="meta"> <p th:text ="${#temporals.format(product.upload_time, 'yyyy-MM-dd HH:mm:ss')}">수정일</p></div>
+        <div class="meta">
+            <p th:text ="${#temporals.format(product.upload_time, 'yyyy-MM-dd HH:mm:ss')}">수정일</p>
+        </div>
+
+        <div class="header-right">
+            <div class="view-count">
+                조회수: <span th:text="${product.view}">0</span>
+            </div>
+            <form th:action="@{/post/{id}/dibs(id=${product.id})}" method="post">
+                <button type="submit" class="dibs-button">찜하기</button>
+            </form>
+        </div>
     </div>
+
     <div class="post-content">
         <p th:text="${product.content}"></p>
     </div><br>

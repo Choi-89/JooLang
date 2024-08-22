@@ -63,8 +63,10 @@ public class MyPageController {
 
     //개인정보 수정
     @GetMapping("/{id}/modify")
-    public String modify(Principal principal, Model model){
+    public String modify( Principal principal, Model model){
         User user = userService.getUser(principal.getName());
+        //getName하면 userId를 가져옴
+        System.out.println(user.getNickname());
         model.addAttribute("user" , user);
         return "modify";
     }
@@ -75,15 +77,15 @@ public class MyPageController {
                           @RequestParam("nickname") String nickname,
                           @RequestParam("postcode") String postcode,
                           @RequestParam("address") String address,
-                          @RequestParam("deatail_address") String detailAddress)
+                          @RequestParam("detail_address") String detailAddress)
     {
         String userId = principal.getName();
-        Location location = new Location();
-        location.setPostcode(postcode);
-        location.setAddress(address);
-        location.setDetailAddress(detailAddress);
+//        Location location = new Location();
+//        location.setPostcode(postcode);
+//        location.setAddress(address);
+//        location.setDetailAddress(detailAddress);
 
-        userService.userEdit(userId, nickname, location);
+        userService.userEdit(userId, nickname, postcode, address, detailAddress);
 
         return "redirect:/{id}/mypage";
     }

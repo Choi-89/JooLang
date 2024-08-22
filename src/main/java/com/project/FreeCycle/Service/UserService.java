@@ -17,12 +17,17 @@ import java.util.Optional;
 @Service
 public class UserService{
 
-    @Autowired
-    private UserRepository userRepository;
-    private LocationRepository locationRepository;
+    private final UserRepository userRepository;
+    private final LocationRepository locationRepository;
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    public UserService(UserRepository userRepository, LocationRepository locationRepository) {
+        this.userRepository = userRepository;
+        this.locationRepository = locationRepository;
+    }
 
     // 비밀번호 체크
     public boolean checkPassword(String userId,String password){
@@ -46,8 +51,11 @@ public class UserService{
     }
 
     // 유저 정보 수정
-    public void userEdit(String userId, String nickname, Location location){
+    public void userEdit(String userId, String nickname,
+                         String postcode, String address, String detailAddress ){
         User user = userRepository.findByUserId(userId);
+        Location location = user.getLocation();
+//        location.setId(user.getLocation().getId());
         if(!nickname.isEmpty()){
             user.setNickname(nickname);
         }
@@ -55,16 +63,21 @@ public class UserService{
                 || location.getDetailAddress().isEmpty()
                 ||location.getPostcode().isEmpty()) )
         {
-            location.setUser(user);
-            locationRepository.save(location);
+            location.setAddress(address);
+            location.setDetailAddress(detailAddress);
+            location.setPostcode(postcode);
+
+            System.out.println(user.getUserId());
+            System.out.println(user.getPassword());
         }
+        userRepository.save(user);
 
 
     }
 
 
-    public User getUser(String username){
-        return userRepository.findByName(username);
+    public User getUser(String userId){
+        return userRepository.findByUserId(userId);
     }
 
 
