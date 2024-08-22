@@ -5,6 +5,7 @@ import com.project.FreeCycle.Repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
+@Slf4j
 @Service
 public class VerifyService {
 
@@ -94,12 +96,26 @@ public class VerifyService {
 
     // 비밀번호 업데이트
     @Transactional
-    public boolean updatePassword(String password, String userId){
+    public boolean updatePassword(String NewPassword, String userId){
+        log.info("비밀번호 업데이트 요청: userId={}, newPassword={}", userId, NewPassword);
         User user = userRepository.findByUserId(userId);
-        if(user != null){
-            user.setPassword(bCryptPasswordEncoder.encode(password));  // 비밀번호 암호화
-            userRepository.save(user);
-            return true;
+
+        if(user != null) {
+            log.info("사용자 정보가 확인되었습니다: userId={}", userId);
+            if (bCryptPasswordEncoder.matches(NewPassword, user.getPassword())) {
+                log.warn("새 비밀번호가 현재 비밀번호와 동일합니다: userId={}", userId);
+                return false;
+            }
+            // 비밀번호 업데이트 할 때 새로 업데이트 할 비밀번호가 현재 비밀번호와 같으면 실패 반환ㄴ
+            try {
+                user.setPassword(bCryptPasswordEncoder.encode(NewPassword));  // 비밀번호 암호화
+                userRepository.save(user);
+                log.info("비밀번호가 성공적으로 업데이트되었습니다: userId={}", userId);
+                return true;
+            } catch (Exception e) {
+                log.error("비밀번호 업데이트 중 예외 발생: userId={}, error={}", userId, e.getMessage());
+                return false;
+            }
         }
         return false;
     }
