@@ -56,6 +56,7 @@ public class HomeController {
         return "home_user";
     }
 
+    // 계정 삭제
     @PostMapping("/delete")
     public String delete(@RequestParam("password") String password, Model model, Principal principal){
         String userId = principal.getName();// 현재 로그인 되어있는 이름 가져옴

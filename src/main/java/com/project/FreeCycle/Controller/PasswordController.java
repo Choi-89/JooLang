@@ -92,6 +92,8 @@ public class PasswordController {
     public String ShowEditPassword(@ModelAttribute(name = "userId") String userId,
                                    Model model){
         model.addAttribute("userId", userId);
+        log.info("모델에 추가된 데이터: userId={}", model.getAttribute("userId"));
+
         return "editPassword";
     }
 
@@ -99,6 +101,8 @@ public class PasswordController {
     public String EditPasswordProc(@RequestParam(name = "newPassword") String password,
                                    @RequestParam(name = "confirmPassword") String passwordConfirm,
                                    @RequestParam (name = "userId") String userId, Model model) {
+
+        log.info("모델에 추가된 데이터: userId={}", model.getAttribute("userId"));
 
         /* 비밀번호 업데이트 로직 구현 */
         log.info("비밀번호 수정 요청: userId={}, newPassword={}, confirmPassword={}", userId, password, passwordConfirm);

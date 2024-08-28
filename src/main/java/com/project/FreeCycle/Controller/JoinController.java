@@ -8,6 +8,9 @@ import com.project.FreeCycle.Repository.UserRepository;
 import com.project.FreeCycle.Service.JoinService;
 import com.project.FreeCycle.Service.LocationService;
 import com.project.FreeCycle.Service.UserService;
+import com.project.FreeCycle.Service.VerifyService;
+import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,16 +18,18 @@ import org.springframework.web.bind.annotation.*;
 
 //@RestController
 //@CrossOrigin(origins = "http://localhost:3000")
+@Slf4j
 @Controller
 public class JoinController {
 
     private final LocationService locationService;
-
     private final JoinService joinService;
+    private final VerifyService verifyService;
 
-    public JoinController(LocationService locationService, JoinService joinService) {
+    public JoinController(LocationService locationService, JoinService joinService, VerifyService verifyService) {
         this.locationService = locationService;
         this.joinService = joinService;
+        this.verifyService = verifyService;
     }
 
     @GetMapping("/home/join")
@@ -72,5 +77,38 @@ public class JoinController {
         }
     }
 
+    // OAuth2 방식으로 처음 로그인 시도 할 시 비밀번호 업데이트 함.
+    @GetMapping("/joinPassword")
+    public String joinPassword(){
+        return "joinPassword";
+    }
+
+    @PostMapping("/joinPasswordProc")
+    public String joinPasswordProc(@RequestParam(name = "newPassword") String password,
+                                    @RequestParam(name = "confirmPassword") String passwordConfirm
+                                    ,HttpSession session, Model model){
+        String userId = (String) session.getAttribute("userId");
+        if(userId == null) {
+            log.error("세션에 userId가 없습니다.");
+            return "joinPassword";
+        }
+
+        log.info("비밀번호 설정 요청 : userId = {}, newPassword = {}, confirmPassword = {}", userId, password, passwordConfirm);
+        if(verifyService.checkPassword(password,passwordConfirm)){
+            log.info("비밀번호가 일치합니다.");
+            if(verifyService.updatePassword(password, userId)) {
+                log.info("비밀번호가 성공적으로 설정되었습니다: userId={}", userId);
+                session.removeAttribute("userId");
+                return "redirect:/";
+            } else{
+                log.error("비밀번호 설정 중 오류가 발생하였습니다. userId = {}", userId);
+                model.addAttribute("errorMsg","비밀번호가 업데이트 중 오류가 발생했습니다.");
+            }
+        } else{
+            log.error("비밀번호가 일치하지 않습니다.");
+            model.addAttribute("errorMsg", "비밀번호가 일치하지 않습니다.");
+        }
+        return "joinPassword";
+    }
 
 }

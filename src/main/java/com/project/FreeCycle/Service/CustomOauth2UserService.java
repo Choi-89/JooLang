@@ -7,8 +7,11 @@ import com.project.FreeCycle.Dto.CustomUserDetail;
 import com.project.FreeCycle.Repository.OAuth2UserInfo;
 import com.project.FreeCycle.Repository.UserRepository;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -17,6 +20,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 
+
+import java.io.IOException;
 import java.util.Optional;
 
 @Slf4j
@@ -27,6 +32,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
 
     private final LocationService locationService;
+    private final HttpSession httpSession;
+    private final HttpServletResponse httpServletResponse;
 
     @PostConstruct
     public void init() {
@@ -66,7 +73,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         Optional<User> userOptional = Optional.ofNullable(userRepository.findByUserId(userId));
         User user;
 
-
+        /* 만약 처음 로그인 시도 했으면 회원가입이 비밀번호 세팅이 
+        * 필요하므로 관련된 로직으로 수정 */
         if (userOptional.isEmpty()) {
             user = new User();
             user.setUserId(userId);
@@ -90,6 +98,16 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             locationService.LocationSave(location);
 
             log.info("새로운 사용자 저장: {}", userId);
+
+
+            // 세션에 사용자 ID 저장
+            httpSession.setAttribute("userId", userId);
+            try {
+                httpServletResponse.sendRedirect("/joinPassword");
+            } catch (IOException e) {
+                log.error("리다이렉션 실패");
+            }
+            return new CustomUserDetail(user, oAuth2User.getAttributes());
         } else {
             user = userOptional.get();
             log.info("기존 사용자 로그인: {}", userId);

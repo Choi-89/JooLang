@@ -104,9 +104,10 @@ public class VerifyService {
             log.info("사용자 정보가 확인되었습니다: userId={}", userId);
             if (bCryptPasswordEncoder.matches(NewPassword, user.getPassword())) {
                 log.warn("새 비밀번호가 현재 비밀번호와 동일합니다: userId={}", userId);
+                System.out.println("새 비밀번호가 현재 비밀번호와 동일합니다. = userId=" + userId);
                 return false;
             }
-            // 비밀번호 업데이트 할 때 새로 업데이트 할 비밀번호가 현재 비밀번호와 같으면 실패 반환ㄴ
+            // 비밀번호 업데이트 할 때 새로 업데이트 할 비밀번호가 현재 비밀번호와 같으면 실패 반환
             try {
                 user.setPassword(bCryptPasswordEncoder.encode(NewPassword));  // 비밀번호 암호화
                 userRepository.save(user);
