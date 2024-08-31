@@ -1,6 +1,5 @@
 package com.project.FreeCycle.Service;
 
-import com.project.FreeCycle.Domain.Dibs;
 import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService{

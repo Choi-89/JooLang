@@ -1,20 +1,15 @@
 package com.project.FreeCycle.Service;
 
-import com.project.FreeCycle.Domain.Dibs;
 import com.project.FreeCycle.Domain.Product;
 
-import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Repository.ProductRepository;
 import com.project.FreeCycle.Repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -116,26 +111,36 @@ public class PostService {
 //        return userRepository.findByNickname(nickname);
 //    }
 
+
     public void saveDibs(String userId , long postId){
         //유저의 찜 목록 불러오기
         User user = userRepository.findByUserId(userId);
+        // user 정보 따로 저장
         List<Product> userDibs = user.getDibs(); //도메인 dibs 추가 전
-
+        for(int i = 0; i < userDibs.size(); i++){
+            System.out.println(userDibs.get(i).getId());
+        }
 //        Dibs dibs = user.getMyDibs(); //도메인 dibs 추가 후
 //        List<Product> userDibs = dibs.getDibs();
         //해당 글
         Product product = productRepository.findById(postId).orElse(null);
+
         if(userDibs.contains(product)){
             userDibs.remove(product);
+            System.out.println("찜 삭제");
         }
         else {
             userDibs.add(product);
+            System.out.println("찜 등록");
         }
+
         product.setView(product.getView() - 1);
 
-        user.setDibs(userDibs); //도메인 dibs 추가 전
-//        user.setMyDibs(dibs);//도메인 dibs 추가 후
+        //유저정보 갱신
+        userRepository.findByUserId(userId).setDibs(userDibs);
         userRepository.save(user);
+
+
     }
 
 }

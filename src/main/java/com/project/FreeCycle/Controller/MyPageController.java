@@ -56,6 +56,10 @@ public class MyPageController {
 //        List<Product> products = userService.getDibs(principal.getName()).get().getDibs();
         Collections.reverse(products); //최신순으로 정렬
 
+        for(int i = 0 ;  i< products.size(); i++){
+            System.out.println(products.get(i).getId());
+        }
+
         // 모델에 dibs 리스트 삽입
         model.addAttribute("products", products);
         return "postlist";

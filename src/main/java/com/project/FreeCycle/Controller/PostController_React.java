@@ -115,18 +115,16 @@ public class PostController_React {
     public String dibs(@PathVariable("id") long id, Principal principal) {
         String userId = principal.getName();
 
+        List<Product> products = userRepository.findByUserId(userId).getDibs();
+
         postService.saveDibs(userId, id);
+
+        for(int i = 0 ; i< products.size(); i++){
+            System.out.println(products.get(i).getId());
+        }
 
         return "redirect:/post_detail/" + id;
 
     }
-
-
-
-
-
-
-
-
 
 }
