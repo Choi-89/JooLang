@@ -65,7 +65,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
 
         String providerId = oAuth2UserInfo.getProviderId();
-        String userId = provider + "_" + providerId;
+        String userId = oAuth2UserInfo.getEmail(); // userId에 email을 저장함으로써 향후 비밀번호 찾을 때 이메일을 사용하게 함
         String name = oAuth2UserInfo.getName();
         String nickname = oAuth2UserInfo.getNickname();
         String role = "ROLE_USER";

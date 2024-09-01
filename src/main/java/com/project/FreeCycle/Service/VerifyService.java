@@ -31,6 +31,7 @@ public class VerifyService {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    // 가입 되어있는지 회원인지 확인
     public boolean existUser(String userId, String eamil){
 
         User user = userRepository.findByUserId(userId);

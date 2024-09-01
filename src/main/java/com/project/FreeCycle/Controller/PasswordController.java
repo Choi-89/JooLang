@@ -114,12 +114,14 @@ public class PasswordController {
                 return "redirect:/";
             } else{
                 log.error("비밀번호 업데이트 중 오류 발생: userId={}", userId);
-                model.addAttribute("errorMsg","비밀번호가 업데이트 중 오류가 발생했습니다.");
+                model.addAttribute("errorMsg","새 비밀번호가 현재 비밀번호와 동일합니다");
             }
         } else{
             log.error("비밀번호가 일치하지 않습니다: newPassword={}, confirmPassword={}", password, passwordConfirm);
             model.addAttribute("errorMsg","비밀번호가 일치하지 않습니다.");
         }
+
+        model.addAttribute("userId", userId);  // 다시 비밀번호 설정 위해 model에 userId 다시 추가
         return "editPassword";
     }
 }
