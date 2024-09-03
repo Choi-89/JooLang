@@ -1,5 +1,6 @@
 package com.project.FreeCycle.Controller;
 
+import com.project.FreeCycle.Domain.Dibs;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Repository.UserRepository;
@@ -110,21 +111,31 @@ public class PostController_React {
         return "redirect:/postlist";
     }
 
+//    //글 찜버튼
+//    @PostMapping(value = "/post/{id}/dibs")
+//    public String dibs(@PathVariable("id") long id, Principal principal) {
+//        String userId = principal.getName();
+//
+//        List<Product> products = userRepository.findByUserId(userId).getDibs();
+//
+//        postService.saveDibs(userId, id);
+//
+//        for(int i = 0 ; i< products.size(); i++){
+//            System.out.println(products.get(i).getId());
+//        }
+//
+//        return "redirect:/post_detail/" + id;
+//
+//    }
+
     //글 찜버튼
     @PostMapping(value = "/post/{id}/dibs")
-    public String dibs(@PathVariable("id") long id, Principal principal) {
+    public String dibs(@PathVariable("id") long id, Principal principal){
+
         String userId = principal.getName();
 
-        List<Product> products = userRepository.findByUserId(userId).getDibs();
-
-        postService.saveDibs(userId, id);
-
-        for(int i = 0 ; i< products.size(); i++){
-            System.out.println(products.get(i).getId());
-        }
+        postService.saveDibs(userId , id);
 
         return "redirect:/post_detail/" + id;
-
     }
-
 }

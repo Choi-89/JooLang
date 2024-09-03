@@ -3,6 +3,7 @@ package com.project.FreeCycle.Service;
 import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Domain.Dibs;
 import com.project.FreeCycle.Repository.LocationRepository;
 import com.project.FreeCycle.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,7 @@ public class UserService{
     }
 
     // 유저 정보 수정
+
     public void userEdit(String userId, String nickname,
                          String postcode, String address, String detailAddress ){
         User user = userRepository.findByUserId(userId);
@@ -83,9 +85,7 @@ public class UserService{
         return userRepository.findByUserId(userId).getProducts();
     }
 
-    public List<Product> getDibsPosts(String userId){
-        return userRepository.findByUserId(userId).getDibs();
-    }
+
 
 //    public List<Product> getDibs(String userId){
 //        return userRepository.findByUserId(userId).getDibs();

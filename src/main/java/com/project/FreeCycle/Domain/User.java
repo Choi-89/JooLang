@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Entity
@@ -51,13 +52,8 @@ public class User {
     private List<Product> products = new ArrayList<>();
 
     //찜목록
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Product> dibs; //dibs == 찜
-
-//    @OneToOne(fetch = FetchType.LAZY)
-//    private Dibs myDibs;
-
-
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Dibs> dibs = new ArrayList<>();
 
 
 }

@@ -1,5 +1,6 @@
 package com.project.FreeCycle.Service;
 
+import com.project.FreeCycle.Domain.Dibs;
 import com.project.FreeCycle.Domain.Product;
 
 import com.project.FreeCycle.Domain.User;
@@ -13,7 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -112,35 +115,77 @@ public class PostService {
 //    }
 
 
-    public void saveDibs(String userId , long postId){
-        //유저의 찜 목록 불러오기
+//    public void saveDibs(String userId , long postId){
+//        //유저의 찜 목록 불러오기
+//        User user = userRepository.findByUserId(userId);
+//        // user 정보 따로 저장
+//        List<Product> userDibs = user.getDibs(); //도메인 dibs 추가 전
+//        System.out.println(userDibs);
+//
+//        for(int i = 0; i < userDibs.size(); i++){
+//            System.out.println(userDibs.get(i).getId());
+//        }
+////        Dibs dibs = user.getMyDibs(); //도메인 dibs 추가 후
+////        List<Product> userDibs = dibs.getDibs();
+//        //해당 글
+//        Product product = productRepository.findById(postId).orElse(null);
+//
+//        if(userDibs.contains(product)){
+//            userDibs.remove(product);
+//            System.out.println("찜 삭제");
+//        }
+//        else {
+//            userDibs.add(product);
+//            System.out.println("찜 등록");
+//        }
+//
+//        product.setView(product.getView() - 1);
+//
+//        //유저정보 갱신
+//        userRepository.findByUserId(userId).setDibs(userDibs);
+//        userRepository.save(user);
+//
+//
+//    }
+
+    public void saveDibs(String userId, long postId){
+
         User user = userRepository.findByUserId(userId);
-        // user 정보 따로 저장
-        List<Product> userDibs = user.getDibs(); //도메인 dibs 추가 전
-        for(int i = 0; i < userDibs.size(); i++){
-            System.out.println(userDibs.get(i).getId());
-        }
-//        Dibs dibs = user.getMyDibs(); //도메인 dibs 추가 후
-//        List<Product> userDibs = dibs.getDibs();
-        //해당 글
-        Product product = productRepository.findById(postId).orElse(null);
 
-        if(userDibs.contains(product)){
-            userDibs.remove(product);
-            System.out.println("찜 삭제");
-        }
-        else {
-            userDibs.add(product);
-            System.out.println("찜 등록");
-        }
+        List<Dibs> dibs = user.getDibs();
 
-        product.setView(product.getView() - 1);
 
-        //유저정보 갱신
-        userRepository.findByUserId(userId).setDibs(userDibs);
+        //게시물이 User에 있는지
+        boolean isThat = true;
+        int i = 0;
+        while(isThat && i < dibs.size()){
+            if(dibs.get(i).getDibsId().equals(postId)){ // 이미 찜한거 존재
+                dibs.remove(i);
+                isThat = false;
+            }
+            i++;
+        }
+        //찜한거 존재 x
+        if(isThat){
+            Dibs newDibs = new Dibs();
+            newDibs.setDibsId(postId);
+            newDibs.setUserId(user.getId());
+            dibs.add(newDibs);
+        }
+        user.setDibs(dibs);
         userRepository.save(user);
+    }
 
+    public List<Product> getDibsPosts(String userId){
 
+        List<Dibs> dibs = userRepository.findByUserId(userId).getDibs();
+
+        List<Product> products = new ArrayList<>();
+        for(Dibs tmp : dibs ){
+            products.add(productRepository.findById(tmp.getDibsId()).orElse(null));
+
+        }
+        return products;
     }
 
 }

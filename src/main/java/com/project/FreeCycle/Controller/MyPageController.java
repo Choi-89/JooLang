@@ -1,9 +1,11 @@
 package com.project.FreeCycle.Controller;
 
+import com.project.FreeCycle.Domain.Dibs;
 import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Repository.LocationRepository;
+import com.project.FreeCycle.Service.PostService;
 import com.project.FreeCycle.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,7 @@ import java.util.List;
 public class MyPageController {
 
     private final UserService userService;
+    private final PostService postService;
     private final PasswordEncoder passwordEncoder;
 
     //마이페이지
@@ -52,8 +55,9 @@ public class MyPageController {
     @GetMapping("/{id}/mydibs")
     public String mydibs(Principal principal, Model model){
 
-        List<Product> products = userService.getDibsPosts(principal.getName());
-//        List<Product> products = userService.getDibs(principal.getName()).get().getDibs();
+        List<Product> products = postService.getDibsPosts(principal.getName());
+
+
         Collections.reverse(products); //최신순으로 정렬
 
         for(int i = 0 ;  i< products.size(); i++){
