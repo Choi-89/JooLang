@@ -32,6 +32,11 @@ public class JoinController {
         this.verifyService = verifyService;
     }
 
+    @GetMapping("/home/joinList")
+    public String joinList(){
+        return "joinList";
+    }
+
     @GetMapping("/home/join")
     public String ShowJoin(){
         return "join";

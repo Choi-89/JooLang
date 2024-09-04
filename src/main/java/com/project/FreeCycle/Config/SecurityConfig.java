@@ -43,11 +43,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/","/home/login","/home/join",
+                        .requestMatchers("/","/home/login","/home/join","/home/joinList",
                                 "/joinProc","/loginProc","/auth/**","/error",
                                 "/static/**","/favicon.ico","/certifyUser","/certifyUserProc",
                                 "/verifyCode","/verifyCodeProc","/sendCodeProc",
-                                "/editPassword","/updatePasswordProc").permitAll()
+                                "/editPassword","/updatePasswordProc","/sendSmsProc",
+                                "/checkProc", "/home/verifyPhone").permitAll()
                         .requestMatchers("/postlist","/post/**","post_detail/**").hasRole("USER")
                         .anyRequest().authenticated()
                 );

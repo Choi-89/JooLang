@@ -3,7 +3,6 @@ package com.project.FreeCycle.Controller;
 import com.project.FreeCycle.Service.VerifyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -98,7 +97,7 @@ public class PasswordController {
     }
 
     @PostMapping("/updatePasswordProc")
-    public String EditPasswordProc(@RequestParam(name = "newPassword") String password,
+    public String EditPasswordProc(@RequestParam(name =  "newPassword") String password,
                                    @RequestParam(name = "confirmPassword") String passwordConfirm,
                                    @RequestParam (name = "userId") String userId, Model model) {
 
