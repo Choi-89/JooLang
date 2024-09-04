@@ -158,7 +158,8 @@ public class PostService {
         User user = userRepository.findByUserId(userId);
 
         List<Dibs> dibs = user.getDibs();
-
+        Product product = productRepository.findById(postId).orElse(null);
+        product.setView(product.getView() - 1);
 
         //게시물이 User에 있는지 == isThat
         boolean isThat = true;
@@ -183,7 +184,7 @@ public class PostService {
 
 //        user.setDibs(dibs);
     }
-
+//화이팅~
     public List<Product> getDibsPosts(String userId){
 
         User user = userRepository.findByUserId(userId);
