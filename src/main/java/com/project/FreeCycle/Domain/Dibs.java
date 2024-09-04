@@ -17,14 +17,14 @@ public class Dibs {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "user_id")
-    private Long userId;
+//    @Column(name = "user_id")
+//    private Long userId;
 
-    @Column(name = "dibs_id")
+    @Column(name = "postId")
     private Long dibsId;
 
-//    @ManyToOne
-//    @JoinColumn(name = "user_id")
-//    private User user;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
 }

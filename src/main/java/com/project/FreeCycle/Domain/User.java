@@ -52,7 +52,7 @@ public class User {
     private List<Product> products = new ArrayList<>();
 
     //찜목록
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Dibs> dibs = new ArrayList<>();
 
 

@@ -4,6 +4,7 @@ import com.project.FreeCycle.Domain.Dibs;
 import com.project.FreeCycle.Domain.Product;
 
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Repository.DibsRepository;
 import com.project.FreeCycle.Repository.ProductRepository;
 import com.project.FreeCycle.Repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -26,11 +27,15 @@ public class PostService {
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository; // 안녕
+    private final DibsRepository dibsRepository;
 
     @Autowired
-    public PostService(ProductRepository productRepository, UserRepository userRepository){
+    public PostService(ProductRepository productRepository,
+                       UserRepository userRepository,
+                       DibsRepository dibsRepository){
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.dibsRepository = dibsRepository;
     }
 
     //글 작성
@@ -155,35 +160,41 @@ public class PostService {
         List<Dibs> dibs = user.getDibs();
 
 
-        //게시물이 User에 있는지
+        //게시물이 User에 있는지 == isThat
         boolean isThat = true;
         int i = 0;
-        while(isThat && i < dibs.size()){
-            if(dibs.get(i).getDibsId().equals(postId)){ // 이미 찜한거 존재
-                dibs.remove(i);
-                isThat = false;
+        for(Dibs dib: dibs){
+            if(dib.getDibsId().equals(postId)){
+                dibs.remove(dib);
+                dibsRepository.delete(dib);
+                return;
             }
-            i++;
         }
+
         //찜한거 존재 x
         if(isThat){
             Dibs newDibs = new Dibs();
             newDibs.setDibsId(postId);
-            newDibs.setUserId(user.getId());
+            newDibs.setUser(user);
             dibs.add(newDibs);
         }
-        user.setDibs(dibs);
-        userRepository.save(user);
+
+
+
+//        user.setDibs(dibs);
     }
 
     public List<Product> getDibsPosts(String userId){
 
-        List<Dibs> dibs = userRepository.findByUserId(userId).getDibs();
+        User user = userRepository.findByUserId(userId);
+//        List<Dibs> dibs = userRepository.findByUserId(userId).getDibs();
+        List<Dibs> dibs = dibsRepository.findAllByUser(user);
 
         List<Product> products = new ArrayList<>();
         for(Dibs tmp : dibs ){
-            products.add(productRepository.findById(tmp.getDibsId()).orElse(null));
-
+            if(tmp != null) {
+                products.add(productRepository.findById(tmp.getDibsId()).orElse(null));
+            }
         }
         return products;
     }
