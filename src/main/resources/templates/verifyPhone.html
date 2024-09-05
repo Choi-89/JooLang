@@ -79,6 +79,7 @@
     <form action="/checkProc" method="post">
         <div class="input-group">
             <label for="verifyCode">인증 번호</label>
+            <input type="hidden" id="phoneNum" name="phoneNumber" th:value="${phoneNumber}">
             <input type="text" id="verifyCode" name="verifyCode" placeholder="인증 번호를 입력하세요" required>
         </div>
         <button type="submit" class="button">인증 </button>

@@ -43,6 +43,11 @@ public class NaverUserDetails implements OAuth2UserInfo {
     }
 
     @Override
+    public String getMobile() {
+        return (String) response.get("mobile");
+    }
+
+    @Override
     public String getName() {
         return (String) response.get("name");
     }

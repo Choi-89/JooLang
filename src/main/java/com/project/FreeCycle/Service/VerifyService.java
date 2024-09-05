@@ -1,6 +1,8 @@
 package com.project.FreeCycle.Service;
 
+import com.project.FreeCycle.Util.AESUtil;
 import com.project.FreeCycle.Api.CoolSMSApi;
+import com.project.FreeCycle.Util.PasswordUtil;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Repository.UserRepository;
 import jakarta.mail.MessagingException;
@@ -10,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.nurigo.java_sdk.api.Message;
 import net.nurigo.java_sdk.exceptions.CoolsmsException;
 import org.json.simple.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,20 +26,22 @@ import java.util.Random;
 @Service
 public class VerifyService {
 
-    @Autowired
-    UserRepository userRepository;
 
-    @Autowired
-    private JavaMailSenderImpl mailSender;
+    private final UserRepository userRepository;
+    private final JavaMailSenderImpl mailSender;
+    private final HttpSession session;
+    private final CoolSMSApi coolSMSApi;
 
-    @Autowired
-    private HttpSession session;
+    private final PasswordUtil passwordUtil = new PasswordUtil(new BCryptPasswordEncoder());
 
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    public VerifyService(UserRepository userRepository, JavaMailSenderImpl mailSender, HttpSession session,
+                         CoolSMSApi coolSMSApi) {
+        this.userRepository = userRepository;
+        this.mailSender = mailSender;
+        this.session = session;
+        this.coolSMSApi = coolSMSApi;
+    }
 
-    @Autowired
-    private CoolSMSApi coolSMSApi;
 
     // 가입 되어있는지 회원인지 확인
     public boolean existUser(String userId, String eamil){
@@ -141,6 +144,18 @@ public class VerifyService {
         return false;
     }
 
+    // 휴대폰 중복 확인
+    public boolean verifyPhoneNum(String phoneNum){
+        try{
+            String encryptedPhoneNum = AESUtil.encrypt(phoneNum);
+            User user = userRepository.findByPhone(encryptedPhoneNum);
+            return user != null;
+        } catch (Exception e) {
+            throw new RuntimeException("휴대폰 번호 중복 확인 중 오류 발생",e);
+        }
+    }
+
+
     // 비밀번호 업데이트
     @Transactional
     public boolean updatePassword(String NewPassword, String userId){
@@ -149,14 +164,14 @@ public class VerifyService {
 
         if(user != null) {
             log.info("사용자 정보가 확인되었습니다: userId={}", userId);
-            if (bCryptPasswordEncoder.matches(NewPassword, user.getPassword())) {
+            if (passwordUtil.matchesPassword(NewPassword, user.getPassword())) {
                 log.warn("새 비밀번호가 현재 비밀번호와 동일합니다: userId={}", userId);
                 System.out.println("새 비밀번호가 현재 비밀번호와 동일합니다. = userId=" + userId);
                 return false;
             }
             // 비밀번호 업데이트 할 때 새로 업데이트 할 비밀번호가 현재 비밀번호와 같으면 실패 반환
             try {
-                user.setPassword(bCryptPasswordEncoder.encode(NewPassword));  // 비밀번호 암호화
+                user.setPassword(passwordUtil.encodePassword(NewPassword));  // 비밀번호 암호화
                 userRepository.save(user);
                 log.info("비밀번호가 성공적으로 업데이트되었습니다: userId={}", userId);
                 return true;
@@ -176,5 +191,4 @@ public class VerifyService {
         }
         return false;
     }
-
 }
