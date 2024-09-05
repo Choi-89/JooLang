@@ -72,7 +72,7 @@ public class PostController_React {
 
     @PostMapping(value = "/post/write")
     public String writePost(@ModelAttribute ProductDTO productDTO,
-                            Principal principal){ 
+                            Principal principal){
 
         Product product = postService.convertToEntity(productDTO, principal.getName());
         String userID = principal.getName();
