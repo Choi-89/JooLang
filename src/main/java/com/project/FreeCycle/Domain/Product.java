@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table
@@ -38,6 +39,9 @@ public class Product {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    //상품삭제 > 사진삭제 Cascade
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Product_Picture> pictures;
 
 
 

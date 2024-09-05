@@ -3,7 +3,10 @@ package com.project.FreeCycle.Controller;
 import com.project.FreeCycle.Domain.Dibs;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Dto.ProductDTO;
+import com.project.FreeCycle.Repository.PictureRepository;
 import com.project.FreeCycle.Repository.UserRepository;
+import com.project.FreeCycle.Service.PictureService;
 import com.project.FreeCycle.Service.PostService;
 import com.project.FreeCycle.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,8 +19,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -30,6 +35,7 @@ public class PostController_React {
     private final PostService postService;
     private final UserService userService;
     private final UserRepository userRepository;
+    private final PictureService pictureService;
 
     @GetMapping(value = "/postlist")
     public String postList(Model model) {
@@ -65,16 +71,14 @@ public class PostController_React {
     }
 
     @PostMapping(value = "/post/write")
-    public String writePost(@ModelAttribute Product product, Principal principal){
+    public String writePost(@ModelAttribute ProductDTO productDTO,
+                            Principal principal){ 
+
+        Product product = postService.convertToEntity(productDTO, principal.getName());
         String userID = principal.getName();
-        // getName은 userID 가져옴.
-        User user = userRepository.findByUserId(userID);
-        String nickname = user.getNickname();
 
-        // 게시물 작성자 설정
-        product.setUser(user);
-
-        postService.postProduct(product , nickname);
+        postService.postProduct(product , productDTO.getPictures(), userID);
+//        pictureService.uploadPicture(product, pictures);
 
         return "redirect:/postlist";
     }
