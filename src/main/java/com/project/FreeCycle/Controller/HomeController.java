@@ -56,6 +56,7 @@ public class HomeController {
         return "home_user";
     }
 
+    // 계정 삭제
     @PostMapping("/delete")
     public String delete(@RequestParam("password") String password, Model model, Principal principal){
         String userId = principal.getName();// 현재 로그인 되어있는 이름 가져옴
@@ -67,11 +68,11 @@ public class HomeController {
                 return "redirect:/";
             } else{
                 System.out.println("계정 삭제에 실패했습니다.");
-                model.addAttribute("errormsg", "계정 삭제에 실패했습니다.");
+                model.addAttribute("errorMsg", "계정 삭제에 실패했습니다.");
                 return "redirect:/home_user";
             }
         } else {
-            model.addAttribute("errormsg","비밀번호가 틀렸습니다.");
+            model.addAttribute("errorMsg","비밀번호가 틀렸습니다.");
             return "redirect:/home_user";
         }
     }

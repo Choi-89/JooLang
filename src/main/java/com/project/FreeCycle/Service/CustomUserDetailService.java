@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 // 기존 LoginService 역할을 Security에서 수행해줌
  
+// 일반 form 로그인 , CustomUserSecurityDetail
 @Service
 @AllArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
@@ -27,6 +28,6 @@ public class CustomUserDetailService implements UserDetailsService {
             return new CustomUserSecurityDetail(user);
         }
 
-        throw new UsernameNotFoundException("User not found with userId: " + userId);
+        throw new UsernameNotFoundException("유저를 찾을 수 없습니다. userId : " + userId);
     }
 }

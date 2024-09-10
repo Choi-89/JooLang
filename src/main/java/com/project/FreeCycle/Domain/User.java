@@ -1,5 +1,6 @@
 package com.project.FreeCycle.Domain;
 
+import com.project.FreeCycle.Util.AESUtil;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,10 +27,14 @@ public class User {
 
     @Column(name = "nickname")
     private String nickname;
-
+    
     @Column(name = "email")
     private String email;
 
+    // 중복 회원가입 방지하기 위함
+    @Column(name = "phoneNum")
+    private String phoneNum;
+    
     // 시큐리티 활용하여 admin, user 둘로 나눠서 저장 할 예정
     @Column(name = "role")
     private String role;
@@ -46,7 +51,20 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
 
-    //유저가 가지고있는 채팅
-    @OneToMany(mappedBy="user", fetch=FetchType.LAZY)
-    private List<Chat> chats = new ArrayList<>();
+    public String getPhoneNum(){
+        try{
+            return AESUtil.decrypt(phoneNum);
+        } catch (Exception e) {
+            throw new RuntimeException("복호화 오류", e);
+        }
+    }
+
+    public void setPhoneNum(String phoneNum){
+        try{
+            this.phoneNum = AESUtil.encrypt(phoneNum);
+        } catch (Exception e) {
+            throw new RuntimeException("암호화 오류", e);
+        }
+    }
+
 }

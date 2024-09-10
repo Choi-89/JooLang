@@ -14,5 +14,4 @@ public class Product_Display {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
 }

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,7 +27,9 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    @Lazy
     private final CustomOauth2UserService customOauth2UserService;
+
     private final UserRepository userRepository;
 
     @Bean
@@ -43,11 +46,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/","/home/login","/home/join",
+                        .requestMatchers("/","/home/login","/home/join","/home/joinList",
                                 "/joinProc","/loginProc","/auth/**","/error",
                                 "/static/**","/favicon.ico","/certifyUser","/certifyUserProc",
                                 "/verifyCode","/verifyCodeProc","/sendCodeProc",
-                                "/editPassword","/updatePasswordProc").permitAll()
+                                "/editPassword","/updatePasswordProc","/sendSmsProc",
+                                "/checkProc", "/home/verifyPhone").permitAll()
                         .requestMatchers("/postlist","/post/**","post_detail/**").hasRole("USER")
                         .anyRequest().authenticated()
                 );
