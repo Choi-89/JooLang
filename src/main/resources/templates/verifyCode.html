@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,18 +69,24 @@
         .form-group input[type="submit"]:hover {
             background-color: #45a049;
         }
+        .error {
+            color: red;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
+
     <h2>비밀번호 찾기</h2>
 
     <!-- 이메일로 인증번호 발송 폼 -->
-        <form action="/sendCodeProc" method="POST">
+    <form action="/sendCodeProc" method="POST">
         <div class="form-group">
             <label for="email">이메일:</label>
-            <input type="email" id="email" name="email" required>
+            <input type="email" id="email" name="email" th:value="${email}" required>
+            <input type="hidden" id="userId_sendCode" name="userId" th:value="${userId}">
             <button type="submit">인증번호 발송하기</button>
         </div>
     </form>
@@ -90,11 +96,26 @@
         <div class="form-group">
             <label for="verifyCode">인증번호:</label>
             <input type="text" id="verifyCode" name="verifyCode" required>
+            <input type="hidden" id="userId_verifyCode" name="userId" th:value="${userId}">
         </div>
         <div class="form-group">
             <input type="submit" value="인증번호 확인">
         </div>
     </form>
+
+
+    <div th:if="${errorMsg != null}" class="error">
+        <p th:text="${errorMsg}"></p>
+    </div>
+
+    <div th:if="${userId != null}">
+        <p>User ID: <span th:text="${userId}"></span></p>
+    </div>
+
+    <div th:if="${email != null}">
+        <p>Email: <span th:text="${email}"></span></p>
+    </div>
+
 </div>
 
 </body>

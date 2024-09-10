@@ -14,6 +14,7 @@ import static java.util.stream.Collectors.*;
 
 
 // OAuth방식 로그인
+// 스프링 시큐리티와의 통합을 위함
 public class CustomUserDetail implements UserDetails, OAuth2User {
 
     private final User user;
