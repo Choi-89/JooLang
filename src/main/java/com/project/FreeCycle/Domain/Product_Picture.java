@@ -26,11 +26,11 @@ public class Product_Picture {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-//    @ManyToOne
-//    @JoinColumn(name = "product_display_id", nullable = false)
-//    private Product_Display product_display;
-
-
+/*
+    @ManyToOne
+    @JoinColumn(name = "product_display_id", nullable = false)
+    private Product_Display product_display;
+*/
 
 
 }

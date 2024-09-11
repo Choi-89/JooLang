@@ -24,6 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -56,9 +57,11 @@ public class PostController_React {
 
         String userId = principal.getName();
         User user = userRepository.findByUserId(userId);
+        List<String> pictures = pictureService.getPictures(id);
         String nickname = user.getNickname();   // 프론트에서 nickname이 같으면 수정,삭제 버튼 나오게 사용할 수 있게 model에 추가
         model.addAttribute("product", product);
         model.addAttribute("nickname", nickname);
+        model.addAttribute("pictures" , pictures);
 
         return "post_detail";
     }

@@ -82,6 +82,7 @@
             font-size: 14px;
             color: #555;
         }
+
         .dib-button {
             background-color: #ff4d4d;
             color: white;
@@ -111,11 +112,10 @@
 <div class="container">
     <div class="post-header">
         <h1 th:text ="${product.name}"></h1>
-        <p th:text ="${product.user.nickname}"> 작성자 </p>
+        <p th:text ="${product.user.nickname}">작성자</p>
         <div class="meta">
             <p th:text ="${#temporals.format(product.upload_time, 'yyyy-MM-dd HH:mm:ss')}">수정일</p>
         </div>
-
         <div class="header-right">
             <div class="view-count">
                 조회수: <span th:text="${product.view}">0</span>
@@ -128,6 +128,11 @@
 
     <div class="post-content">
         <p th:text="${product.content}"></p>
+        <!-- 상품 이미지들 표시 -->
+<!--        <img th:src= "@{/uploads/pictures/10330559e5304bdc9dfe13260dbf5f1a_[removal.ai]_038abd86-1719-4ee4-98ae-bb36ac942881-img_0728-2.png}" alt="상품 이미지" style="width:100%; max-width:600px;">-->
+        <div th:each="pic : ${pictures}">
+            <img th:src="@{${pic}}" alt="상품 이미지" style="width:100%; max-width:600px;">
+        </div>
     </div><br>
 
     <div class="post-actions" th:if="${nickname == product.user.nickname}">
@@ -142,7 +147,7 @@
     </div>
 
     <div>
-        <a href="/postlist"><button type="button"> 게시물 리스트</button> </a>
+        <a href="/postlist"><button type="button">게시물 리스트</button></a>
     </div>
 </div>
 

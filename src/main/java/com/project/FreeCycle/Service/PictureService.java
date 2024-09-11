@@ -9,11 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Blob;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,7 +29,7 @@ public class PictureService {
 
     public void uploadPicture(Product product, List<MultipartFile> images){
         try{
-            String uploadsDir = "src/resources/static/uploads/pictures/";
+            String uploadsDir = "src/main/resources/static/uploads/pictures/";
 
             for(MultipartFile image : images){
                 String dbFilePath = saveImage(image, uploadsDir);
@@ -41,8 +43,6 @@ public class PictureService {
             e.printStackTrace();
         }
 
-
-
     }
 
     private String saveImage(MultipartFile image, String uploadsDir) throws IOException {
@@ -55,6 +55,7 @@ public class PictureService {
 
         //DB에 저장할 경로 문자열
         String dbFilePath = "/uploads/pictures/" + filename;
+//        String dbFilePath = "src/main/resources/static/uploads/pictures/" + filename;
 
         Path path = Paths.get(filePath); //Path객체 생성
         Files.createDirectories(path.getParent()); // 디렉토리 생성
@@ -64,4 +65,30 @@ public class PictureService {
 
     }
 
+/*    public List<File> getPictures(Long productId){
+        List<File> pictures = new ArrayList<>();
+
+        Product product = productRepository.findById(productId).orElse(null);
+
+        for(Product_Picture tmp : product.getPictures()){
+            pictures.add(new File(tmp.getPicture_url()));
+        }
+
+        return pictures;
+    }
+ */
+
+    public List<String> getPictures(Long productId){
+        List<String> pictures = new ArrayList<>();
+
+        Product product = productRepository.findById(productId).orElse(null);
+
+        for(Product_Picture tmp : product.getPictures()){
+            pictures.add(tmp.getPicture_url());
+        }
+
+        return pictures;
+    }
+
+    
 }

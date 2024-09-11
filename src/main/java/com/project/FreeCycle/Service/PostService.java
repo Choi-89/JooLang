@@ -65,8 +65,9 @@ public class PostService {
         Product saveProduct = productRepository.save(product);
 
         //사진 저장
-        pictureService.uploadPicture(product,images);
-
+        if(!images.isEmpty()) {
+            pictureService.uploadPicture(product, images);
+        }
         //해당User의 ProductList에 product추가
         user.getProducts().add(saveProduct);
         userRepository.save(user);
