@@ -131,8 +131,12 @@
         <!-- 상품 이미지들 표시 -->
 <!--        <img th:src= "@{/uploads/pictures/10330559e5304bdc9dfe13260dbf5f1a_[removal.ai]_038abd86-1719-4ee4-98ae-bb36ac942881-img_0728-2.png}" alt="상품 이미지" style="width:100%; max-width:600px;">-->
         <div th:each="pic : ${pictures}">
-            <img th:src="@{${pic}}" alt="상품 이미지" style="width:100%; max-width:600px;">
+            <img th:if="${#strings.toLowerCase(pic).endsWith('.png') or
+                  #strings.toLowerCase(pic).endsWith('.jpeg') or
+                  #strings.toLowerCase(pic).endsWith('.jpg')}"
+                 th:src="@{${pic}}" alt="상품 이미지" style="width:100%; max-width:600px;">
         </div>
+
     </div><br>
 
     <div class="post-actions" th:if="${nickname == product.user.nickname}">
