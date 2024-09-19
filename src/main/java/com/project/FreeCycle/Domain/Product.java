@@ -2,6 +2,7 @@ package com.project.FreeCycle.Domain;
 
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -41,7 +42,17 @@ public class Product {
 
     //상품삭제 > 사진삭제 Cascade
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Product_Picture> pictures;
+    private List<Product_Attachment> attachments;
+
+    @Builder
+    public Product(long id, String name, String content, int view, LocalDateTime upload_time, List<Product_Attachment> attachments){
+        this.id = id;
+        this.name = name;
+        this.content = content;
+        this.view = view;
+        this.upload_time = upload_time;
+        this.attachments = attachments;
+    }
 
 
 

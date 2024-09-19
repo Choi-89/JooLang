@@ -6,10 +6,8 @@ import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Dto.ProductDTO;
 import com.project.FreeCycle.Repository.DibsRepository;
-import com.project.FreeCycle.Repository.PictureRepository;
 import com.project.FreeCycle.Repository.ProductRepository;
 import com.project.FreeCycle.Repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -32,45 +29,49 @@ public class PostService {
     private final UserRepository userRepository; // 안녕
     private final DibsRepository dibsRepository;
 
-    private final PictureService pictureService;
+    private final AttachmentService attachmentService;
 
     @Autowired
     public PostService(ProductRepository productRepository,
                        UserRepository userRepository,
                        DibsRepository dibsRepository,
-                       PictureService pictureService
+                       AttachmentService attachmentService
                        ){
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.dibsRepository = dibsRepository;
-        this.pictureService = pictureService;
+        this.attachmentService = attachmentService;
     }
 
     //글 작성
     public void postProduct(Product product , List<MultipartFile> images, String userId){
 
-        //User 정보 불러오기
+//        //User 정보 불러오기
+//
+//        User user = userRepository.findByUserId(userId);
+//        product.setUser(user);
+//
+//        //조회수 초기화
+//        product.setView(0);
+//
+//        //글쓴이 작성 시간 저장, 닉네임 저장, (작성 시간 FORMATTER로 형식 변환 후 다시 LocalDateTime으로 타입 변환)
+//        String localDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+//        product.setUpload_time(LocalDateTime.parse(localDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))) ;
+//
+//        //게시글 저장
+//        Product saveProduct = productRepository.save(product);
+//
+//        //사진 저장
+//        if(!images.isEmpty()) {
+//            attachmentService.uploadPicture(product, images);
+//        }
+//        //해당User의 ProductList에 product추가
+//        user.getProducts().add(saveProduct);
+//        userRepository.save(user);
 
-        User user = userRepository.findByUserId(userId);
-        product.setUser(user);
 
-        //조회수 초기화
-        product.setView(0);
 
-        //글쓴이 작성 시간 저장, 닉네임 저장, (작성 시간 FORMATTER로 형식 변환 후 다시 LocalDateTime으로 타입 변환)
-        String localDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        product.setUpload_time(LocalDateTime.parse(localDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))) ;
 
-        //게시글 저장
-        Product saveProduct = productRepository.save(product);
-
-        //사진 저장
-        if(!images.isEmpty()) {
-            pictureService.uploadPicture(product, images);
-        }
-        //해당User의 ProductList에 product추가
-        user.getProducts().add(saveProduct);
-        userRepository.save(user);
     }
 
     public Product convertToEntity(ProductDTO productDTO, String userId) {

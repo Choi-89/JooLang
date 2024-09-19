@@ -1,32 +1,18 @@
 package com.project.FreeCycle.Controller;
 
-import com.project.FreeCycle.Domain.Dibs;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Dto.ProductDTO;
-import com.project.FreeCycle.Repository.PictureRepository;
 import com.project.FreeCycle.Repository.UserRepository;
-import com.project.FreeCycle.Service.PictureService;
+import com.project.FreeCycle.Service.AttachmentService;
 import com.project.FreeCycle.Service.PostService;
 import com.project.FreeCycle.Service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Repository;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.security.Principal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -36,7 +22,7 @@ public class PostController_React {
     private final PostService postService;
     private final UserService userService;
     private final UserRepository userRepository;
-    private final PictureService pictureService;
+    private final AttachmentService attachmentService;
 
     @GetMapping(value = "/postlist")
     public String postList(Model model) {
@@ -57,7 +43,7 @@ public class PostController_React {
 
         String userId = principal.getName();
         User user = userRepository.findByUserId(userId);
-        List<String> pictures = pictureService.getPictures(id);
+        List<String> pictures = attachmentService.getPictures(id);
         String nickname = user.getNickname();   // 프론트에서 nickname이 같으면 수정,삭제 버튼 나오게 사용할 수 있게 model에 추가
         model.addAttribute("product", product);
         model.addAttribute("nickname", nickname);
@@ -77,8 +63,16 @@ public class PostController_React {
     public String writePost(@ModelAttribute ProductDTO productDTO,
                             Principal principal){
 
-        Product product = postService.convertToEntity(productDTO, principal.getName());
-        String userID = principal.getName();
+
+
+
+
+
+
+
+
+//        Product product = postService.convertToEntity(productDTO, principal.getName());
+//        String userID = principal.getName();
 
         postService.postProduct(product , productDTO.getPictures(), userID);
 //        pictureService.uploadPicture(product, pictures);
