@@ -1,5 +1,7 @@
 package com.project.FreeCycle.Service;
 
+import com.project.FreeCycle.Dto.UserConverter;
+import com.project.FreeCycle.Dto.UserDTO;
 import com.project.FreeCycle.Util.AESUtil;
 import com.project.FreeCycle.Api.CoolSMSApi;
 import com.project.FreeCycle.Util.PasswordUtil;
@@ -145,11 +147,18 @@ public class VerifyService {
     }
 
     // 휴대폰 중복 확인
-    public boolean verifyPhoneNum(String phoneNum){
+    public UserDTO verifyPhoneNum(String phoneNum){
         try{
             String encryptedPhoneNum = AESUtil.encrypt(phoneNum);
+            log.info("암호화된 전화번호: " + encryptedPhoneNum);
+
             User user = userRepository.findByPhone(encryptedPhoneNum);
-            return user != null;
+
+            if (user == null){
+                return null;
+            }
+
+            return UserConverter.toDTO(user);
         } catch (Exception e) {
             throw new RuntimeException("휴대폰 번호 중복 확인 중 오류 발생",e);
         }

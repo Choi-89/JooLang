@@ -2,9 +2,11 @@ package com.project.FreeCycle.Controller;
 
 //import org.springframework.http.ResponseEntity;
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Dto.UserDTO;
 import com.project.FreeCycle.Repository.UserRepository;
 import com.project.FreeCycle.Service.LocationService;
 import com.project.FreeCycle.Service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,19 +26,12 @@ import java.security.Principal;
 //@RestController
 //@CrossOrigin(origins = "http://localhost:3000")
 @Controller
+@RequiredArgsConstructor
 public class HomeController {
-
-
 
     private final UserService userService;
     private final LocationService locationService;
-    private final UserRepository userRepository;
 
-    public HomeController(UserService userService, LocationService locationService, UserRepository userRepository) {
-        this.userService = userService;
-        this.locationService = locationService;
-        this.userRepository = userRepository;
-    }
 
     // 로그인 전 홈 화면
     @GetMapping("/")
@@ -60,8 +55,8 @@ public class HomeController {
     @PostMapping("/delete")
     public String delete(@RequestParam("password") String password, Model model, Principal principal){
         String userId = principal.getName();// 현재 로그인 되어있는 이름 가져옴
-        User user = userRepository.findByUserId(userId);
-        long user_id = user.getId();
+        UserDTO userDTO = userService.getUser(userId);
+        long user_id = userDTO.getId();
 
         if(userService.checkPassword(userId, password)){
             if(locationService.deleteLocation(user_id) && userService.deleteUser(userId)){

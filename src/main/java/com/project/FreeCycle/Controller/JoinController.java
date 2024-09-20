@@ -1,17 +1,15 @@
 package com.project.FreeCycle.Controller;
 
-import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.User;
-import com.project.FreeCycle.Repository.UserRepository;
+import com.project.FreeCycle.Dto.LocationDTO;
+import com.project.FreeCycle.Dto.UserDTO;
 //import org.springframework.http.HttpStatus;
 //import org.springframework.http.ResponseEntity;
 import com.project.FreeCycle.Service.JoinService;
 import com.project.FreeCycle.Service.LocationService;
-import com.project.FreeCycle.Service.UserService;
 import com.project.FreeCycle.Service.VerifyService;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -51,22 +49,15 @@ public class JoinController {
                            Model model){
 
         try{
-            User user = new User();
-            user.setName(name);
-            user.setNickname(nickname);
-            user.setUserId(userId);
-            user.setPassword(password);
-            user.setEmail(email);
 
-            User savedUser = joinService.UserSave(user);
+            UserDTO userDTO = new UserDTO(userId,name,nickname,email, null,null,null,null,0);
+            userDTO.setPassword(password);
 
-            Location location = new Location();
-            location.setAddress(address);
-            location.setDetailAddress(detailAddress);
-            location.setPostcode(postcode);
-            location.setUser(savedUser);
-            locationService.LocationSave(location);
+            User savedUser = joinService.UserSave(userDTO);
 
+            LocationDTO locationDTO = new LocationDTO(address,postcode,detailAddress);
+
+            locationService.LocationSave(locationDTO, savedUser);
 
 //            return ResponseEntity.ok().body("User registered successfully");
             return "redirect:/";

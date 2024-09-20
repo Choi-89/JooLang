@@ -51,6 +51,10 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
 
+    // 유저의 주소
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Location> locations = new ArrayList<>();
+
     public String getPhoneNum(){
         try{
             return AESUtil.decrypt(phoneNum);
