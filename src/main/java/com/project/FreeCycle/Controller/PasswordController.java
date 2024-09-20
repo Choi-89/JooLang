@@ -13,9 +13,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Slf4j
 @Controller
 public class PasswordController {
+    private final VerifyService verifyService;
 
     @Autowired
-    VerifyService verifyService;
+    public PasswordController(VerifyService verifyService) {
+        this.verifyService = verifyService;
+    }
 
     @GetMapping("/certifyUser")
     public String ShowFindPassword(){

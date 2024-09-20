@@ -101,7 +101,11 @@
             <button type="button" onclick="confirmDelete()">삭제</button>
         </form>
     </div>
-
+    <div class="post-actions" th:unless="${nickname == product.user.nickname}">
+        <form th:action="@{/post/chat}">
+            <button type="button" onclick="sendData()">채팅</button>
+        </form>
+    </div>
     <div>
         <a href="/home_user"><button>메인 홈</button></a><br>
     </div>
@@ -112,12 +116,23 @@
 </div>
 
 <script>
+    var userdata = "[[${product.user.id}]]";
     function confirmDelete() {
         if (confirm("정말 삭제하시겠습니까?")) {
             document.getElementById("delete-form").submit();
         } else {
             window.location.href = "/post_detail/"+id;
         }
+    }
+
+    function sendData(){
+        fetch('/post/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userdata),
+        });
     }
 </script>
 </body>
