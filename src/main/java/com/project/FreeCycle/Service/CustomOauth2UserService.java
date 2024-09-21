@@ -9,6 +9,7 @@ import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Dto.CustomUserDetail;
 import com.project.FreeCycle.Repository.OAuth2UserInfo;
 import com.project.FreeCycle.Repository.UserRepository;
+import com.project.FreeCycle.Util.HashUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -37,7 +38,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private final LocationService locationService;
     private final HttpSession httpSession;
     private final HttpServletResponse httpServletResponse;
-    private final JoinService joinService;
+    private final UserService userService;
 
     @PostConstruct
     public void init() {
@@ -78,34 +79,35 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         Optional<User> userOptional = Optional.ofNullable(userRepository.findByUserId(userId));
         
         // 하이폰 삭제하여 데베에 저장
-        String cleanPhoneNum = phoneNum.replaceAll("-",""); 
-        User user;
+        String cleanPhoneNum = phoneNum.replaceAll("-","");
         log.info(">>>데베에 저장 할 핸드폰 번호 : " + cleanPhoneNum);
 
-        UserDTO result = verifyService.verifyPhoneNum(cleanPhoneNum);
         // 핸드폰 번호 중복 확인
+        UserDTO result = verifyService.verifyPhoneNum(cleanPhoneNum);
         if (result != null) {
             log.error("이미 존재하는 핸드폰 번호로 회원가입 시도: {}", cleanPhoneNum);
             throw new OAuth2AuthenticationException("이미 가입된 연락처가 존재합니다.");
         }
 
+        User user;
         /* 만약 처음 로그인 시도 했으면 회원가입이 비밀번호 세팅이 
         * 필요하므로 관련된 로직으로 수정 */
         if (userOptional.isEmpty()) {
 
             UserDTO userDTO = new UserDTO(userId, name, nickname, email, role, provider, providerId, cleanPhoneNum, 0);
 
-            // 번호 암호화 하여 저장
+            // 번호 해싱화하여 저장
             try{
-                String encryptedPhoneNum = AESUtil.encrypt(cleanPhoneNum);
-                userDTO.setPhoneNumber(encryptedPhoneNum);
+//                String encryptedPhoneNum = AESUtil.encrypt(cleanPhoneNum);
+                String encryptedPhoneNum = HashUtil.hashPhoneNumber(cleanPhoneNum);
+                userDTO.setPhoneNum(encryptedPhoneNum);
             } catch (Exception e) {
-                log.error("휴대폰 번호 암호화 중 오류 발생",e);
+                log.error("휴대폰 번호 해싱화 중 오류 발생",e);
             }
 
-            User savedUser = joinService.UserSave(userDTO);
-            LocationDTO locationDTO = new LocationDTO(null,null,null);
+            User savedUser = userService.saveUser(userDTO);
 
+            LocationDTO locationDTO = new LocationDTO(null,null,null);
             locationService.LocationSave(locationDTO,savedUser);
 
             log.info("새로운 사용자 저장: {}", userId);

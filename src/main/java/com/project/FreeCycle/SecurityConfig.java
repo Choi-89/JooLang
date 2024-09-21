@@ -1,4 +1,4 @@
-package com.project.FreeCycle.Config;
+package com.project.FreeCycle;
 
 import com.project.FreeCycle.Repository.UserRepository;
 import com.project.FreeCycle.Service.CustomOauth2UserService;
@@ -80,30 +80,30 @@ public class SecurityConfig {
                         .loginPage("/home/login")
                         .userInfoEndpoint(userInfo -> {
                             try {
-                                log.info("OAuth2 UserService 설정 시도 중...");
+                                //log.info("OAuth2 UserService 설정 시도 중...");
                                 userInfo.userService(customOauth2UserService);
-                                log.info("OAuth2 UserService 설정됨");
+                                //log.info("OAuth2 UserService 설정됨");
                             } catch (Exception e) {
-                                log.error("OAuth2 UserService 설정 중 오류 발생: ", e);
+                                //log.error("OAuth2 UserService 설정 중 오류 발생: ", e);
                             }
                         })
                         .successHandler((request, response, authentication) -> {
-                            log.info("OAuth2 로그인 성공: " + authentication.getName());
+                            //log.info("OAuth2 로그인 성공: " + authentication.getName());
                             SecurityContextHolder.getContext().setAuthentication(authentication);
-                            log.info("SecurityContext에 저장된 인증 정보: " + SecurityContextHolder.getContext().getAuthentication());
+                            //log.info("SecurityContext에 저장된 인증 정보: " + SecurityContextHolder.getContext().getAuthentication());
                             new SimpleUrlAuthenticationSuccessHandler("/home_user").onAuthenticationSuccess(request, response, authentication);
                         })
                         .failureHandler((request, response, exception) -> {
-                            log.error("OAuth2 로그인 실패: " + exception.getMessage());
+                            //log.error("OAuth2 로그인 실패: " + exception.getMessage());
                             response.sendRedirect("/home/login?error=true");
                         })
         );
 
         http
                 .exceptionHandling(exception -> {
-                    log.info("Configuring exceptionHandling");
+                    //log.info("Configuring exceptionHandling");
                     exception.authenticationEntryPoint((request, response, authException) -> {
-                        log.error("권한 인증 에러 error: {}", authException.getMessage());
+                        //log.error("권한 인증 에러 error: {}", authException.getMessage());
                         response.sendRedirect("/home/login?error=true");
                     });
                 });

@@ -15,6 +15,7 @@ public class LocationService {
     @Autowired
     private LocationRepository locationRepository;
 
+    @Transactional
     public void LocationSave(LocationDTO locationDTO, User user) {
         Location location = LocationConverter.toDomain(locationDTO);
 

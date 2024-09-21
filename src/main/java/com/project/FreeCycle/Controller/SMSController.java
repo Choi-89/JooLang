@@ -54,6 +54,7 @@ public class SMSController {
 
         if(verifyService.verifyCode(verifyCode)) {
             log.info("인증 성공");
+            model.addAttribute("phoneNumber", phoneNumber); // 모델에 추가하여 join.html에서도 사용가능하게 함
             return "join";
         }
 

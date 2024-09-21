@@ -5,8 +5,8 @@ import com.project.FreeCycle.Dto.LocationDTO;
 import com.project.FreeCycle.Dto.UserDTO;
 //import org.springframework.http.HttpStatus;
 //import org.springframework.http.ResponseEntity;
-import com.project.FreeCycle.Service.JoinService;
 import com.project.FreeCycle.Service.LocationService;
+import com.project.FreeCycle.Service.UserService;
 import com.project.FreeCycle.Service.VerifyService;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
@@ -21,13 +21,13 @@ import org.springframework.web.bind.annotation.*;
 public class JoinController {
 
     private final LocationService locationService;
-    private final JoinService joinService;
     private final VerifyService verifyService;
+    private final UserService userService;
 
-    public JoinController(LocationService locationService, JoinService joinService, VerifyService verifyService) {
+    public JoinController(LocationService locationService, VerifyService verifyService, UserService userService) {
         this.locationService = locationService;
-        this.joinService = joinService;
         this.verifyService = verifyService;
+        this.userService = userService;
     }
 
     @GetMapping("/home/joinList")
@@ -46,26 +46,35 @@ public class JoinController {
                            @RequestParam("password") String password, @RequestParam("userId") String userId,
                            @RequestParam("postcode") String postcode, @RequestParam("address") String address,
                            @RequestParam(name = "email") String email,@RequestParam("detail_address") String detailAddress,
+                           @RequestParam("phoneNum") String phoneNum,
                            Model model){
 
         try{
+            log.info("회원가입 요청: userId={}, email={}, name={}, phoneNum={}", userId, email, name, phoneNum);
 
-            UserDTO userDTO = new UserDTO(userId,name,nickname,email, null,null,null,null,0);
+            UserDTO userDTO = new UserDTO(userId,name,nickname,email, null,null,null,phoneNum,0);
+            log.info("UserDTO 생성 완료: {}", userDTO);
+
             userDTO.setPassword(password);
+            log.info("비밀번호 설정 완료: {}", password);
 
-            User savedUser = joinService.UserSave(userDTO);
+            User savedUser = userService.saveUser(userDTO);
+            log.info("User 저장 완료: {}", savedUser);
 
             LocationDTO locationDTO = new LocationDTO(address,postcode,detailAddress);
-
             locationService.LocationSave(locationDTO, savedUser);
+            log.info("Location 정보 저장 완료");
 
 //            return ResponseEntity.ok().body("User registered successfully");
             return "redirect:/";
         } catch (IllegalArgumentException e){
+            log.error("회원가입 오류: {}", e.getMessage());
             model.addAttribute("errorMsg", e.getMessage());
 //            return ResponseEntity.badRequest().body("Invalid data: " + e.getMessage());
             return "join";
         } catch (Exception e){
+            log.error("회원가입 중 알 수 없는 오류 발생", e);
+
             model.addAttribute("errorMsg", "회원가입 중 오류가 발생하였습니다.");
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 //                    .body("An error occurred during registration");

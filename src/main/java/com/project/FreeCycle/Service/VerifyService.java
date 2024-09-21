@@ -4,6 +4,7 @@ import com.project.FreeCycle.Dto.UserConverter;
 import com.project.FreeCycle.Dto.UserDTO;
 import com.project.FreeCycle.Util.AESUtil;
 import com.project.FreeCycle.Api.CoolSMSApi;
+import com.project.FreeCycle.Util.HashUtil;
 import com.project.FreeCycle.Util.PasswordUtil;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Repository.UserRepository;
@@ -149,17 +150,24 @@ public class VerifyService {
     // 휴대폰 중복 확인
     public UserDTO verifyPhoneNum(String phoneNum){
         try{
-            String encryptedPhoneNum = AESUtil.encrypt(phoneNum);
-            log.info("암호화된 전화번호: " + encryptedPhoneNum);
+//            String encryptedPhoneNum = AESUtil.encrypt(phoneNum);
+//            log.info("암호화된 전화번호: " + encryptedPhoneNum);
 
-            User user = userRepository.findByPhone(encryptedPhoneNum);
+            String cleanPhoneNum = phoneNum.replaceAll("-", "");
+
+            String encryptedPhoneNum = HashUtil.hashPhoneNumber(cleanPhoneNum);
+
+            User user = userRepository.findByPhoneNum(encryptedPhoneNum);
 
             if (user == null){
+                log.info("중복된 전화번호 없음");
                 return null;
             }
 
+            log.info("중복된 전화번호 확인: {}", user.getPhoneNum());
             return UserConverter.toDTO(user);
         } catch (Exception e) {
+
             throw new RuntimeException("휴대폰 번호 중복 확인 중 오류 발생",e);
         }
     }
