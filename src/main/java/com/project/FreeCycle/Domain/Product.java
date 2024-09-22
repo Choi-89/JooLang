@@ -4,6 +4,7 @@ package com.project.FreeCycle.Domain;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -15,6 +16,7 @@ import java.util.List;
 @Table
 @Getter
 @Setter
+@NoArgsConstructor
 public class Product {
 
 
@@ -41,7 +43,7 @@ public class Product {
     private User user;
 
     //상품삭제 > 사진삭제 Cascade
-    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product_Attachment> attachments;
 
     @Builder

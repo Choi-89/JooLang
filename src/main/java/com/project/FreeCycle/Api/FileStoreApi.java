@@ -1,7 +1,9 @@
 package com.project.FreeCycle.Api;
 
 import com.project.FreeCycle.Domain.AttachmentType;
+import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.Product_Attachment;
+import com.project.FreeCycle.Repository.AttachmentRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +17,14 @@ import java.util.UUID;
 @Component
 public class FileStoreApi {
 
-    @Value("${file.dir}/")
+    private final AttachmentRepository attachmentRepository;
+
+
+    public FileStoreApi(AttachmentRepository attachmentRepository){
+        this.attachmentRepository = attachmentRepository;
+    }
+
+    @Value("${file.dir}")
     private String fileDirPath;
 
     private String extractExt(String originalFilename){
@@ -37,7 +46,7 @@ public class FileStoreApi {
         return fileDirPath + viaPath + storeFilename;
     }
 
-    public Product_Attachment storeFile(MultipartFile multipartFile, AttachmentType attachmentType) throws IOException{
+    public Product_Attachment storeFile(MultipartFile multipartFile, AttachmentType attachmentType, Product product) throws IOException{
         if (multipartFile.isEmpty()) {
             return null;
         }
@@ -47,18 +56,23 @@ public class FileStoreApi {
         multipartFile.transferTo(new File(createPath(storeFilename, attachmentType)));
 
         return Product_Attachment.builder()
+                .product(product)
                 .originFilename(originalFilename)
                 .storePath(storeFilename)
                 .attachmentType(attachmentType)
                 .build();
     }
 
-    public List<Product_Attachment> storeFiles(List<MultipartFile> multipartFiles, AttachmentType attachmentType) throws IOException{
+    public List<Product_Attachment> storeFiles(List<MultipartFile> multipartFiles, AttachmentType attachmentType, Product product) throws IOException{
         List<Product_Attachment> attachments = new ArrayList<>();
-        for(MultipartFile multipartFile : multipartFiles){
-            if(!multipartFile.isEmpty()){
-                attachments.add(storeFile(multipartFile,attachmentType));
+        if(multipartFiles != null) {
+            for (MultipartFile multipartFile : multipartFiles) {
+                if (!multipartFile.isEmpty()) {
+                    Product_Attachment attachment = storeFile(multipartFile, attachmentType, product);
+                    attachments.add(attachment);
+                }
             }
+
         }
         return attachments;
     }

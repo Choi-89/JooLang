@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,32 +30,47 @@ import java.util.stream.Stream;
 public class AttachmentService {
 
     private final AttachmentRepository attachmentRepository;
+    private final ProductRepository productRepository;
     private final FileStoreApi fileStoreApi;
 
-    public List<Product_Attachment> saveAttachments(Map<AttachmentType, List<MultipartFile>> multipartFileListMap) throws IOException{
+    public List<Product_Attachment> saveAttachments(Map<AttachmentType, List<MultipartFile>> multipartFileListMap, Product product) throws IOException {
         List<Product_Attachment> imageFiles = fileStoreApi.storeFiles(multipartFileListMap
-                .get(AttachmentType.IMAGE), AttachmentType.IMAGE);
+                .get(AttachmentType.IMAGE), AttachmentType.IMAGE, product);
 
         List<Product_Attachment> generalFiles = fileStoreApi.storeFiles(multipartFileListMap
-                .get(AttachmentType.GENERAL), AttachmentType.GENERAL);
+                .get(AttachmentType.GENERAL), AttachmentType.GENERAL, product);
 
-        List<Product_Attachment> result = Stream.of(imageFiles,generalFiles)
+        List<Product_Attachment> result = Stream.of(imageFiles, generalFiles)
                 .flatMap(f -> f.stream())
                 .collect(Collectors.toList());
 
         return result;
-
-
     }
 
-//    public Product post()
+    public Map<AttachmentType, List<Product_Attachment>> findAttachments() {
+        List<Product_Attachment> attachments = attachmentRepository.findAll();
+        Map<AttachmentType, List<Product_Attachment>> result = attachments.stream()
+                .collect(Collectors.groupingBy(Product_Attachment::getAttachmentType));
+
+        return result;
+    }
+
+    public List<String> getPictures(Long productId){
+        List<String> pictures = new ArrayList<>();
+
+        Product product = productRepository.findById(productId).orElse(null);
+
+        for(Product_Attachment tmp : product.getAttachments()){
+            pictures.add(tmp.getStoreFilename());
+        }
+
+        return pictures;
+    }
+
+}
 
 
 
-//        public Map<AttachmentType , List<Product_Attachment>> findAttachments(){
-//        List<Product_Attachment> attachments = attachmentRepository.findAll();
-//        return ;
-//    }
 
 
 
@@ -132,5 +148,4 @@ public class AttachmentService {
 //        return pictures;
 //    }
 
-    
-}
+

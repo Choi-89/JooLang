@@ -22,15 +22,16 @@ public class Product_Attachment {
 
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Product product;
 
     @Builder
-    public Product_Attachment(long id, String originFilename, String storePath, AttachmentType attachmentType){
+    public Product_Attachment(long id, String originFilename, String storePath, AttachmentType attachmentType, Product product){
         this.id = id;
         this.originFilename = originFilename;
         this.storeFilename = storePath;
         this.attachmentType = attachmentType;
+        this.product = product;
     }
 
 

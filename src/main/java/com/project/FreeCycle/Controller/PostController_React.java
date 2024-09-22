@@ -3,6 +3,7 @@ package com.project.FreeCycle.Controller;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Dto.ProductDTO;
+import com.project.FreeCycle.Dto.ProductFormDTO;
 import com.project.FreeCycle.Repository.UserRepository;
 import com.project.FreeCycle.Service.AttachmentService;
 import com.project.FreeCycle.Service.PostService;
@@ -10,8 +11,10 @@ import com.project.FreeCycle.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
@@ -60,21 +63,17 @@ public class PostController_React {
     }
 
     @PostMapping(value = "/post/write")
-    public String writePost(@ModelAttribute ProductDTO productDTO,
-                            Principal principal){
-
-
-
-
-
-
-
+    public String writePost(@ModelAttribute ProductFormDTO productFormDTO,
+                            Principal principal) throws IOException {
+        String userId = principal.getName();
+        ProductDTO productDTO = productFormDTO.createProductDTO();
+        postService.postProduct(productDTO,userId);
 
 
 //        Product product = postService.convertToEntity(productDTO, principal.getName());
 //        String userID = principal.getName();
 
-        postService.postProduct(product , productDTO.getPictures(), userID);
+//        postService.postProduct(product , productDTO.getPictures(), userID);
 //        pictureService.uploadPicture(product, pictures);
 
         return "redirect:/postlist";
