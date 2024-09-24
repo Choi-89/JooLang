@@ -3,8 +3,6 @@ package com.project.FreeCycle.Service;
 
 import com.project.FreeCycle.Dto.LocationDTO;
 import com.project.FreeCycle.Dto.UserDTO;
-import com.project.FreeCycle.Util.AESUtil;
-import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Dto.CustomUserDetail;
 import com.project.FreeCycle.Repository.OAuth2UserInfo;
@@ -82,17 +80,19 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         String cleanPhoneNum = phoneNum.replaceAll("-","");
         log.info(">>>데베에 저장 할 핸드폰 번호 : " + cleanPhoneNum);
 
-        // 핸드폰 번호 중복 확인
-        UserDTO result = verifyService.verifyPhoneNum(cleanPhoneNum);
-        if (result != null) {
-            log.error("이미 존재하는 핸드폰 번호로 회원가입 시도: {}", cleanPhoneNum);
-            throw new OAuth2AuthenticationException("이미 가입된 연락처가 존재합니다.");
-        }
+
 
         User user;
         /* 만약 처음 로그인 시도 했으면 회원가입이 비밀번호 세팅이 
         * 필요하므로 관련된 로직으로 수정 */
         if (userOptional.isEmpty()) {
+
+            // 핸드폰 번호 중복 확인
+            UserDTO result = verifyService.verifyPhoneNum(cleanPhoneNum);
+            if (result != null) {
+                log.error("이미 존재하는 핸드폰 번호로 회원가입 시도: {}", cleanPhoneNum);
+                throw new OAuth2AuthenticationException("이미 가입된 연락처가 존재합니다.");
+            }
 
             UserDTO userDTO = new UserDTO(userId, name, nickname, email, role, provider, providerId, cleanPhoneNum, 0);
 
