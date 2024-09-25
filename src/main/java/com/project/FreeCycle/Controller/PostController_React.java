@@ -134,6 +134,7 @@ public class PostController_React {
 
         String userId = principal.getName();
 
+
         postService.saveDibs(userId , id);
 
         return "redirect:/post_detail/" + id;

@@ -206,6 +206,7 @@ public class PostService {
 
         List<Dibs> dibs = user.getDibs();
         Product product = productRepository.findById(postId).orElse(null);
+
         product.setView(product.getView() - 1);
 
         //게시물이 User에 있는지 == isThat
@@ -225,6 +226,7 @@ public class PostService {
             newDibs.setDibsId(postId);
             newDibs.setUser(user);
             dibs.add(newDibs);
+            dibsRepository.save(newDibs);
         }
 
 
