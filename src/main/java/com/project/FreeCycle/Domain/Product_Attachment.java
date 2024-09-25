@@ -14,6 +14,7 @@ public class Product_Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     private String originFilename;
     private String storeFilename;
 
@@ -26,12 +27,11 @@ public class Product_Attachment {
     private Product product;
 
     @Builder
-    public Product_Attachment(long id, String originFilename, String storePath, AttachmentType attachmentType, Product product){
+    public Product_Attachment(long id, String originFilename, String storePath, AttachmentType attachmentType){
         this.id = id;
         this.originFilename = originFilename;
         this.storeFilename = storePath;
         this.attachmentType = attachmentType;
-        this.product = product;
     }
 
 

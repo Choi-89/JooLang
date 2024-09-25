@@ -1,6 +1,5 @@
 package com.project.FreeCycle.Service;
 
-import com.nimbusds.openid.connect.sdk.assurance.evidences.attachment.Attachment;
 import com.project.FreeCycle.Domain.Dibs;
 import com.project.FreeCycle.Domain.Product;
 
@@ -85,13 +84,15 @@ public class PostService {
 
         Product product = productDTO.createProduct();
         product.setUser(userRepository.findByUserId(userId));
-        productRepository.save(product);
+        product = productRepository.save(product);
 
         if(!productDTO.getAttachmentFiles().isEmpty()){
-            List<Product_Attachment> attachments = attachmentService.saveAttachments(productDTO.getAttachmentFiles(), product);
+            List<Product_Attachment> attachments = product.getAttachments();
+            attachments.addAll(attachmentService.saveAttachments(productDTO.getAttachmentFiles()));
             product.setAttachments(attachments);
 
             for(Product_Attachment attachment : attachments){
+                attachment.setProduct(product);
                 attachmentRepository.save(attachment);
                 log.info(attachment.getOriginFilename());
             }

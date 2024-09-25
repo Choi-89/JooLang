@@ -46,7 +46,7 @@ public class FileStoreApi {
         return fileDirPath + viaPath + storeFilename;
     }
 
-    public Product_Attachment storeFile(MultipartFile multipartFile, AttachmentType attachmentType, Product product) throws IOException{
+    public Product_Attachment storeFile(MultipartFile multipartFile, AttachmentType attachmentType) throws IOException{
         if (multipartFile.isEmpty()) {
             return null;
         }
@@ -56,19 +56,18 @@ public class FileStoreApi {
         multipartFile.transferTo(new File(createPath(storeFilename, attachmentType)));
 
         return Product_Attachment.builder()
-                .product(product)
                 .originFilename(originalFilename)
                 .storePath(storeFilename)
                 .attachmentType(attachmentType)
                 .build();
     }
 
-    public List<Product_Attachment> storeFiles(List<MultipartFile> multipartFiles, AttachmentType attachmentType, Product product) throws IOException{
+    public List<Product_Attachment> storeFiles(List<MultipartFile> multipartFiles, AttachmentType attachmentType) throws IOException{
         List<Product_Attachment> attachments = new ArrayList<>();
         if(multipartFiles != null) {
             for (MultipartFile multipartFile : multipartFiles) {
                 if (!multipartFile.isEmpty()) {
-                    Product_Attachment attachment = storeFile(multipartFile, attachmentType, product);
+                    Product_Attachment attachment = storeFile(multipartFile, attachmentType);
                     attachments.add(attachment);
                 }
             }

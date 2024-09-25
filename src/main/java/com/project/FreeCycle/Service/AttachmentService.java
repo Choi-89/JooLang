@@ -33,12 +33,12 @@ public class AttachmentService {
     private final ProductRepository productRepository;
     private final FileStoreApi fileStoreApi;
 
-    public List<Product_Attachment> saveAttachments(Map<AttachmentType, List<MultipartFile>> multipartFileListMap, Product product) throws IOException {
+    public List<Product_Attachment> saveAttachments(Map<AttachmentType, List<MultipartFile>> multipartFileListMap) throws IOException {
         List<Product_Attachment> imageFiles = fileStoreApi.storeFiles(multipartFileListMap
-                .get(AttachmentType.IMAGE), AttachmentType.IMAGE, product);
+                .get(AttachmentType.IMAGE), AttachmentType.IMAGE);
 
         List<Product_Attachment> generalFiles = fileStoreApi.storeFiles(multipartFileListMap
-                .get(AttachmentType.GENERAL), AttachmentType.GENERAL, product);
+                .get(AttachmentType.GENERAL), AttachmentType.GENERAL);
 
         List<Product_Attachment> result = Stream.of(imageFiles, generalFiles)
                 .flatMap(f -> f.stream())
