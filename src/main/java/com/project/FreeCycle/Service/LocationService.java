@@ -1,6 +1,9 @@
 package com.project.FreeCycle.Service;
 
 import com.project.FreeCycle.Domain.Location;
+import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Dto.LocationConverter;
+import com.project.FreeCycle.Dto.LocationDTO;
 import com.project.FreeCycle.Repository.LocationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,7 +15,12 @@ public class LocationService {
     @Autowired
     private LocationRepository locationRepository;
 
-    public void LocationSave(Location location) {
+    @Transactional
+    public void LocationSave(LocationDTO locationDTO, User user) {
+        Location location = LocationConverter.toDomain(locationDTO);
+
+        location.setUser(user);
+
         locationRepository.save(location);
     }
 

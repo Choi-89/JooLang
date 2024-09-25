@@ -10,13 +10,14 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<User, Integer> {
     User findById(Long user);
     User save(User user);
-//    User findById(long id);
+    User findById(long id);
     User findByUserId(String userId);
     User findByNickname(String nickName);
     User findByName(String name);
+    User findByPhoneNum(String phoneNum);
     boolean existsByUserId(String userId);
 
-    @Query("SELECT u FROM User u WHERE u.phoneNum = :phoneNum")
-    User findByPhone(@Param("phoneNum") String phoneNum); // 휴대폰 번호 검색 시 평문을 암호화해서 검색
+//    @Query("SELECT u FROM User u WHERE u.phoneNum = :phoneNum")
+//    User findByPhone(@Param("phoneNum") String phoneNum); // 휴대폰 번호 검색 시 평문을 암호화해서 검색
 
 }

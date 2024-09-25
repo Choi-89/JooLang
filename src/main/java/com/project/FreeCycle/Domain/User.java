@@ -1,8 +1,10 @@
 package com.project.FreeCycle.Domain;
 
 import com.project.FreeCycle.Util.AESUtil;
+import com.project.FreeCycle.Util.HashUtil;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.List;
 @Entity
 @Table(name = "user")
 @Data
+@Slf4j
 public class User {
 
     @Id
@@ -51,24 +54,36 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
 
+    // 유저의 주소
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Location> locations = new ArrayList<>();
+
     //유저가 가지고있는 채팅
-    @OneToMany(mappedBy="user", fetch=FetchType.LAZY)
+    @OneToMany(mappedBy="user", fetch=FetchType.LAZY,cascade = CascadeType.ALL)
     private List<Chat> chats = new ArrayList<>();
 
-    public String getPhoneNum(){
-        try{
-            return AESUtil.decrypt(phoneNum);
-        } catch (Exception e) {
-            throw new RuntimeException("복호화 오류", e);
-        }
-    }
-
-    public void setPhoneNum(String phoneNum){
-        try{
-            this.phoneNum = AESUtil.encrypt(phoneNum);
-        } catch (Exception e) {
-            throw new RuntimeException("암호화 오류", e);
-        }
-    }
+//    public String getPhoneNum(){
+//        try{
+//            log.info("PhoneNum 복호화 시작");
+////            return AESUtil.decrypt(phoneNum);
+//            return
+//        } catch (Exception e) {
+//            log.error("PhoneNum 복호화 오류", e);
+//            throw new RuntimeException("복호화 오류", e);
+//        }
+//    }
+//
+//    public void setPhoneNum(String phoneNum){
+//        try{
+//            log.info("PhoneNum 암호화 시작");
+////            this.phoneNum = AESUtil.encrypt(phoneNum);
+//            this.phoneNum = HashUtil.hashPhoneNumber(phoneNum);
+//            log.info("PhoneNum 암호화 완료: {}", this.phoneNum);
+//
+//        } catch (Exception e) {
+//            log.error("PhoneNum 암호화 오류", e);
+//            throw new RuntimeException("암호화 오류", e);
+//        }
+//    }
 
 }

@@ -1,9 +1,9 @@
 package com.project.FreeCycle.Controller;
 
+import com.project.FreeCycle.Dto.UserDTO;
 import com.project.FreeCycle.Service.VerifyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +43,8 @@ public class SMSController {
                             ,Model model){
         log.info("인증 코드 확인 시도: {}", verifyCode);
 
-        if(!verifyService.verifyPhoneNum(phoneNumber)){
+        UserDTO userDTO = verifyService.verifyPhoneNum(phoneNumber);
+        if(userDTO != null){
             log.error("이미 중복 된 회원");
             model.addAttribute("errorMsg", "이미 가입 되어 있는 회원");
             model.addAttribute("phoneNumber", phoneNumber);
@@ -52,6 +53,7 @@ public class SMSController {
 
         if(verifyService.verifyCode(verifyCode)) {
             log.info("인증 성공");
+            model.addAttribute("phoneNumber", phoneNumber); // 모델에 추가하여 join.html에서도 사용가능하게 함
             return "join";
         }
 

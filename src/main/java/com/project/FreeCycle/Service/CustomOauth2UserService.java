@@ -1,12 +1,13 @@
 package com.project.FreeCycle.Service;
 
 
-import com.project.FreeCycle.Util.AESUtil;
-import com.project.FreeCycle.Domain.Location;
+import com.project.FreeCycle.Dto.LocationDTO;
+import com.project.FreeCycle.Dto.UserDTO;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Dto.CustomUserDetail;
 import com.project.FreeCycle.Repository.OAuth2UserInfo;
 import com.project.FreeCycle.Repository.UserRepository;
+import com.project.FreeCycle.Util.HashUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -35,6 +36,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private final LocationService locationService;
     private final HttpSession httpSession;
     private final HttpServletResponse httpServletResponse;
+    private final UserService userService;
+
     @PostConstruct
     public void init() {
         log.info("CustomOauth2UserService 빈 등록 완료");
@@ -74,47 +77,38 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         Optional<User> userOptional = Optional.ofNullable(userRepository.findByUserId(userId));
         
         // 하이폰 삭제하여 데베에 저장
-        String cleanPhoneNum = phoneNum.replaceAll("-",""); 
-        User user;
+        String cleanPhoneNum = phoneNum.replaceAll("-","");
         log.info(">>>데베에 저장 할 핸드폰 번호 : " + cleanPhoneNum);
 
-        // 핸드폰 번호 중복 확인
-        if (verifyService.verifyPhoneNum(cleanPhoneNum)) {
-            log.error("이미 존재하는 핸드폰 번호로 회원가입 시도: {}", cleanPhoneNum);
-            throw new OAuth2AuthenticationException("이미 가입된 연락처가 존재합니다.");
-        }
 
+
+        User user;
         /* 만약 처음 로그인 시도 했으면 회원가입이 비밀번호 세팅이 
         * 필요하므로 관련된 로직으로 수정 */
         if (userOptional.isEmpty()) {
-            user = new User();
-            user.setUserId(userId);
-            user.setName(name);
-            user.setPassword(null);
-            user.setRole(role);
-            user.setNickname(nickname);
-            user.setProvider(provider);
-            user.setProviderId(providerId);
-            user.setEmail(email);
-            
-            // 번호 암호화 하여 저장
-            try{
-                String encryptedPhoneNum = AESUtil.encrypt(cleanPhoneNum);
-                user.setPhoneNum(encryptedPhoneNum);
-            } catch (Exception e) {
-                log.error("휴대폰 번호 암호화 중 오류 발생",e);
+
+            // 핸드폰 번호 중복 확인
+            UserDTO result = verifyService.verifyPhoneNum(cleanPhoneNum);
+            if (result != null) {
+                log.error("이미 존재하는 핸드폰 번호로 회원가입 시도: {}", cleanPhoneNum);
+                throw new OAuth2AuthenticationException("이미 가입된 연락처가 존재합니다.");
             }
 
-            userRepository.save(user);
-            
-            // Location 객체를 생성하여 null 값으로 저장
-            Location location = new Location();
-            location.setUser(user);
-            location.setPostcode(null);
-            location.setAddress(null);
-            location.setDetailAddress(null);
-            
-            locationService.LocationSave(location);
+            UserDTO userDTO = new UserDTO(userId, name, nickname, email, role, provider, providerId, cleanPhoneNum, 0);
+
+            // 번호 해싱화하여 저장
+            try{
+//                String encryptedPhoneNum = AESUtil.encrypt(cleanPhoneNum);
+                String encryptedPhoneNum = HashUtil.hashPhoneNumber(cleanPhoneNum);
+                userDTO.setPhoneNum(encryptedPhoneNum);
+            } catch (Exception e) {
+                log.error("휴대폰 번호 해싱화 중 오류 발생",e);
+            }
+
+            User savedUser = userService.saveUser(userDTO);
+
+            LocationDTO locationDTO = new LocationDTO(null,null,null);
+            locationService.LocationSave(locationDTO,savedUser);
 
             log.info("새로운 사용자 저장: {}", userId);
 
@@ -126,12 +120,11 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             } catch (IOException e) {
                 log.error("리다이렉션 실패");
             }
-            return new CustomUserDetail(user, oAuth2User.getAttributes());
+            return new CustomUserDetail(savedUser, oAuth2User.getAttributes());
         } else {
             user = userOptional.get();
             log.info("기존 사용자 로그인: {}", userId);
         }
-
         return new CustomUserDetail(user, oAuth2User.getAttributes());
     }
 }
