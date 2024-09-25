@@ -1,6 +1,5 @@
 package com.project.FreeCycle.Controller;
 
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @RestController
-public class ImageController {
+public class AttachmentController {
 
     @GetMapping("/image/{filename}")
     public ResponseEntity<byte[]> getImage(@PathVariable("filename") String filename) throws IOException {
