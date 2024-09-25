@@ -20,9 +20,4 @@ public class Product_Picture {
     @ManyToOne
     @JoinColumn(name = "Product_id", nullable = false)
     private Product product;
-
-    @ManyToOne
-    @JoinColumn(name = "Product_Display_id", nullable = false)
-    private Product_Display product_display;
-
 }

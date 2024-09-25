@@ -24,6 +24,6 @@ public class Chat_List {
     @Column(nullable = false)
     private LocalDateTime chat_time;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Chat chat;
 }
