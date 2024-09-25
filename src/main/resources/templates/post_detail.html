@@ -134,7 +134,8 @@
             <img th:if="${#strings.toLowerCase(pic).endsWith('.png') or
                   #strings.toLowerCase(pic).endsWith('.jpeg') or
                   #strings.toLowerCase(pic).endsWith('.jpg')}"
-                 th:src="@{${pic}}" alt="상품 이미지" style="width:100%; max-width:600px;">
+            th:src="@{/image/{pic}(pic=${pic})}" alt="상품 이미지" style="width:100%; max-width:600px;">
+
         </div>
 
     </div><br>
