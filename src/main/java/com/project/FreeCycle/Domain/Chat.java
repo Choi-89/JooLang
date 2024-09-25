@@ -25,6 +25,6 @@ public class Chat {
     @ManyToOne
     private User user;
 
-    @OneToMany
+    @OneToMany(mappedBy = "chat", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chat_List> chat_lists;
 }
