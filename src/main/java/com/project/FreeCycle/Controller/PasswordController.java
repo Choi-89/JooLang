@@ -1,17 +1,20 @@
 package com.project.FreeCycle.Controller;
 
 import com.project.FreeCycle.Service.VerifyService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@Controller
+@RestController
 public class PasswordController {
     private final VerifyService verifyService;
 
@@ -20,91 +23,102 @@ public class PasswordController {
         this.verifyService = verifyService;
     }
 
+    @Operation(summary = "비밀번호 찾기 페이지", description = "비밀번호 찾기 페이지를 반환")
     @GetMapping("/certifyUser")
-    public String ShowFindPassword(){
-        return "certifyUser";
+    public ResponseEntity<String> ShowFindPassword(){
+//        return "certifyUser";
+        return ResponseEntity.ok("certifyUser");
     }
 
+    @Operation(summary = "사용자 인증 확인 처리", description = "사용자 ID와 이메일을 통해 데이터 베이스에 있는 사용자인지 확인합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "사용자 인증 성공"),
+            @ApiResponse(responseCode = "400", description = "사용자 인증 실패")
+    })
     @PostMapping("/certifyUserProc")
-    public String certifyUser(@RequestParam(name = "userId") String userId,
-                              @RequestParam(name = "email") String email,
-                              Model model){
+    public ResponseEntity<String> certifyUser(@Parameter(description = "사용자 ID", required = true) @RequestParam(name = "userId") String userId,
+                              @Parameter(description = "사용자 이메일", required = true) @RequestParam(name = "email") String email
+                              ){
 
         log.info("certifyUserProc 호출 - userId: {}", userId);
         /* 입력 받은 사용자 Id와 email이 데이터베이스에 있는지 확인하는
         * 로직 구현 */
         if(verifyService.existUser(userId, email)){
             log.info("유저 아이디 가져왔는지 확인 : userId={}", userId);
-            model.addAttribute("userId", userId);
-            model.addAttribute("email", email);
-            log.info("모델에 추가된 데이터: userId={}, email={}", model.getAttribute("userId"), model.getAttribute("email"));
-            return "verifyCode";
+
+            log.info("모델에 추가된 데이터: userId={}, email={}",userId, email);
+//            return "verifyCode";
+            return ResponseEntity.ok("verifyCode");
         } else{
-            model.addAttribute("errorMsg", "해당하는 아이디 혹은 이메일이 없습니다.");
-            return "redirect:/certifyUser";
+//            return "redirect:/certifyUser";
+            log.error("사용자 인증 실패: userId={}, email={}", userId, email);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("해당하는 아이디 혹은 이메일이 없습니다.");
         }
-
     }
 
+    @Operation(summary = "인증 코드 입력 페이지", description = "인증 코드를 입력하는 페이지를 반환합니다.")
     @GetMapping("/verifyCode")
-    public String ShowVerifyCode(@ModelAttribute(name = "userId") String userId,
-                                 @ModelAttribute(name = "email") String email,
-                                 Model model){
-        model.addAttribute("userId", userId);
-        model.addAttribute("email", email);
-        return "verifyCode";
+    public ResponseEntity<String> ShowVerifyCode(@Parameter(description = "사용자 ID", required = true) @RequestParam(name = "userId") String userId,
+                                 @Parameter(description = "사용자 이메일", required = true) @RequestParam(name = "email") String email
+                                 ){
+        log.info("verifyCode 페이지 요청: userId={}, email={}", userId, email);
+//        return "verifyCode";
+        return ResponseEntity.ok("verifyCode");
     }
 
-
+    @Operation(summary = "인증 코드 전송 처리", description = "인증 코드를 이메일로 전송합니다.")
     @PostMapping("/sendCodeProc")
-    public String VerifyCodeProc(@ModelAttribute(name = "email") String email,
-                                 @ModelAttribute(name = "userId") String userId, Model model){
-        log.info("전송된 userId: {}", userId);
+    public ResponseEntity<String> VerifyCodeProc(@Parameter(description = "사용자 이메일", required = true) @RequestParam(name = "email") String email,
+                                 @Parameter(description = "사용자 ID", required = true) @RequestParam(name = "userId") String userId){
+        log.info("인증 코드 전송 요청: userId={}, email={}", userId, email);
 
         /* 인증번호 발생 후 메일 제출 코드 */
         if(verifyService.sendEmail(email)){
-            model.addAttribute("userId", userId);
-            log.info("유저 아이디 가져왔는지 확인 : userId={}", userId);
-            log.info("모델에 추가된 데이터: userId={}", model.getAttribute("userId"));
-
-            return "verifyCode";
+            log.info("인증 코드 전송 성공: userId={}", userId);
+//            return "verifyCode";
+            return ResponseEntity.ok("verifyCode");
         } else{
-            throw new IllegalArgumentException("인증번호 발생 혹은 메일 발송 중 에러 발생했습니다.");
+            log.error("인증 코드 전송 실패: userId={}", userId);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("인증번호 발송 중 오류 발생");
         }
-
     }
 
+    @Operation(summary = "인증 코드 확인 처리", description = "입력된 인증 코드를 확인합니다.")
     @PostMapping("/verifyCodeProc")
-    public String SendCodeProc(@RequestParam(name = "verifyCode") String code,
-                               @RequestParam(name = "userId") String userId, Model model){
+    public ResponseEntity<String> SendCodeProc( @Parameter(description = "인증 코드", required = true) @RequestParam(name = "verifyCode") String code,
+                                                @Parameter(description = "사용자 ID", required = true) @RequestParam(name = "userId") String userId){
+        log.info("인증 코드 확인 요청: userId={}, code={}", userId, code);
 
         /* 인증 번호 비교 로직 */
         if(verifyService.verifyCode(code)){
-            log.info("유저 아이디 가져왔는지 확인 : userId={}", userId);
-
-            model.addAttribute("userId", userId);
-            return "editPassword";
+            log.info("인증 코드 일치: userId={}", userId);
+//            return "editPassword";
+            return ResponseEntity.ok("editPassword");
         }
-        model.addAttribute("errorMsg","인증번호가 일치하지 않습니다.");
-        model.addAttribute("userId", userId);
-        return "verifyCode";
+        log.error("인증 코드 불일치: userId={}, code={}", userId, code);
+        return ResponseEntity.badRequest().body("인증번호가 일치하지 않습니다.");
+//        return "verifyCode";
     }
 
+    @Operation(summary = "비밀번호 수정 페이지", description = "비밀번호 수정 페이지를 반환합니다.")
     @GetMapping("/editPassword")
-    public String ShowEditPassword(@ModelAttribute(name = "userId") String userId,
-                                   Model model){
-        model.addAttribute("userId", userId);
-        log.info("모델에 추가된 데이터: userId={}", model.getAttribute("userId"));
+    public ResponseEntity<String> ShowEditPassword(@Parameter(description = "사용자 ID", required = true) @RequestParam(name = "userId") String userId){
 
-        return "editPassword";
+//        return "editPassword";
+        log.info("비밀번호 수정 페이지 요청: userId={}", userId);
+        return ResponseEntity.ok("editPassword");
     }
 
+    @Operation(summary = "비밀번호 수정 처리", description = "사용자의 비밀번호를 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "비밀번호 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "비밀번호 불일치 또는 업데이트 실패")
+    })
     @PostMapping("/updatePasswordProc")
-    public String EditPasswordProc(@RequestParam(name =  "newPassword") String password,
-                                   @RequestParam(name = "confirmPassword") String passwordConfirm,
-                                   @RequestParam (name = "userId") String userId, Model model) {
+    public ResponseEntity<String> EditPasswordProc(@Parameter(description = "새 비밀번호", required = true) @RequestParam(name =  "newPassword") String password,
+                                                   @Parameter(description = "비밀번호 확인", required = true) @RequestParam(name = "confirmPassword") String passwordConfirm,
+                                                   @Parameter(description = "사용자 ID", required = true) @RequestParam (name = "userId") String userId) {
 
-        log.info("모델에 추가된 데이터: userId={}", model.getAttribute("userId"));
 
         /* 비밀번호 업데이트 로직 구현 */
         log.info("비밀번호 수정 요청: userId={}, newPassword={}, confirmPassword={}", userId, password, passwordConfirm);
@@ -113,17 +127,18 @@ public class PasswordController {
             log.info("비밀번호가 일치합니다.");
             if (verifyService.updatePassword(password, userId)) {
                 log.info("비밀번호가 성공적으로 업데이트되었습니다: userId={}", userId);
-                return "redirect:/";
+//                return "redirect:/";
+                return ResponseEntity.ok("비밀번호가 성공적으로 업데이트되었습니다.");
             } else{
                 log.error("비밀번호 업데이트 중 오류 발생: userId={}", userId);
-                model.addAttribute("errorMsg","새 비밀번호가 현재 비밀번호와 동일합니다");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("새 비밀번호가 현재 비밀번호와 동일합니다.");
             }
         } else{
             log.error("비밀번호가 일치하지 않습니다: newPassword={}, confirmPassword={}", password, passwordConfirm);
-            model.addAttribute("errorMsg","비밀번호가 일치하지 않습니다.");
+            return ResponseEntity.badRequest().body("비밀번호가 일치하지 않습니다.");
         }
-
-        model.addAttribute("userId", userId);  // 다시 비밀번호 설정 위해 model에 userId 다시 추가
-        return "editPassword";
+//
+//        model.addAttribute("userId", userId);  // 다시 비밀번호 설정 위해 model에 userId 다시 추가
+//        return "editPassword";
     }
 }

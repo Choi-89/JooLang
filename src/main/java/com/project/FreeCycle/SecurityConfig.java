@@ -27,7 +27,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Lazy
+//    @Lazy
     private final CustomOauth2UserService customOauth2UserService;
 
     private final UserRepository userRepository;
@@ -51,7 +51,8 @@ public class SecurityConfig {
                                 "/static/**","/favicon.ico","/certifyUser","/certifyUserProc",
                                 "/verifyCode","/verifyCodeProc","/sendCodeProc",
                                 "/editPassword","/updatePasswordProc","/sendSmsProc",
-                                "/checkProc", "/home/verifyPhone").permitAll()
+                                "/checkProc", "/home/verifyPhone",
+                                "/v3/api-docs/**", "/swagger/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/postlist","/post/**","post_detail/**").hasRole("USER")
                         .anyRequest().authenticated()
                 );
