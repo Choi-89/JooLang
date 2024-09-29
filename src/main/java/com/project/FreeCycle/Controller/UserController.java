@@ -9,6 +9,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @RestController
 public class UserController {
@@ -18,10 +21,12 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "마이페이지 반환 성공")
     })
     @GetMapping("/mypage")
-    private ResponseEntity<String> Mypage(){
+    private ResponseEntity<Map<String, String>> Mypage(){
+        Map<String, String> response = new HashMap<>();
+
         log.info("마이페이지 요청 처리");
-        return ResponseEntity.ok("mypage");
-//        return "mypage";
+        response.put("message","마이페이지로 이동");
+        return ResponseEntity.ok(response);
     }
 
 }

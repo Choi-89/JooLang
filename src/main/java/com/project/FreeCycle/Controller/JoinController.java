@@ -4,8 +4,6 @@ import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Dto.JoinRequestDTO;
 import com.project.FreeCycle.Dto.LocationDTO;
 import com.project.FreeCycle.Dto.UserDTO;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
 import com.project.FreeCycle.Service.LocationService;
 import com.project.FreeCycle.Service.UserService;
 import com.project.FreeCycle.Service.VerifyService;
@@ -17,9 +15,10 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 //@CrossOrigin(origins = "http://localhost:3000")
@@ -38,18 +37,21 @@ public class JoinController {
         this.userService = userService;
     }
 
-    @Operation(summary = "회원가입 유형", description = "회원가입을 어떤 방식으로 할지 고르는 페이지로 이동합니다.")
+    @Operation(summary = "회원가입 유형", description = "회원가입을 어떤 방식으로 할지 고르는 페이지로 이동합니다." +
+            "일반 회원가입 할 것인지~ 소셜 계정으로 회원가입 할 것인지")
     @GetMapping("/joinList")
-    public ResponseEntity<String> joinList(){
-//        return "joinList";
-        return ResponseEntity.ok("{\"message\": \"회원가입 유형 선택 페이지로 이동\"}");
+    public ResponseEntity<Map<String, String>> joinList(){
+        Map<String, String> response = new HashMap<>();
+        response.put("message","회원가입 유형 선택 페이지로 이동");
+        return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "회원가입 페이지", description = "회원가입 페이지로 이동합니다.")
+    @Operation(summary = "회원가입 페이지", description = "일반 회원가입 페이지로 이동합니다.")
     @GetMapping("/join")
-    public ResponseEntity<String> ShowJoin(){
-//        return "join";
-        return ResponseEntity.ok("{\"message\": \"회원가입 페이지로 이동\"}");
+    public ResponseEntity<Map<String, String>> ShowJoin(){
+        Map<String, String> response = new HashMap<>();
+        response.put("message","회원가입 페이지로 이동");
+        return ResponseEntity.ok(response);
     }
 
 
@@ -60,7 +62,9 @@ public class JoinController {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/joinProc")
-    public ResponseEntity<String> JoinProc(@RequestBody JoinRequestDTO joinRequestDTO) {
+    public ResponseEntity<Map<String, String>> JoinProc(@RequestBody JoinRequestDTO joinRequestDTO) {
+        
+        Map<String, String> response = new HashMap<>();
 
         try{
 
@@ -75,24 +79,29 @@ public class JoinController {
 
             locationService.LocationSave(locationDTO, savedUser);
             log.info("Location 정보 저장 완료");
-
-            return ResponseEntity.ok("User registered successfully");
+            response.put("message","회원가입 성공");
+            return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e){
             log.error("회원가입 오류: {}", e.getMessage());
-            return ResponseEntity.badRequest().body("Invalid data: " + e.getMessage());
+            response.put("message","회원가입 도중 오류가 발생했습니다.");
+            return ResponseEntity.badRequest().body(response);
         } catch (Exception e){
             log.error("회원가입 중 알 수 없는 오류 발생", e);
+            response.put("message","서버 오류");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred during registration");
+                    .body(response);
         }
     }
 
     // OAuth2 방식으로 처음 로그인 시도 할 시 비밀번호 업데이트 함.
-    @Operation(summary = "OAuth2 비밀번호 설정 페이지", description = "OAuth2 로그인 시 비밀번호 설정 페이지로 이동합니다.")
+    @Operation(summary = "OAuth2 비밀번호 설정 페이지", description = "소셜계정 로그인 시 비밀번호 설정 페이지로 이동합니다.")
     @GetMapping("/joinPassword")
-    public ResponseEntity<String> joinPassword(){
-        return ResponseEntity.ok("{\"message\": \"OAuth2 비밀번호 설정 페이지\"}");
+    public ResponseEntity<Map<String, String>> joinPassword(){
+        Map<String, String> response = new HashMap<>();
+        response.put("message","oAuth2 비밀번호 설정 페이지");
+
+        return ResponseEntity.ok(response);
     }
 
 
@@ -103,16 +112,16 @@ public class JoinController {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/joinPasswordProc")
-    public ResponseEntity<String> joinPasswordProc(
+    public ResponseEntity<Map<String, String>> joinPasswordProc(
             @Parameter(description = "새 비밀번호", required = true) @RequestParam(name = "newPassword") String password,
             @Parameter(description = "비밀번호 확인", required = true) @RequestParam(name = "confirmPassword") String passwordConfirm
             ,HttpSession session){
         String userId = (String) session.getAttribute("userId");
+        Map<String, String> response = new HashMap<>();
         if(userId == null) {
             log.error("세션에 userId가 없습니다.");
-//            return "joinPassword";
-            return ResponseEntity.badRequest().body("Session does not contain userId");
-
+            response.put("message","세션에 userId가 없습니다.");
+            return ResponseEntity.badRequest().body(response);
         }
 
         log.info("비밀번호 설정 요청 : userId = {}, newPassword = {}, confirmPassword = {}", userId, password, passwordConfirm);
@@ -121,19 +130,19 @@ public class JoinController {
             if(verifyService.updatePassword(password, userId)) {
                 log.info("비밀번호가 성공적으로 설정되었습니다: userId={}", userId);
                 session.removeAttribute("userId");
-//                return "redirect:/";
-                return ResponseEntity.ok("Password updated successfully");
+                response.put("message","비밀번호가 성공적으로 설정 되었습니다.");
+                return ResponseEntity.ok(response);
             } else{
                 log.error("비밀번호 설정 중 오류가 발생하였습니다. userId = {}", userId);
-//                model.addAttribute("errorMsg","비밀번호가 업데이트 중 오류가 발생했습니다.");
+                response.put("message","비밀번호 설정 중 서버에 오류가 발생했습니다.");
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("An error occurred while updating password");
+                        .body(response);
             }
         } else{
             log.error("비밀번호가 일치하지 않습니다.");
-            return ResponseEntity.badRequest().body("Passwords do not match");
+            response.put("message","비밀번호가 일치하지 않습니다.");
+            return ResponseEntity.badRequest().body(response);
         }
-//        return "joinPassword";
     }
 
 }
