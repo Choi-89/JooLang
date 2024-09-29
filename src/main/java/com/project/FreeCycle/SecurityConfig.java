@@ -12,6 +12,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,9 +28,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-//    @Lazy
     private final CustomOauth2UserService customOauth2UserService;
-
     private final UserRepository userRepository;
 
     @Bean
@@ -46,26 +45,33 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/","/home/login","/home/join","/home/joinList",
-                                "/joinProc","/loginProc","/auth/**","/error",
+                        .requestMatchers("/","/home/**","/loginProc","/auth/**","/error",
                                 "/static/**","/favicon.ico","/certifyUser","/certifyUserProc",
                                 "/verifyCode","/verifyCodeProc","/sendCodeProc",
-                                "/editPassword","/updatePasswordProc","/sendSmsProc",
-                                "/checkProc", "/home/verifyPhone",
+                                "/editPassword","/updatePasswordProc",
                                 "/v3/api-docs/**", "/swagger/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/postlist","/post/**","post_detail/**").hasRole("USER")
                         .anyRequest().authenticated()
                 );
 
+//        http
+//                .formLogin((auth) -> auth
+//                        .usernameParameter("userId")
+//                        .passwordParameter("password")
+//                        .loginPage("/home/login")
+//                        .loginProcessingUrl("/loginProc")
+//                        .successHandler(new SimpleUrlAuthenticationSuccessHandler("/home_user"))
+//                        .failureUrl("/home/login?error=true")
+//                        .permitAll()
+//                );
+
         http
-                .formLogin((auth) -> auth
-                        .usernameParameter("userId")
-                        .passwordParameter("password")
-                        .loginPage("/home/login")
-                        .loginProcessingUrl("/loginProc")
-                        .successHandler(new SimpleUrlAuthenticationSuccessHandler("/home_user"))
-                        .failureUrl("/home/login?error=true")
-                        .permitAll()
+                .formLogin((formLogin) -> formLogin.disable());
+
+        // 커스텀 로그인 API 사용
+        http
+                .sessionManagement((session) -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 );
 
         http
@@ -78,7 +84,6 @@ public class SecurityConfig {
 
         http
                 .oauth2Login(oauth -> oauth
-                        .loginPage("/home/login")
                         .userInfoEndpoint(userInfo -> {
                             try {
                                 //log.info("OAuth2 UserService 설정 시도 중...");
@@ -117,18 +122,18 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 사용자 정보를 데이터베이스에서 조회하고,
-    // 사용자가 입력한 비밀번호가 데이터베이스에 저장된 비밀번호와 일치하는지 확인하는 데 사용
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-
-        // 사용자 정보를 데이터베이스에서 조회할 수 있게 함
-        authProvider.setUserDetailsService(userDetailsService());
-        // 비밀번호를 비교할 때 사용할 입력된 비밀번호를 암호화 하여 비교함
-        authProvider.setPasswordEncoder(bCryptPasswordEncoder());
-        return authProvider;
-    }
+//    // 사용자 정보를 데이터베이스에서 조회하고,
+//    // 사용자가 입력한 비밀번호가 데이터베이스에 저장된 비밀번호와 일치하는지 확인하는 데 사용
+//    @Bean
+//    public DaoAuthenticationProvider authenticationProvider() {
+//        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+//
+//        // 사용자 정보를 데이터베이스에서 조회할 수 있게 함
+//        authProvider.setUserDetailsService(userDetailsService());
+//        // 비밀번호를 비교할 때 사용할 입력된 비밀번호를 암호화 하여 비교함
+//        authProvider.setPasswordEncoder(bCryptPasswordEncoder());
+//        return authProvider;
+//    }
 
 //    @Bean
 //    public WebMvcConfigurer corsConfigurer() {

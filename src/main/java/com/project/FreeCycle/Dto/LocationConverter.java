@@ -2,6 +2,7 @@ package com.project.FreeCycle.Dto;
 
 import com.project.FreeCycle.Domain.Location;
 
+
 public class LocationConverter {
     public static LocationDTO toDTO(Location location) {
         return new LocationDTO(

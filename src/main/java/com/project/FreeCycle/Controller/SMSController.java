@@ -23,9 +23,9 @@ public class SMSController {
     private VerifyService verifyService;
 
     @Operation(summary = "휴대폰 인증 페이지 이동 ", description = "휴대폰 번호 인즈을 위한 페이지로 이동")
-    @GetMapping("/home/verifyPhone")
+    @GetMapping("/verifyPhone")
     public ResponseEntity<String> VerfiyPhone(){
-        return ResponseEntity.ok("verifyPhone");
+        return ResponseEntity.ok("{\"message\": \"휴대폰 인증 페이지\"}");
     }
 
     @Operation(summary = "휴대폰 인증 번호 전송", description = "입력된 휴대폰 번호로 인증 번호 전송")

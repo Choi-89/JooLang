@@ -1,5 +1,6 @@
 package com.project.FreeCycle.Dto;
 
+import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.User;
 import lombok.extern.slf4j.Slf4j;
 
@@ -7,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserConverter {
 
     public static UserDTO toDTO(User user){
+
         return new UserDTO(
                 user.getUserId(),
                 user.getName(),

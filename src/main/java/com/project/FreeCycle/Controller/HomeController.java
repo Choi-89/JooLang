@@ -41,7 +41,7 @@ public class HomeController {
     @Operation(summary = "로그인 전 홈 화면", description = "로그인되지 않은 상태에서의 홈 화면")
     @GetMapping
     public ResponseEntity<String> home() {
-        return ResponseEntity.ok("home");
+        return ResponseEntity.ok("{\"message\": \"로그인 전 홈 화면\"}");
 //        return "home";
     }
 
@@ -49,7 +49,7 @@ public class HomeController {
     @Operation(summary = "로그인 후 홈 화면 정보", description = "로그인한 사용자를 위한 홈 화면 정보를 반환합니다.")
     @GetMapping("/home_user")
     public ResponseEntity<String> homeUser() {
-        return ResponseEntity.ok("home_user");
+        return ResponseEntity.ok("{\"message\": \"로그인 후 홈 화면 정보\"}");
 //        return "home_user";
     }
 

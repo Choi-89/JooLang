@@ -9,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -27,7 +25,7 @@ public class PasswordController {
     @GetMapping("/certifyUser")
     public ResponseEntity<String> ShowFindPassword(){
 //        return "certifyUser";
-        return ResponseEntity.ok("certifyUser");
+        return ResponseEntity.ok("{\"message\": \"비밀번호 찾기 페이지로 이동\"}");
     }
 
     @Operation(summary = "사용자 인증 확인 처리", description = "사용자 ID와 이메일을 통해 데이터 베이스에 있는 사용자인지 확인합니다.")
@@ -47,10 +45,8 @@ public class PasswordController {
             log.info("유저 아이디 가져왔는지 확인 : userId={}", userId);
 
             log.info("모델에 추가된 데이터: userId={}, email={}",userId, email);
-//            return "verifyCode";
             return ResponseEntity.ok("verifyCode");
         } else{
-//            return "redirect:/certifyUser";
             log.error("사용자 인증 실패: userId={}, email={}", userId, email);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("해당하는 아이디 혹은 이메일이 없습니다.");
         }
@@ -62,8 +58,7 @@ public class PasswordController {
                                  @Parameter(description = "사용자 이메일", required = true) @RequestParam(name = "email") String email
                                  ){
         log.info("verifyCode 페이지 요청: userId={}, email={}", userId, email);
-//        return "verifyCode";
-        return ResponseEntity.ok("verifyCode");
+        return ResponseEntity.ok("{\"message\": \"인증 코드 입력 페이지로 이동\", \"userId\": \"" + userId + "\", \"email\": \"" + email + "\"}");
     }
 
     @Operation(summary = "인증 코드 전송 처리", description = "인증 코드를 이메일로 전송합니다.")
@@ -86,7 +81,7 @@ public class PasswordController {
     @Operation(summary = "인증 코드 확인 처리", description = "입력된 인증 코드를 확인합니다.")
     @PostMapping("/verifyCodeProc")
     public ResponseEntity<String> SendCodeProc( @Parameter(description = "인증 코드", required = true) @RequestParam(name = "verifyCode") String code,
-                                                @Parameter(description = "사용자 ID", required = true) @RequestParam(name = "userId") String userId){
+                                                @Parameter(description = "사용자 ID", required = false) @RequestParam(name = "userId") String userId){
         log.info("인증 코드 확인 요청: userId={}, code={}", userId, code);
 
         /* 인증 번호 비교 로직 */
@@ -106,7 +101,7 @@ public class PasswordController {
 
 //        return "editPassword";
         log.info("비밀번호 수정 페이지 요청: userId={}", userId);
-        return ResponseEntity.ok("editPassword");
+        return ResponseEntity.ok("{\"message\": \"비밀번호 수정 페이지\", \"userId\": \"" + userId + "\"}");
     }
 
     @Operation(summary = "비밀번호 수정 처리", description = "사용자의 비밀번호를 수정합니다.")
@@ -137,8 +132,5 @@ public class PasswordController {
             log.error("비밀번호가 일치하지 않습니다: newPassword={}, confirmPassword={}", password, passwordConfirm);
             return ResponseEntity.badRequest().body("비밀번호가 일치하지 않습니다.");
         }
-//
-//        model.addAttribute("userId", userId);  // 다시 비밀번호 설정 위해 model에 userId 다시 추가
-//        return "editPassword";
     }
 }

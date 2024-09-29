@@ -1,7 +1,5 @@
 package com.project.FreeCycle.Dto;
 
-import com.project.FreeCycle.Domain.User;
-import com.project.FreeCycle.Util.HashUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +19,7 @@ public class UserDTO {
     private String provider;
     private String role;
     private String providerId;
+
 
     public UserDTO(String userId, String username, String nickname, String email, String role, String provider, String providerId,
                    String phoneNum, long Id) {

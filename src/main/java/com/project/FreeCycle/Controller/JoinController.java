@@ -1,6 +1,7 @@
 package com.project.FreeCycle.Controller;
 
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Dto.JoinRequestDTO;
 import com.project.FreeCycle.Dto.LocationDTO;
 import com.project.FreeCycle.Dto.UserDTO;
 //import org.springframework.http.HttpStatus;
@@ -38,17 +39,17 @@ public class JoinController {
     }
 
     @Operation(summary = "회원가입 유형", description = "회원가입을 어떤 방식으로 할지 고르는 페이지로 이동합니다.")
-    @GetMapping("/home/joinList")
+    @GetMapping("/joinList")
     public ResponseEntity<String> joinList(){
 //        return "joinList";
-        return ResponseEntity.ok("joinList");
+        return ResponseEntity.ok("{\"message\": \"회원가입 유형 선택 페이지로 이동\"}");
     }
 
     @Operation(summary = "회원가입 페이지", description = "회원가입 페이지로 이동합니다.")
-    @GetMapping("/home/join")
+    @GetMapping("/join")
     public ResponseEntity<String> ShowJoin(){
 //        return "join";
-        return ResponseEntity.ok("join");
+        return ResponseEntity.ok("{\"message\": \"회원가입 페이지로 이동\"}");
     }
 
 
@@ -59,46 +60,31 @@ public class JoinController {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/joinProc")
-    public ResponseEntity<String> JoinProc(@Parameter(description = "사용자 이름", required = true) @RequestParam("userName") String name,
-                           @Parameter(description = "닉네임", required = true) @RequestParam("nickname") String nickname,
-                           @Parameter(description = "비밀번호", required = true) @RequestParam("password") String password,
-                           @Parameter(description = "사용자 ID", required = true) @RequestParam("userId") String userId,
-                           @Parameter(description = "우편번호", required = true)  @RequestParam("postcode") String postcode,
-                           @Parameter(description = "주소", required = true) @RequestParam("address") String address,
-                           @Parameter(description = "이메일", required = true) @RequestParam(name = "email") String email,
-                           @Parameter(description = "상세 주소", required = true) @RequestParam("detail_address") String detailAddress,
-                           @Parameter(description = "전화번호", required = true) @RequestParam("phoneNum") String phoneNum
-                           ){
+    public ResponseEntity<String> JoinProc(@RequestBody JoinRequestDTO joinRequestDTO) {
 
         try{
-            log.info("회원가입 요청: userId={}, email={}, name={}, phoneNum={}", userId, email, name, phoneNum);
 
-            UserDTO userDTO = new UserDTO(userId,name,nickname,email, null,null,null,phoneNum,0);
-            log.info("UserDTO 생성 완료: {}", userDTO);
+            UserDTO userDTO = joinRequestDTO.getUserDTO();
+            LocationDTO locationDTO = joinRequestDTO.getLocationDTO();
 
-            userDTO.setPassword(password);
-            log.info("비밀번호 설정 완료: {}", password);
+            log.info("회원가입 요청: userId={}, email={}, name={}, phoneNum={}",
+                    userDTO.getUserId(), userDTO.getEmail(), userDTO.getUsername(), userDTO.getPhoneNum());
 
             User savedUser = userService.saveUser(userDTO);
             log.info("User 저장 완료: {}", savedUser);
 
-            LocationDTO locationDTO = new LocationDTO(address,postcode,detailAddress);
             locationService.LocationSave(locationDTO, savedUser);
             log.info("Location 정보 저장 완료");
 
-//            return "redirect:/";
             return ResponseEntity.ok("User registered successfully");
 
         } catch (IllegalArgumentException e){
             log.error("회원가입 오류: {}", e.getMessage());
-//            return "join";
             return ResponseEntity.badRequest().body("Invalid data: " + e.getMessage());
         } catch (Exception e){
             log.error("회원가입 중 알 수 없는 오류 발생", e);
-
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred during registration");
-//            return "join";
         }
     }
 
@@ -106,9 +92,9 @@ public class JoinController {
     @Operation(summary = "OAuth2 비밀번호 설정 페이지", description = "OAuth2 로그인 시 비밀번호 설정 페이지로 이동합니다.")
     @GetMapping("/joinPassword")
     public ResponseEntity<String> joinPassword(){
-//        return "joinPassword";
-        return ResponseEntity.ok("joinPassword");
+        return ResponseEntity.ok("{\"message\": \"OAuth2 비밀번호 설정 페이지\"}");
     }
+
 
     @Operation(summary = "OAuth2 비밀번호 설정 처리", description = "OAuth2 회원의 비밀번호를 설정합니다.")
     @ApiResponses(value = {
