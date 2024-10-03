@@ -1,7 +1,7 @@
-package com.project.FreeCycle.Dto;
+package com.project.FreeCycle.Service;
 
-import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Dto.UserDTO;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

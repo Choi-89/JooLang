@@ -20,7 +20,6 @@ public class UserDTO {
     private String role;
     private String providerId;
 
-
     public UserDTO(String userId, String username, String nickname, String email, String role, String provider, String providerId,
                    String phoneNum, long Id) {
         this.userId = userId;
@@ -32,4 +31,5 @@ public class UserDTO {
         this.providerId = providerId;
         this.phoneNum = phoneNum;
     }
+
 }

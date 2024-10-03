@@ -1,6 +1,5 @@
-package com.project.FreeCycle.Service;
+package com.project.FreeCycle.Dto;
 
-import com.project.FreeCycle.Repository.OAuth2UserInfo;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
@@ -9,14 +8,12 @@ import java.util.Map;
 @Slf4j
 public class NaverUserDetails implements OAuth2UserInfo {
 
-    private Map<String, Object> attributes;
-    private Map<String, Object> response;
+    private final Map<String, Object> attributes;
+    private final Map<String, Object> response;
 
     public NaverUserDetails(Map<String, Object> attributes) {
         this.attributes = attributes;
         this.response = (Map<String, Object>) attributes.get("response");
-        log.info("Naver attributes: {}", attributes);
-        log.info("Naver response: {}", response);
     }
 
     @Override
@@ -28,9 +25,9 @@ public class NaverUserDetails implements OAuth2UserInfo {
     @Override
     public String getProviderId() {
         if (response != null && response.containsKey("id")) {
-            return (String) response.get("id");
+            return response.get("id").toString();
         } else if (attributes.containsKey("id")) {
-            return (String) attributes.get("id");
+            return attributes.get("id").toString();
         } else {
             log.error("Provider ID를 찾을 수 없습니다.");
             return null;
@@ -39,22 +36,22 @@ public class NaverUserDetails implements OAuth2UserInfo {
 
     @Override
     public String getEmail(){
-        return (String) response.get("email");
+        return response.get("email").toString();
     }
 
     @Override
     public String getMobile() {
-        return (String) response.get("mobile");
+        return response.get("mobile").toString();
     }
 
     @Override
     public String getName() {
-        return (String) response.get("name");
+        return response.get("name").toString();
     }
 
     @Override
     public String getNickname() {
-        return (String) response.get("nickname");
+        return response.get("nickname").toString();
     }
 
 }

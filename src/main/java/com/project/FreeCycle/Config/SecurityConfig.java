@@ -1,23 +1,24 @@
-package com.project.FreeCycle;
+package com.project.FreeCycle.Config;
 
+import com.project.FreeCycle.Handler.CustomOAuth2FailureHandler;
+import com.project.FreeCycle.Handler.CustomOAuth2SuccessHandler;
 import com.project.FreeCycle.Repository.UserRepository;
 import com.project.FreeCycle.Service.CustomOauth2UserService;
-import com.project.FreeCycle.Service.CustomUserDetailService;
-import lombok.RequiredArgsConstructor;
+//import com.project.FreeCycle.Service.CustomUserDetailService;
+import com.project.FreeCycle.Util.JWTFilter;
+import com.project.FreeCycle.Util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 //import org.springframework.web.servlet.config.annotation.CorsRegistry;
 //import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -25,21 +26,28 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 @Slf4j
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final CustomOauth2UserService customOauth2UserService;
     private final UserRepository userRepository;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+    private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
+    private final JwtUtil jwtUtil;
+
+    @Autowired
+    public SecurityConfig(CustomOauth2UserService customOauth2UserService, UserRepository userRepository, CustomOAuth2SuccessHandler customOAuth2SuccessHandler, CustomOAuth2FailureHandler customOAuth2FailureHandler, JwtUtil jwtUtil) {
+        this.customOauth2UserService = customOauth2UserService;
+        this.userRepository = userRepository;
+        this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
+        this.customOAuth2FailureHandler = customOAuth2FailureHandler;
+        this.jwtUtil = jwtUtil;
+    }
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new CustomUserDetailService(userRepository);
-    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -52,18 +60,9 @@ public class SecurityConfig {
                                 "/v3/api-docs/**", "/swagger/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/postlist","/post/**","post_detail/**").hasRole("USER")
                         .anyRequest().authenticated()
-                );
+                )
+                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
-//        http
-//                .formLogin((auth) -> auth
-//                        .usernameParameter("userId")
-//                        .passwordParameter("password")
-//                        .loginPage("/home/login")
-//                        .loginProcessingUrl("/loginProc")
-//                        .successHandler(new SimpleUrlAuthenticationSuccessHandler("/home_user"))
-//                        .failureUrl("/home/login?error=true")
-//                        .permitAll()
-//                );
 
         http
                 .formLogin((formLogin) -> formLogin.disable());
@@ -81,28 +80,24 @@ public class SecurityConfig {
                         .invalidateHttpSession(true) // 세션 무효화
                         .permitAll()
                 );
+//
+//        http
+//                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
+        // oAuth2 방식
         http
-                .oauth2Login(oauth -> oauth
-                        .userInfoEndpoint(userInfo -> {
+                .oauth2Login((oauth) -> oauth
+                        .userInfoEndpoint((userInfo) -> {
                             try {
-                                //log.info("OAuth2 UserService 설정 시도 중...");
+                                log.info("OAuth2 UserService 설정 시도 중...");
                                 userInfo.userService(customOauth2UserService);
-                                //log.info("OAuth2 UserService 설정됨");
+                                log.info("OAuth2 UserService 설정됨");
                             } catch (Exception e) {
-                                //log.error("OAuth2 UserService 설정 중 오류 발생: ", e);
+                                log.error("OAuth2 UserService 설정 중 오류 발생: ", e);
                             }
                         })
-                        .successHandler((request, response, authentication) -> {
-                            //log.info("OAuth2 로그인 성공: " + authentication.getName());
-                            SecurityContextHolder.getContext().setAuthentication(authentication);
-                            //log.info("SecurityContext에 저장된 인증 정보: " + SecurityContextHolder.getContext().getAuthentication());
-                            new SimpleUrlAuthenticationSuccessHandler("/home_user").onAuthenticationSuccess(request, response, authentication);
-                        })
-                        .failureHandler((request, response, exception) -> {
-                            //log.error("OAuth2 로그인 실패: " + exception.getMessage());
-                            response.sendRedirect("/home/login?error=true");
-                        })
+                        .successHandler(customOAuth2SuccessHandler)
+                        .failureHandler(customOAuth2FailureHandler)
         );
 
         http
@@ -117,23 +112,12 @@ public class SecurityConfig {
         http
                 .csrf((csrf) -> csrf.disable());
 
-
+//        http
+//                .sessionManagement((session) -> session
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
-
-//    // 사용자 정보를 데이터베이스에서 조회하고,
-//    // 사용자가 입력한 비밀번호가 데이터베이스에 저장된 비밀번호와 일치하는지 확인하는 데 사용
-//    @Bean
-//    public DaoAuthenticationProvider authenticationProvider() {
-//        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-//
-//        // 사용자 정보를 데이터베이스에서 조회할 수 있게 함
-//        authProvider.setUserDetailsService(userDetailsService());
-//        // 비밀번호를 비교할 때 사용할 입력된 비밀번호를 암호화 하여 비교함
-//        authProvider.setPasswordEncoder(bCryptPasswordEncoder());
-//        return authProvider;
-//    }
 
 //    @Bean
 //    public WebMvcConfigurer corsConfigurer() {
