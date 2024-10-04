@@ -3,12 +3,19 @@ package com.project.FreeCycle.Service;
 import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Dto.UserConverter;
+import com.project.FreeCycle.Dto.UserDTO;
 import com.project.FreeCycle.Repository.LocationRepository;
 import com.project.FreeCycle.Repository.UserRepository;
+import com.project.FreeCycle.Util.HashUtil;
+import com.project.FreeCycle.Util.PasswordUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -90,6 +97,7 @@ public class UserService{
         log.info("User 저장 완료: {}", user);
 
         return userRepository.findByUserId(userDTO.getUserId());
+        }
     // 유저 정보 수정
 
     public void userEdit(String userId, String nickname,
@@ -115,12 +123,6 @@ public class UserService{
 
 
     }
-
-
-    public User getUser(String userId){
-        return userRepository.findByUserId(userId);
-    }
-
 
     public List<Product> getUserPosts(String userId){
         return userRepository.findByUserId(userId).getProducts();

@@ -4,6 +4,7 @@ import com.project.FreeCycle.Domain.Dibs;
 import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Dto.UserDTO;
 import com.project.FreeCycle.Repository.LocationRepository;
 import com.project.FreeCycle.Service.PostService;
 import com.project.FreeCycle.Service.UserService;
@@ -69,7 +70,8 @@ public class MyPageController {
     //개인정보 수정
     @GetMapping("/{id}/modify")
     public String modify( Principal principal, Model model){
-        User user = userService.getUser(principal.getName());
+        //충돌나는거 User > UserDTO로 바꿈
+        UserDTO user = userService.getUser(principal.getName());
         //getName하면 userId를 가져옴
         System.out.println(user.getNickname());
         model.addAttribute("user" , user);
