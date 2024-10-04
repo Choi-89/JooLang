@@ -56,8 +56,8 @@ public class User {
     private List<Product> products = new ArrayList<>();
 
     // 유저의 주소
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Location> locations = new ArrayList<>();
+    @OneToOne(mappedBy = "user")
+    private Location location;
 
     //유저가 가지고있는 채팅
     @OneToMany(mappedBy="user", fetch=FetchType.LAZY,cascade = CascadeType.ALL)
@@ -87,4 +87,7 @@ public class User {
 //        }
 //    }
 
+    //찜목록
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Dibs> dibs = new ArrayList<>();
 }
