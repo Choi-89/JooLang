@@ -8,7 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
-    
+import java.util.Map;
+import java.util.Optional;
+
 @Entity
 @Table(name = "user")
 @Data
@@ -17,7 +19,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
 
     @Column(name = "userId",unique = true)
     private String userId;
@@ -30,14 +32,14 @@ public class User {
 
     @Column(name = "nickname")
     private String nickname;
-    
+
     @Column(name = "email")
     private String email;
 
     // 중복 회원가입 방지하기 위함
     @Column(name = "phoneNum")
     private String phoneNum;
-    
+
     // 시큐리티 활용하여 admin, user 둘로 나눠서 저장 할 예정
     @Column(name = "role")
     private String role;
@@ -55,8 +57,8 @@ public class User {
     private List<Product> products = new ArrayList<>();
 
     // 유저의 주소
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Location> locations = new ArrayList<>();
+    @OneToOne(mappedBy = "user")
+    private Location location;
 
     //유저가 가지고있는 채팅
     @OneToMany(mappedBy="user", fetch=FetchType.LAZY,cascade = CascadeType.ALL)
@@ -85,5 +87,10 @@ public class User {
 //            throw new RuntimeException("암호화 오류", e);
 //        }
 //    }
+
+    //찜목록
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Dibs> dibs = new ArrayList<>();
+
 
 }
