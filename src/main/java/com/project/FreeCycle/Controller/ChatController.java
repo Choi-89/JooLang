@@ -2,6 +2,7 @@ package com.project.FreeCycle.Controller;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.project.FreeCycle.Domain.Chat;
+import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Repository.UserRepository;
 import com.project.FreeCycle.Service.ChatService;
 import com.project.FreeCycle.Service.Chat_ListService;
@@ -33,16 +34,20 @@ public class ChatController {
     }
 
     //post에서 채팅방으로 들어감
-    @RequestMapping(value = "/post/chat")
-    public String post(Model model, @RequestBody Long user, Principal principal) {
+    @RequestMapping(value = "/post/chat/{id}")
+    public String post(Model model, @PathVariable("id") Long user, Principal principal) {
+        User this_user = userRepository.findById(user);
         Chat chat = chatService.findChat(userRepository.findById(user));
         if(chat != null) {
-            long id = chat.getRoomId();
+            model.addAttribute("chat", chat.getRoomId());
+            model.addAttribute("UserName", this_user.getNickname());
+            model.addAttribute("chatLists", chatService.findAllChat_List(chat.getRoomId()));
+            System.out.println(chatService.findAllChat_List(chat.getRoomId()).size());
+            return "redirect:/chat/room/"+chat.getRoomId();
         }else {
             Chat newchat = chatService.newChat(userRepository.findById(user), principal);
-            long id = newchat.getRoomId();
+            return "redirect:/chat/room/"+newchat.getRoomId();
         }
-        return "redirect:/chat/main";
     }
 
     //챗 삭제
