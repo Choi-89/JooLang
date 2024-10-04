@@ -5,9 +5,10 @@ import com.project.FreeCycle.Domain.Chat_List;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Repository.Chat_ListRepository;
 import com.project.FreeCycle.Repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -28,7 +29,7 @@ public class Chat_ListService {
     }
 
     //저장
-    @Transactional
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void saveChat(Map<String, Object> chat, Principal principal) {
         Chat_List chat_List = new Chat_List();
         long roomId = Long.parseLong(chat.get("sender").toString());
