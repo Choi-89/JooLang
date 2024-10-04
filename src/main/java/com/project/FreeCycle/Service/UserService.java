@@ -36,7 +36,7 @@ public class UserService{
         User user = userRepository.findByUserId(userId);
         if (user != null){
             userRepository.delete(user);
-            return true;
+            return true;  
         }
         return false;
     }
