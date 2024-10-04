@@ -56,7 +56,7 @@ public class User {
     // 유저의 주소
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Location> locations = new ArrayList<>();
-
+                
     //유저가 가지고있는 채팅
     @OneToMany(mappedBy="user", fetch=FetchType.LAZY,cascade = CascadeType.ALL)
     private List<Chat> chats = new ArrayList<>();
