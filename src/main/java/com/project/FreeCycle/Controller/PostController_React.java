@@ -2,24 +2,20 @@ package com.project.FreeCycle.Controller;
 
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Dto.ProductDTO;
+import com.project.FreeCycle.Dto.ProductFormDTO;
 import com.project.FreeCycle.Repository.UserRepository;
+import com.project.FreeCycle.Service.AttachmentService;
 import com.project.FreeCycle.Service.PostService;
 import com.project.FreeCycle.Service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.security.Principal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -29,6 +25,7 @@ public class PostController_React {
     private final PostService postService;
     private final UserService userService;
     private final UserRepository userRepository;
+    private final AttachmentService attachmentService;
 
     @GetMapping(value = "/postlist")
     public String postList(Model model) {
@@ -49,9 +46,11 @@ public class PostController_React {
 
         String userId = principal.getName();
         User user = userRepository.findByUserId(userId);
+        List<String> pictures = attachmentService.getPictures(id);
         String nickname = user.getNickname();   // 프론트에서 nickname이 같으면 수정,삭제 버튼 나오게 사용할 수 있게 model에 추가
         model.addAttribute("product", product);
         model.addAttribute("nickname", nickname);
+        model.addAttribute("pictures" , pictures);
 
         return "post_detail";
     }
@@ -64,16 +63,18 @@ public class PostController_React {
     }
 
     @PostMapping(value = "/post/write")
-    public String writePost(@ModelAttribute Product product, Principal principal){
-        String userID = principal.getName();
-        // getName은 userID 가져옴.
-        User user = userRepository.findByUserId(userID);
-        String nickname = user.getNickname();
+    public String writePost(@ModelAttribute ProductFormDTO productFormDTO,
+                            Principal principal) throws IOException {
+        String userId = principal.getName();
+        ProductDTO productDTO = productFormDTO.createProductDTO();
+        postService.postProduct(productDTO,userId);
 
-        // 게시물 작성자 설정
-        product.setUser(user);
 
-        postService.postProduct(product , nickname);
+//        Product product = postService.convertToEntity(productDTO, principal.getName());
+//        String userID = principal.getName();
+
+//        postService.postProduct(product , productDTO.getPictures(), userID);
+//        pictureService.uploadPicture(product, pictures);
 
         return "redirect:/postlist";
     }
@@ -110,6 +111,32 @@ public class PostController_React {
         return "redirect:/postlist";
     }
 
+//    //글 찜버튼
+//    @PostMapping(value = "/post/{id}/dibs")
+//    public String dibs(@PathVariable("id") long id, Principal principal) {
+//        String userId = principal.getName();
+//
+//        List<Product> products = userRepository.findByUserId(userId).getDibs();
+//
+//        postService.saveDibs(userId, id);
+//
+//        for(int i = 0 ; i< products.size(); i++){
+//            System.out.println(products.get(i).getId());
+//        }
+//
+//        return "redirect:/post_detail/" + id;
+//
+//    }
+
+    //글 찜버튼
+    @PostMapping(value = "/post/{id}/dibs")
+    public String dibs(@PathVariable("id") long id, Principal principal){
+
+        String userId = principal.getName();
 
 
+        postService.saveDibs(userId , id);
+
+        return "redirect:/post_detail/" + id;
+    }
 }

@@ -1,14 +1,10 @@
 package com.project.FreeCycle.Service;
 
 import com.project.FreeCycle.Domain.Location;
+import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
-import com.project.FreeCycle.Dto.UserConverter;
-import com.project.FreeCycle.Dto.UserDTO;
 import com.project.FreeCycle.Repository.LocationRepository;
 import com.project.FreeCycle.Repository.UserRepository;
-import com.project.FreeCycle.Util.HashUtil;
-import com.project.FreeCycle.Util.PasswordUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,10 +14,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class UserService{
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final LocationRepository locationRepository;
 
     private final PasswordUtil passwordUtil = new PasswordUtil(new BCryptPasswordEncoder());
+
+    @Autowired
+    public UserService(UserRepository userRepository, LocationRepository locationRepository) {
+        this.userRepository = userRepository;
+        this.locationRepository = locationRepository;
+    }
 
     // 비밀번호 체크
     public boolean checkPassword(String userId,String password){
@@ -88,6 +90,45 @@ public class UserService{
         log.info("User 저장 완료: {}", user);
 
         return userRepository.findByUserId(userDTO.getUserId());
+    // 유저 정보 수정
+
+    public void userEdit(String userId, String nickname,
+                         String postcode, String address, String detailAddress ){
+        User user = userRepository.findByUserId(userId);
+        Location location = user.getLocation();
+//        location.setId(user.getLocation().getId());
+        if(!nickname.isEmpty()){
+            user.setNickname(nickname);
+        }
+        if(!(location.getAddress().isEmpty()
+                || location.getDetailAddress().isEmpty()
+                ||location.getPostcode().isEmpty()) )
+        {
+            location.setAddress(address);
+            location.setDetailAddress(detailAddress);
+            location.setPostcode(postcode);
+
+            System.out.println(user.getUserId());
+            System.out.println(user.getPassword());
+        }
+        userRepository.save(user);
+
+
     }
 
+
+    public User getUser(String userId){
+        return userRepository.findByUserId(userId);
+    }
+
+
+    public List<Product> getUserPosts(String userId){
+        return userRepository.findByUserId(userId).getProducts();
+    }
+
+
+
+//    public List<Product> getDibs(String userId){
+//        return userRepository.findByUserId(userId).getDibs();
+//    }
 }
