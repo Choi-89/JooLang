@@ -56,35 +56,14 @@ public class User {
     private List<Product> products = new ArrayList<>();
 
     // 유저의 주소
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Location> locations = new ArrayList<>();
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Location locations;
 
     //유저가 가지고있는 채팅
     @OneToMany(mappedBy="user", fetch=FetchType.LAZY,cascade = CascadeType.ALL)
     private List<Chat> chats = new ArrayList<>();
 
-//    public String getPhoneNum(){
-//        try{
-//            log.info("PhoneNum 복호화 시작");
-////            return AESUtil.decrypt(phoneNum);
-//            return
-//        } catch (Exception e) {
-//            log.error("PhoneNum 복호화 오류", e);
-//            throw new RuntimeException("복호화 오류", e);
-//        }
-//    }
-//
-//    public void setPhoneNum(String phoneNum){
-//        try{
-//            log.info("PhoneNum 암호화 시작");
-////            this.phoneNum = AESUtil.encrypt(phoneNum);
-//            this.phoneNum = HashUtil.hashPhoneNumber(phoneNum);
-//            log.info("PhoneNum 암호화 완료: {}", this.phoneNum);
-//
-//        } catch (Exception e) {
-//            log.error("PhoneNum 암호화 오류", e);
-//            throw new RuntimeException("암호화 오류", e);
-//        }
-//    }
-
+    //찜목록
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Dibs> dibs = new ArrayList<>();
 }
