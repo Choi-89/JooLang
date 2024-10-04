@@ -3,6 +3,7 @@ package com.project.FreeCycle.Service;
 import com.project.FreeCycle.Domain.Chat;
 import com.project.FreeCycle.Domain.Chat_List;
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Repository.ChatRepository;
 import com.project.FreeCycle.Repository.Chat_ListRepository;
 import com.project.FreeCycle.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,25 +21,35 @@ public class Chat_ListService {
     private final Chat_ListRepository chat_ListRepository;
     private final ChatService chatService;
     private final UserRepository userRepository;
+    private final ChatRepository chatRepository;
 
     @Autowired
-    public Chat_ListService(Chat_ListRepository chatListRepository, ChatService chatService, UserRepository userRepository) {
+    public Chat_ListService(Chat_ListRepository chatListRepository, ChatService chatService, UserRepository userRepository, ChatRepository chatRepository) {
         this.chat_ListRepository = chatListRepository;
         this.chatService = chatService;
         this.userRepository = userRepository;
+        this.chatRepository = chatRepository;
     }
 
     //저장
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional
     public void saveChat(Map<String, Object> chat, Principal principal) {
-        Chat_List chat_List = new Chat_List();
+        // 새로운 Chat_List 객체 생성
+        Chat_List chatList = new Chat_List();
         long roomId = Long.parseLong(chat.get("sender").toString());
-        List<Chat> chatting = chatService.findRoomId(roomId);
-        chat_List.setChat_time(LocalDateTime.now());
-        chat_List.setContent(chat.get("contents").toString());
-        chat_List.setUsername(userRepository.findByUserId(principal.getName()).getNickname());
-        chatting.get(0).getChat_lists().add(chat_List);
-        //같은 아이디 가진것을 두곳에 모두 넣어주면 오류 생김 --> 한곳에만 넣어주고 값이 있는 chat_list만 불러오는 방식으로 바꿈
-        chat_ListRepository.save(chat_List);
+
+        // 해당 roomId에 해당하는 채팅방(Chat) 객체 찾기
+        Chat foundChat = chatService.findRoomId(roomId).get(0);
+
+        // Chat_List 필드 설정
+        chatList.setChat_time(LocalDateTime.now());
+        chatList.setContent(chat.get("contents").toString());
+        chatList.setUsername(userRepository.findByUserId(principal.getName()).getNickname());
+
+        // Chat 엔티티에 Chat_List 추가 (양방향 관계 설정)
+        foundChat.addChatList(chatList);
+
+        // 저장 (CascadeType.ALL로 인해 Chat_List도 자동으로 저장됨)
+        chatRepository.save(foundChat); // 부모 저장 시 자식도 함께 저장됨
     }
 }
