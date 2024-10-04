@@ -2,17 +2,21 @@ package com.project.FreeCycle.Domain;
 
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table
 @Getter
 @Setter
+@NoArgsConstructor
 public class Product {
 
 
@@ -37,6 +41,22 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    //상품삭제 > 사진삭제 Cascade
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Product_Attachment> attachments;
+
+    @Builder
+    public Product(long id, String name, String content, int view, LocalDateTime upload_time, List<Product_Attachment> attachments){
+        this.id = id;
+        this.name = name;
+        this.content = content;
+        this.view = view;
+        this.upload_time = upload_time;
+        this.attachments = attachments;
+    }
+
+
 
 //    @ManyToOne
 //    @JoinColumn(name = "Product_Display_id", nullable = false)

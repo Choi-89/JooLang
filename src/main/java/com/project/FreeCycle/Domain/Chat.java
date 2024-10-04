@@ -25,6 +25,11 @@ public class Chat {
     @ManyToOne
     private User user;
 
-    @OneToMany
+    @OneToMany(mappedBy = "chat", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chat_List> chat_lists;
+
+    public void addChatList(Chat_List chatList) {
+        chat_lists.add(chatList);
+        chatList.setChat(this); // 양방향 관계 설정
+    }
 }

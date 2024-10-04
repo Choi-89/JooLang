@@ -25,6 +25,7 @@ public class ChatService {
         this.userRepository = userRepository;
     }
 
+    //chat 생성
     public Chat newChat(User user, Principal principal) {
         Chat user_chat = new Chat();
         Chat other_chat = new Chat();
@@ -45,7 +46,8 @@ public class ChatService {
     public Chat findChat(User user){
         List<Chat> allChats = user.getChats();
         for (Chat chat : allChats) {
-            if (chat.getOtheruser().equals(user.getNickname())) {
+            System.out.println(chat.getUser().getNickname());
+            if (chat.getUser().equals(user)) {
                 return chat;
             }
         }
@@ -56,10 +58,10 @@ public class ChatService {
         return chatRepository.findAllByRoomId(id);
     }
 
-    public void deleteChat(Chat chat, Principal principal) {
-        User other_user = userRepository.findByNickname(chat.getOtheruser());
-        other_user.getChats().remove(chat);
-        chatRepository.delete(chat);
+    public void deleteChat(List<Chat> chat, Principal principal) {
+        for (Chat chats : chat) {
+            chatRepository.delete(chats);
+        }
     }
 
     public List<Chat_List> findAllChat_List(long id){
