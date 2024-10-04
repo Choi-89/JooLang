@@ -63,6 +63,12 @@ public class UserService{
         return UserConverter.toDTO(user);
     }
 
+    public User getUser1(String userId){
+        return userRepository.findByUserId(userId);
+    }
+
+
+
     // 유저 저장 (UserDTO를 활용)
     @Transactional
     public User saveUser(UserDTO userDTO) {

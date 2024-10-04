@@ -71,9 +71,9 @@ public class MyPageController {
     @GetMapping("/{id}/modify")
     public String modify( Principal principal, Model model){
         //충돌나는거 User > UserDTO로 바꿈
-        UserDTO user = userService.getUser(principal.getName());
+//        UserDTO user = userService.getUser(principal.getName());
+        User user = userService.getUser1(principal.getName());
         //getName하면 userId를 가져옴
-        System.out.println(user.getNickname());
         model.addAttribute("user" , user);
         return "modify";
     }
