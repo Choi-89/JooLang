@@ -3,7 +3,6 @@ package com.project.FreeCycle.Service;
 import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
-import com.project.FreeCycle.Dto.UserConverter;
 import com.project.FreeCycle.Dto.UserDTO;
 import com.project.FreeCycle.Repository.LocationRepository;
 import com.project.FreeCycle.Repository.UserRepository;

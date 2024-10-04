@@ -1,4 +1,4 @@
-package com.project.FreeCycle.Repository;
+package com.project.FreeCycle.Dto;
 
 public interface OAuth2UserInfo {
     String getProviderId();

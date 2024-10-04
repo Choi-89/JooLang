@@ -2,7 +2,6 @@ package com.project.FreeCycle.Service;
 
 import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.User;
-import com.project.FreeCycle.Dto.LocationConverter;
 import com.project.FreeCycle.Dto.LocationDTO;
 import com.project.FreeCycle.Repository.LocationRepository;
 import org.springframework.beans.factory.annotation.Autowired;

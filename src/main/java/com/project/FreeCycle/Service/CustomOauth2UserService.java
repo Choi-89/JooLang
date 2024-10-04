@@ -1,11 +1,8 @@
 package com.project.FreeCycle.Service;
 
 
-import com.project.FreeCycle.Dto.LocationDTO;
-import com.project.FreeCycle.Dto.UserDTO;
+import com.project.FreeCycle.Dto.*;
 import com.project.FreeCycle.Domain.User;
-import com.project.FreeCycle.Dto.CustomUserDetail;
-import com.project.FreeCycle.Repository.OAuth2UserInfo;
 import com.project.FreeCycle.Repository.UserRepository;
 import com.project.FreeCycle.Util.HashUtil;
 import jakarta.annotation.PostConstruct;
@@ -116,7 +113,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             // 세션에 사용자 ID 저장
             httpSession.setAttribute("userId", userId);
             try {
-                httpServletResponse.sendRedirect("/joinPassword");
+                httpServletResponse.sendRedirect("/joinPassword"); // 클라이언트 개발자가 리다이렉트 할 URI
             } catch (IOException e) {
                 log.error("리다이렉션 실패");
             }

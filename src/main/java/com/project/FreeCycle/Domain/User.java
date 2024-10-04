@@ -1,6 +1,5 @@
 package com.project.FreeCycle.Domain;
 
-import com.project.FreeCycle.Util.AESUtil;
 import com.project.FreeCycle.Util.HashUtil;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,7 +18,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private long id;
 
     @Column(name = "userId",unique = true)
     private String userId;
@@ -57,8 +56,8 @@ public class User {
     private List<Product> products = new ArrayList<>();
 
     // 유저의 주소
-    @OneToOne(mappedBy = "user")
-    private Location location;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Location> locations = new ArrayList<>();
 
     //유저가 가지고있는 채팅
     @OneToMany(mappedBy="user", fetch=FetchType.LAZY,cascade = CascadeType.ALL)
@@ -87,10 +86,5 @@ public class User {
 //            throw new RuntimeException("암호화 오류", e);
 //        }
 //    }
-
-    //찜목록
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Dibs> dibs = new ArrayList<>();
-
 
 }
