@@ -7,7 +7,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -22,7 +21,7 @@ public class CustomUserDetail implements UserDetails, OAuth2User {
     private Map<String, Object> attributes;
 
 
-    public CustomUserDetail(User user, Map<String, Object> attributes) {
+    public CustomUserDetail(User user,Map<String, Object> attributes) {
         this.user = user;
         this.attributes = attributes;
     }

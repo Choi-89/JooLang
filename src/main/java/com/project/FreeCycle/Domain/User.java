@@ -1,5 +1,6 @@
 package com.project.FreeCycle.Domain;
 
+import com.project.FreeCycle.Util.AESUtil;
 import com.project.FreeCycle.Util.HashUtil;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,7 +19,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
 
     @Column(name = "userId",unique = true)
     private String userId;
@@ -90,4 +91,6 @@ public class User {
     //찜목록
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Dibs> dibs = new ArrayList<>();
+
+
 }

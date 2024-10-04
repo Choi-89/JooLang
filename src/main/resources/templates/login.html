@@ -1,17 +1,100 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인 페이지</title>
+    <title>로그인</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            width: 50%;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: #fff;
+        }
+        .find-button {
+            background-color: #008CBA;
+        }
+        .error {
+            color: red;
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        function openPopup(url, title) {
+            window.open(url, title, "width=500,height=400,scrollbars=no,resizable=no");
+        }
+    </script>
 </head>
 <body>
 <div class="container">
     <h1>로그인</h1>
+    <form action="/loginProc" method="post">
 
-    <a href="/oauth2/authorization/naver">
+        <div class="form-group">
+            <label for="userId">아이디</label>
+            <input type="text" id="userId" name="userId" placeholder="아이디를 입력하세요" required>
+        </div>
+        <div class="form-group">
+            <label for="password">패스워드</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+        </div>
+
+        <div class="button-group">
+            <button type="submit">로그인</button>
+            <a href="/certifyUser"><button type="button" class="find-button">비밀번호 찾기</button></a>
+        </div>
+    </form>
+
+    <p> </p>
+    <div id="naver_id_login"></div>
+
+    <a th:href="@{/oauth2/authorization/naver}">
         <button type="button">네이버 로그인</button>
     </a>
+
+    <div th:if="${errorMsg != null}" class="error">
+        <p th:text="${errorMsg}"></p>
+    </div>
 </div>
+
+
 </body>
 </html>

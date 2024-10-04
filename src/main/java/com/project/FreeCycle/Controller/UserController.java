@@ -1,32 +1,15 @@
 package com.project.FreeCycle.Controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
-
-@Slf4j
-@RestController
+@Controller
 public class UserController {
 
-    @Operation(summary = "마이페이지", description = "로그인된 사용자의 마이페이지 정보를 반환합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "마이페이지 반환 성공")
-    })
     @GetMapping("/mypage")
-    private ResponseEntity<Map<String, String>> Mypage(){
-        Map<String, String> response = new HashMap<>();
+    private String Mypage(){
 
-        log.info("마이페이지 요청 처리");
-        response.put("message","마이페이지로 이동");
-        return ResponseEntity.ok(response);
+        return "mypage";
     }
 
 }
