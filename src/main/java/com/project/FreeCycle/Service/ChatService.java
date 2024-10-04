@@ -25,6 +25,7 @@ public class ChatService {
         this.userRepository = userRepository;
     }
 
+    //chat 생성
     public Chat newChat(User user, Principal principal) {
         Chat user_chat = new Chat();
         Chat other_chat = new Chat();
