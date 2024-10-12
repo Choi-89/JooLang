@@ -61,7 +61,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             response.sendRedirect("http://localhost:8080/home_user"); // 프론트쪽 특정 URI
         }
     }
-    
+
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);

@@ -38,7 +38,7 @@ public class LoginController {
     }
 
     /**
-     * 로그인 
+     * 로그인
      * */
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 페이지 반환 성공"),
