@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,6 +26,7 @@ import java.util.Map;
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtUtil jwtUtil;
+    private final Long expiredMs = 60 * 60 * 1000L;
 
     public CustomOAuth2SuccessHandler(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
@@ -43,18 +45,27 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(userId,role, 60*60*60L);
+        String token = jwtUtil.createJwt(userId,role, expiredMs);
         log.info("JWT 토큰 생성: {}", token);
 
-
         response.addCookie(createCookie("Authorization", token));
-        response.sendRedirect("http://localhost:8080/home_user"); // 프론트쪽 특정 URI
+
+        // 세션에서 신규 사용자 여부 확인
+        HttpSession session = request.getSession(false);
+        if (session != null && Boolean.TRUE.equals(session.getAttribute("isNewUser"))){
+            session.removeAttribute("userId");
+            // 새로운 사용자는 비밀번호 설정을 마친 후 다시 로그인 후 홈 화면으로 리다이렉트
+            response.sendRedirect("http://localhost:8080/home_user"); // 프론트쪽 특정 URI
+        } else{
+            // 기존 사용자는 바로 홈 화면으로 리다이렉트
+            response.sendRedirect("http://localhost:8080/home_user"); // 프론트쪽 특정 URI
+        }
     }
     
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60*60*60); // 쿠키가 살아있을 시간
+        cookie.setMaxAge(60*60); // 쿠키가 살아있을 시간
         //cookie.setSecure(true);  //https 일 경우 주석 삭제
         cookie.setPath("/");
         cookie.setHttpOnly(true);

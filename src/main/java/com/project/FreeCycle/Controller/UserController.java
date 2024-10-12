@@ -27,6 +27,7 @@ public class UserController {
         log.info("마이페이지 요청 처리");
         response.put("message","마이페이지로 이동");
         return ResponseEntity.ok(response);
+
     }
 
 }

@@ -81,6 +81,10 @@ public class SecurityConfig {
                         .invalidateHttpSession(true) // 세션 무효화
                         .permitAll()
                 );
+        /**
+         * 클라이언트 측에서 JWT 삭제:
+         * 사용자가 로그아웃 버튼을 클릭하면, 클라이언트 측에서 JWT를 저장한 곳 (쿠키, localStorage 등)에서 해당 JWT를 삭제합니다.
+         * */
 
         // oAuth2 방식
         http

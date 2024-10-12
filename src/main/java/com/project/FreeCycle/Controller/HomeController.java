@@ -4,7 +4,7 @@ package com.project.FreeCycle.Controller;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Dto.UserDTO;
 import com.project.FreeCycle.Repository.UserRepository;
-import com.project.FreeCycle.Service.LocationService;
+//import com.project.FreeCycle.Service.LocationService;
 import com.project.FreeCycle.Service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,7 +34,7 @@ import java.security.Principal;
 public class HomeController {
 
     private final UserService userService;
-    private final LocationService locationService;
+//    private final LocationService locationService;
 
 
     // 로그인 전 홈 화면
@@ -67,7 +67,7 @@ public class HomeController {
         long user_id = userDTO.getId();
 
         if(userService.checkPassword(userId, password)){
-            if(locationService.deleteLocation(user_id) && userService.deleteUser(userId)){
+            if(userService.deleteUser(userId)){
 //                return "redirect:/";
                 return ResponseEntity.ok("계정이 성공적으로 삭제되었습니다.");
             } else{

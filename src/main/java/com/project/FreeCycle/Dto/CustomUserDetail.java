@@ -77,5 +77,4 @@ public class CustomUserDetail implements UserDetails, OAuth2User {
         return true;
     }
 
-
 }

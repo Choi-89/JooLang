@@ -30,7 +30,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
     private final VerifyService verifyService;
-    private final LocationService locationService;
+//    private final LocationService locationService;
     private final HttpSession httpSession;
     private final HttpServletResponse httpServletResponse;
     private final UserService userService;
@@ -80,48 +80,46 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
 
         User user;
+
         /* 만약 처음 로그인 시도 했으면 회원가입이 비밀번호 세팅이 
         * 필요하므로 관련된 로직으로 수정 */
         if (userOptional.isEmpty()) {
 
             // 핸드폰 번호 중복 확인
+            // 이미 회원가입 한 전화번호인지 확인. -> 한 휴대폰 번호로 계정 하나만 만들 수 있음 -> 중복 가입 방지
             UserDTO result = verifyService.verifyPhoneNum(cleanPhoneNum);
             if (result != null) {
                 log.error("이미 존재하는 핸드폰 번호로 회원가입 시도: {}", cleanPhoneNum);
                 throw new OAuth2AuthenticationException("이미 가입된 연락처가 존재합니다.");
             }
 
+            // 새로운 사용자 처리
             UserDTO userDTO = new UserDTO(userId, name, nickname, email, role, provider, providerId, cleanPhoneNum, 0);
 
             // 번호 해싱화하여 저장
             try{
-//                String encryptedPhoneNum = AESUtil.encrypt(cleanPhoneNum);
                 String encryptedPhoneNum = HashUtil.hashPhoneNumber(cleanPhoneNum);
                 userDTO.setPhoneNum(encryptedPhoneNum);
             } catch (Exception e) {
                 log.error("휴대폰 번호 해싱화 중 오류 발생",e);
             }
 
-            User savedUser = userService.saveUser(userDTO);
-
-            LocationDTO locationDTO = new LocationDTO(null,null,null);
-            locationService.LocationSave(locationDTO,savedUser);
-
+            userService.saveUser(userDTO); // 새로운 사용자 저장
             log.info("새로운 사용자 저장: {}", userId);
-
-
-            // 세션에 사용자 ID 저장
+            // 세션에 새로운 회원임을 나타내는 플래그 저장
             httpSession.setAttribute("userId", userId);
+
             try {
-                httpServletResponse.sendRedirect("/joinPassword"); // 클라이언트 개발자가 리다이렉트 할 URI
+                httpServletResponse.sendRedirect("http://localhost:8080/home/joinPassword"); // 클라이언트 개발자가 리다이렉트 할 URI
+                throw new OAuth2AuthenticationException("비밀번호 설정 페이지로 리다이렉트되었습니다."); // 리다이렉트를 수행했으므로 메서드 종료
             } catch (IOException e) {
                 log.error("리다이렉션 실패");
             }
-            return new CustomUserDetail(savedUser, oAuth2User.getAttributes());
-        } else {
-            user = userOptional.get();
-            log.info("기존 사용자 로그인: {}", userId);
         }
+        
+        // 기존 회원 처리
+        user = userOptional.get();
+        log.info("기존 사용자 로그인: {}", userId);
         return new CustomUserDetail(user, oAuth2User.getAttributes());
     }
 }

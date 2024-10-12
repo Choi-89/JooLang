@@ -23,7 +23,7 @@ import java.util.Map;
 
 //@CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
-@Controller
+@RestController
 @RequestMapping("/home")
 public class LoginController {
 
@@ -38,34 +38,30 @@ public class LoginController {
     }
 
     /**
-     * 로그인
+     * 로그인 
      * */
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "로그인 페이지 반환 성공"),
-//            @ApiResponse(responseCode = "400", description = "로그인 오류 발생")
-//    })
-//    @Operation(summary = "로그인 페이지", description = "로그인 페이지를 반환합니다. 로그인 오류가 있을 경우 오류 메시지를 포함합니다.")
-//    @GetMapping("/login")
-//    public ResponseEntity<Map<String, String>> showLogin(@Parameter(description = "로그인 오류 메시지", required = false)
-//                                                             @RequestParam(value = "error", required = false) String error) {
-//        Map<String, String> response = new HashMap<>();
-//
-//        if (error != null) {
-//            log.error("로그인 오류 발생: {}", error);
-//            response.put("status","error");
-//            response.put("message", "아이디 혹은 비밀번호가 다릅니다.");
-//            return ResponseEntity.badRequest().body(response);
-//        }
-//        log.info("로그인 페이지 반환");
-//        response.put("status","success");
-//        response.put("message","로그인 페이지 요청 성공");
-//        return ResponseEntity.ok(response);
-//    }
-
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그인 페이지 반환 성공"),
+            @ApiResponse(responseCode = "400", description = "로그인 오류 발생")
+    })
+    @Operation(summary = "로그인 페이지", description = "로그인 페이지를 반환합니다. 로그인 오류가 있을 경우 오류 메시지를 포함합니다.")
     @GetMapping("/login")
-    public String showLogin(){
-        return "login";
+    public ResponseEntity<Map<String, String>> showLogin(@Parameter(description = "로그인 오류 메시지", required = false)
+                                                             @RequestParam(value = "error", required = false) String error) {
+        Map<String, String> response = new HashMap<>();
+
+        log.info("로그인 페이지 반환");
+        response.put("status","success");
+        response.put("message","로그인 페이지 요청 성공");
+        return ResponseEntity.ok(response);
     }
+
+//    @GetMapping("/login")
+//    public String showLogin(){
+//        return "login";
+//    } <- html 테스트 위함
+
+
 
     /**
      * 비밀번호 찾기

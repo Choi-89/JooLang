@@ -1,27 +1,20 @@
 package com.project.FreeCycle.Controller;
 
-import com.project.FreeCycle.Domain.Dibs;
-import com.project.FreeCycle.Domain.Location;
+//import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
-import com.project.FreeCycle.Dto.UserDTO;
-import com.project.FreeCycle.Repository.LocationRepository;
+//import com.project.FreeCycle.Repository.LocationRepository;
 import com.project.FreeCycle.Service.PostService;
 import com.project.FreeCycle.Service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.net.http.HttpHeaders;
+
 import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
@@ -92,7 +85,7 @@ public class MyPageController {
 //        location.setAddress(address);
 //        location.setDetailAddress(detailAddress);
 
-        userService.userEdit(userId, nickname, postcode, address, detailAddress);
+//        userService.userEdit(userId, nickname, postcode, address, detailAddress);
 
         return "redirect:/{id}/mypage";
     }

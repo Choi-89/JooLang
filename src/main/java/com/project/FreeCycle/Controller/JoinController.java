@@ -1,10 +1,9 @@
 package com.project.FreeCycle.Controller;
 
 import com.project.FreeCycle.Domain.User;
-import com.project.FreeCycle.Dto.JoinRequestDTO;
-import com.project.FreeCycle.Dto.LocationDTO;
+//import com.project.FreeCycle.Dto.JoinRequestDTO;
 import com.project.FreeCycle.Dto.UserDTO;
-import com.project.FreeCycle.Service.LocationService;
+//import com.project.FreeCycle.Service.LocationService;
 import com.project.FreeCycle.Service.UserService;
 import com.project.FreeCycle.Service.VerifyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +16,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -29,12 +29,11 @@ import java.util.Map;
 @RequestMapping("/home")
 public class JoinController {
 
-    private final LocationService locationService;
+//    private final LocationService locationService;
     private final VerifyService verifyService;
     private final UserService userService;
 
-    public JoinController(LocationService locationService, VerifyService verifyService, UserService userService) {
-        this.locationService = locationService;
+    public JoinController(VerifyService verifyService, UserService userService) {
         this.verifyService = verifyService;
         this.userService = userService;
     }
@@ -56,23 +55,21 @@ public class JoinController {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/joinProc")
-    public ResponseEntity<Map<String, String>> JoinProc(@Valid @RequestBody JoinRequestDTO joinRequestDTO) {
+    public ResponseEntity<Map<String, String>> JoinProc(@Valid @RequestBody UserDTO userDTO) {
 
         Map<String, String> response = new HashMap<>();
 
         try{
 
-            UserDTO userDTO = joinRequestDTO.getUserDTO();
-            LocationDTO locationDTO = joinRequestDTO.getLocationDTO();
-
+//            LocationDTO locationDTO = joinRequestDTO.getLocationDTO();
             log.info("회원가입 요청: userId={}, email={}, name={}, phoneNum={}",
                     userDTO.getUserId(), userDTO.getEmail(), userDTO.getUsername(), userDTO.getPhoneNum());
 
-            User savedUser = userService.saveUser(userDTO);
-            log.info("User 저장 완료: {}", savedUser);
+            userService.saveUser(userDTO);
+            log.info("User 저장 완료");
 
-            locationService.LocationSave(locationDTO, savedUser);
-            log.info("Location 정보 저장 완료");
+//            locationService.LocationSave(locationDTO, savedUser);
+//            log.info("Location 정보 저장 완료");
             response.put("status", "success");
             response.put("message","회원가입 성공");
             return ResponseEntity.ok(response);
@@ -95,13 +92,22 @@ public class JoinController {
     @Operation(summary = "OAuth2 비밀번호 설정 페이지", description = "소셜계정 로그인을 처음 시도했다면" +
             "비밀번호 설정 페이지로 이동합니다.")
     @GetMapping("/joinPassword")
-    public ResponseEntity<Map<String, String>> joinPassword(){
+    public String joinPassword(){
         Map<String, String> response = new HashMap<>();
         response.put("status", "success");
         response.put("message","oAuth2 비밀번호 설정 페이지");
 
-        return ResponseEntity.ok(response);
+//        return ResponseEntity.ok(response);
+        return "joinPassword";
     }
+
+
+
+//    @PostMapping("/joinPasswordProc")
+//    public String joinPasswordPoc(
+//            @RequestParam(name = "newPassword") @NotBlank String password,
+//            @RequestParam(name = "confirmPassword") @NotBlank String passwordConfirm
+//            ,HttpSession session){  <- OAuth2 방식 html 테스트를 위한 대가리
 
 
     @Operation(summary = "OAuth2 비밀번호 설정 처리", description = "소셜 회원의 비밀번호를 설정합니다." +
@@ -116,6 +122,7 @@ public class JoinController {
             @Parameter(description = "새 비밀번호", required = true) @RequestParam(name = "newPassword") @NotBlank String password,
             @Parameter(description = "비밀번호 확인", required = true) @RequestParam(name = "confirmPassword") @NotBlank String passwordConfirm
             ,HttpSession session){
+
 
         String userId = (String) session.getAttribute("userId");
         Map<String, String> response = new HashMap<>();
