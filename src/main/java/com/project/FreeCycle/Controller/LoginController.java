@@ -38,7 +38,7 @@ public class LoginController {
     }
 
     /**
-     * 로그인 
+     * 로그인
      * */
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 페이지 반환 성공"),
@@ -56,10 +56,11 @@ public class LoginController {
         return ResponseEntity.ok(response);
     }
 
+
 //    @GetMapping("/login")
 //    public String showLogin(){
 //        return "login";
-//    } <- html 테스트 위함
+//    }    <- html 테스트 위함
 
 
 

@@ -158,7 +158,7 @@ public class JoinController {
         }
     }
 
-    @Operation(summary = "휴대폰 인증 페이지 이동 ", description = "대폰 번호를 입력받아 인증 절차를 진행할 수 있는 페이지로 이동합니다." +
+    @Operation(summary = "휴대폰 인증 페이지 이동 ", description = "휴대폰 번호를 입력받아 인증 절차를 진행할 수 있는 페이지로 이동합니다." +
             "phoneNumber 파라미터에 인증 받을 핸드폰 번호를 적고 서버에 전송")
     @GetMapping("/verifyPhone")
     public ResponseEntity<Map<String, String>> VerfiyPhone(){

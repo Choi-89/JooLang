@@ -7,10 +7,15 @@ import com.project.FreeCycle.Service.CustomOauth2UserService;
 //import com.project.FreeCycle.Service.CustomUserDetailService;
 import com.project.FreeCycle.Util.JWTFilter;
 import com.project.FreeCycle.Util.JwtUtil;
+import com.project.FreeCycle.Util.LoginFilter;
+import edu.emory.mathcs.backport.java.util.Collections;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
@@ -20,6 +25,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 //import org.springframework.web.servlet.config.annotation.CorsRegistry;
 //import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -30,18 +39,19 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final CustomOauth2UserService customOauth2UserService;
-    private final UserRepository userRepository;
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
     private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
     private final JwtUtil jwtUtil;
+    private final AuthenticationConfiguration authenticationConfiguration;
 
     @Autowired
-    public SecurityConfig(CustomOauth2UserService customOauth2UserService, UserRepository userRepository, CustomOAuth2SuccessHandler customOAuth2SuccessHandler, CustomOAuth2FailureHandler customOAuth2FailureHandler, JwtUtil jwtUtil) {
+    public SecurityConfig(CustomOauth2UserService customOauth2UserService, CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
+                          CustomOAuth2FailureHandler customOAuth2FailureHandler, JwtUtil jwtUtil, AuthenticationConfiguration authenticationConfiguration) {
         this.customOauth2UserService = customOauth2UserService;
-        this.userRepository = userRepository;
         this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
         this.customOAuth2FailureHandler = customOAuth2FailureHandler;
         this.jwtUtil = jwtUtil;
+        this.authenticationConfiguration = authenticationConfiguration;
     }
 
     @Bean
@@ -49,9 +59,40 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        http
+                .cors((cors) -> cors
+                        .configurationSource(new CorsConfigurationSource() {
+                            @Override
+                            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                                CorsConfiguration config = new CorsConfiguration();
+
+                                config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                                config.setAllowedMethods(Collections.singletonList("*")); // 허용할 메소드 Get ect on
+                                config.setAllowCredentials(true);
+                                config.setAllowedHeaders(Collections.singletonList("*"));
+                                config.setMaxAge(3600L);
+
+                                config.setExposedHeaders(Collections.singletonList("Authorization"));
+
+                                return config;
+                            }
+                        }));
+        http
+                .csrf((csrf) -> csrf.disable());
+
+
+        http
+                .formLogin((formLogin) -> formLogin.disable());
+        // 커스텀 로그인 API 사용
+
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/","/home/**","/loginProc","/auth/**","/error",
@@ -61,17 +102,18 @@ public class SecurityConfig {
                                 "/v3/api-docs/**", "/swagger/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/postlist","/post/**","post_detail/**").hasRole("USER")
                         .anyRequest().authenticated()
-                )
+                );
+
+        http
                 .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
-
         http
-                .formLogin((formLogin) -> formLogin.disable());
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+            // form 로그인 jwt 로직 커스텀화
 
-        // 커스텀 로그인 API 사용
         http
                 .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
 
         http
@@ -116,9 +158,6 @@ public class SecurityConfig {
                     });
                 });
 
-        http
-                .csrf((csrf) -> csrf.disable());
-
 //        http
 //                .sessionManagement((session) -> session
 //                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
@@ -126,18 +165,4 @@ public class SecurityConfig {
         return http.build();
     }
 
-//    @Bean
-//    public WebMvcConfigurer corsConfigurer() {
-//        return new WebMvcConfigurer() {
-//
-//            @Override
-//            public void addCorsMappings(CorsRegistry registry) {
-//                registry.addMapping("/**")  // 모든 경로에 대해 CORS 설정 적용
-//                        .allowedOrigins("http://localhost:3000")  // React 앱의 주소
-//                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")  // 허용할 HTTP 메소드
-//                        .allowedHeaders("*")  // 모든 헤더 허용
-//                        .allowCredentials(true);  // 자격 증명(쿠키, 인증 정보 등) 허용
-//            }
-//        };
-//    }
 }
