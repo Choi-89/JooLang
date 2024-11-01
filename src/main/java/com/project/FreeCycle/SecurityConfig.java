@@ -1,22 +1,34 @@
-package com.project.FreeCycle;
+package com.project.FreeCycle.Config;
 
+import com.project.FreeCycle.Handler.CustomOAuth2FailureHandler;
+import com.project.FreeCycle.Handler.CustomOAuth2SuccessHandler;
 import com.project.FreeCycle.Repository.UserRepository;
 import com.project.FreeCycle.Service.CustomOauth2UserService;
-import com.project.FreeCycle.Service.CustomUserDetailService;
-import lombok.RequiredArgsConstructor;
+//import com.project.FreeCycle.Service.CustomUserDetailService;
+import com.project.FreeCycle.Util.JWTFilter;
+import com.project.FreeCycle.Util.JwtUtil;
+import com.project.FreeCycle.Util.LoginFilter;
+import edu.emory.mathcs.backport.java.util.Collections;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 //import org.springframework.web.servlet.config.annotation.CorsRegistry;
 //import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -24,13 +36,23 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 @Slf4j
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Lazy
     private final CustomOauth2UserService customOauth2UserService;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+    private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
+    private final JwtUtil jwtUtil;
+    private final AuthenticationConfiguration authenticationConfiguration;
 
-    private final UserRepository userRepository;
+    @Autowired
+    public SecurityConfig(CustomOauth2UserService customOauth2UserService, CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
+                          CustomOAuth2FailureHandler customOAuth2FailureHandler, JwtUtil jwtUtil, AuthenticationConfiguration authenticationConfiguration) {
+        this.customOauth2UserService = customOauth2UserService;
+        this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
+        this.customOAuth2FailureHandler = customOAuth2FailureHandler;
+        this.jwtUtil = jwtUtil;
+        this.authenticationConfiguration = authenticationConfiguration;
+    }
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -38,33 +60,60 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        return new CustomUserDetailService(userRepository);
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        http
+                .cors((cors) -> cors
+                        .configurationSource(new CorsConfigurationSource() {
+                            @Override
+                            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                                CorsConfiguration config = new CorsConfiguration();
+
+                                config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                                config.setAllowedMethods(Collections.singletonList("*")); // 허용할 메소드 Get ect on
+                                config.setAllowCredentials(true);
+                                config.setAllowedHeaders(Collections.singletonList("*"));
+                                config.setMaxAge(3600L);
+
+                                config.setExposedHeaders(Collections.singletonList("Authorization"));
+
+                                return config;
+                            }
+                        }));
+        http
+                .csrf((csrf) -> csrf.disable());
+
+
+        http
+                .formLogin((formLogin) -> formLogin.disable());
+        // 커스텀 로그인 API 사용
+
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/","/home/login","/home/join","/home/joinList",
-                                "/joinProc","/loginProc","/auth/**","/error",
+                        .requestMatchers("/","/home/**","/loginProc","/auth/**","/error",
                                 "/static/**","/favicon.ico","/certifyUser","/certifyUserProc",
                                 "/verifyCode","/verifyCodeProc","/sendCodeProc",
-                                "/editPassword","/updatePasswordProc","/sendSmsProc",
-                                "/checkProc", "/home/verifyPhone").permitAll()
+                                "/editPassword","/updatePasswordProc",
+                                "/v3/api-docs/**", "/swagger/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/postlist","/post/**","post_detail/**").hasRole("USER")
                         .anyRequest().authenticated()
                 );
 
         http
-                .formLogin((auth) -> auth
-                        .usernameParameter("userId")
-                        .passwordParameter("password")
-                        .loginPage("/home/login")
-                        .loginProcessingUrl("/loginProc")
-                        .successHandler(new SimpleUrlAuthenticationSuccessHandler("/home_user"))
-                        .failureUrl("/home/login?error=true")
-                        .permitAll()
+                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+
+        http
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+            // form 로그인 jwt 로직 커스텀화
+
+        http
+                .sessionManagement((session) -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
 
         http
@@ -79,29 +128,26 @@ public class SecurityConfig {
          * 사용자가 로그아웃 버튼을 클릭하면, 클라이언트 측에서 JWT를 저장한 곳 (쿠키, localStorage 등)에서 해당 JWT를 삭제합니다.
          * */
 
+        // oAuth2 방식
         http
-                .oauth2Login(oauth -> oauth
-                        .loginPage("/home/login")
-                        .userInfoEndpoint(userInfo -> {
+                .oauth2Login((oauth) -> oauth
+                        .userInfoEndpoint((userInfo) -> {
                             try {
-                                //log.info("OAuth2 UserService 설정 시도 중...");
+                                log.info("OAuth2 UserService 설정 시도 중...");
                                 userInfo.userService(customOauth2UserService);
-                                //log.info("OAuth2 UserService 설정됨");
+                                log.info("OAuth2 UserService 설정됨");
                             } catch (Exception e) {
-                                //log.error("OAuth2 UserService 설정 중 오류 발생: ", e);
+                                log.error("OAuth2 UserService 설정 중 오류 발생: ", e);
                             }
                         })
-                        .successHandler((request, response, authentication) -> {
-                            //log.info("OAuth2 로그인 성공: " + authentication.getName());
-                            SecurityContextHolder.getContext().setAuthentication(authentication);
-                            //log.info("SecurityContext에 저장된 인증 정보: " + SecurityContextHolder.getContext().getAuthentication());
-                            new SimpleUrlAuthenticationSuccessHandler("/home_user").onAuthenticationSuccess(request, response, authentication);
-                        })
-                        .failureHandler((request, response, exception) -> {
-                            //log.error("OAuth2 로그인 실패: " + exception.getMessage());
-                            response.sendRedirect("/home/login?error=true");
-                        })
+                        .successHandler(customOAuth2SuccessHandler)
+                        .failureHandler(customOAuth2FailureHandler)
         );
+
+
+        http
+                .addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
+
 
         http
                 .exceptionHandling(exception -> {
@@ -112,39 +158,11 @@ public class SecurityConfig {
                     });
                 });
 
-        http
-                .csrf((csrf) -> csrf.disable());
-
-
+//        http
+//                .sessionManagement((session) -> session
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
 
-    // 사용자 정보를 데이터베이스에서 조회하고,
-    // 사용자가 입력한 비밀번호가 데이터베이스에 저장된 비밀번호와 일치하는지 확인하는 데 사용
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-
-        // 사용자 정보를 데이터베이스에서 조회할 수 있게 함
-        authProvider.setUserDetailsService(userDetailsService());
-        // 비밀번호를 비교할 때 사용할 입력된 비밀번호를 암호화 하여 비교함
-        authProvider.setPasswordEncoder(bCryptPasswordEncoder());
-        return authProvider;
-    }
-
-//    @Bean
-//    public WebMvcConfigurer corsConfigurer() {
-//        return new WebMvcConfigurer() {
-//
-//            @Override
-//            public void addCorsMappings(CorsRegistry registry) {
-//                registry.addMapping("/**")  // 모든 경로에 대해 CORS 설정 적용
-//                        .allowedOrigins("http://localhost:3000")  // React 앱의 주소
-//                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")  // 허용할 HTTP 메소드
-//                        .allowedHeaders("*")  // 모든 헤더 허용
-//                        .allowCredentials(true);  // 자격 증명(쿠키, 인증 정보 등) 허용
-//            }
-//        };
-//    }
 }

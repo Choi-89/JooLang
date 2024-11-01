@@ -15,7 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Map;
 
 
-@Slf4j
+
 @Getter
 @Component(value = "naverApi")
 public class NaverApi {
