@@ -116,13 +116,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
 
-        http
-                .logout((logout) -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
-                        .invalidateHttpSession(true) // 세션 무효화
-                        .permitAll()
-                );
+
         /**
          * 클라이언트 측에서 JWT 삭제:
          * 사용자가 로그아웃 버튼을 클릭하면, 클라이언트 측에서 JWT를 저장한 곳 (쿠키, localStorage 등)에서 해당 JWT를 삭제합니다.
@@ -133,11 +127,9 @@ public class SecurityConfig {
                 .oauth2Login((oauth) -> oauth
                         .userInfoEndpoint((userInfo) -> {
                             try {
-                                log.info("OAuth2 UserService 설정 시도 중...");
                                 userInfo.userService(customOauth2UserService);
-                                log.info("OAuth2 UserService 설정됨");
                             } catch (Exception e) {
-                                log.error("OAuth2 UserService 설정 중 오류 발생: ", e);
+                                e.printStackTrace();
                             }
                         })
                         .successHandler(customOAuth2SuccessHandler)
