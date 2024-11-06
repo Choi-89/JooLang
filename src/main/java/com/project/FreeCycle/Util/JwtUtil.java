@@ -46,15 +46,21 @@ public class JwtUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
+    public String getCategory(String token) {
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
+    }
+
     /**
      * 토큰 생성 메서드
      * userId : 유저아이디
      * role : 역할
      * expiredMs : 만료시간
      * **/
-    public String createJwt(String userId, String role, Long expiredMs) {
+    public String createJwt(String category,String userId, String role, Long expiredMs) {
 
         return Jwts.builder()
+                .claim("category", category)
                 .claim("userId", userId)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis())) // 생성시간
@@ -64,3 +70,4 @@ public class JwtUtil {
     }
 
 }
+

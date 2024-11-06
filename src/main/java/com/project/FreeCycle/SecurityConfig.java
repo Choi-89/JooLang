@@ -1,13 +1,10 @@
 package com.project.FreeCycle.Config;
 
-import com.project.FreeCycle.Handler.CustomOAuth2FailureHandler;
-import com.project.FreeCycle.Handler.CustomOAuth2SuccessHandler;
-import com.project.FreeCycle.Repository.UserRepository;
+import com.project.FreeCycle.Filter.*;
+import com.project.FreeCycle.Repository.RefreshRepository;
 import com.project.FreeCycle.Service.CustomOauth2UserService;
 //import com.project.FreeCycle.Service.CustomUserDetailService;
-import com.project.FreeCycle.Util.JWTFilter;
 import com.project.FreeCycle.Util.JwtUtil;
-import com.project.FreeCycle.Util.LoginFilter;
 import edu.emory.mathcs.backport.java.util.Collections;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -20,15 +17,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 //import org.springframework.web.servlet.config.annotation.CorsRegistry;
 //import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -43,15 +38,17 @@ public class SecurityConfig {
     private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
     private final JwtUtil jwtUtil;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final RefreshRepository refreshRepository;
 
     @Autowired
     public SecurityConfig(CustomOauth2UserService customOauth2UserService, CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
-                          CustomOAuth2FailureHandler customOAuth2FailureHandler, JwtUtil jwtUtil, AuthenticationConfiguration authenticationConfiguration) {
+                          CustomOAuth2FailureHandler customOAuth2FailureHandler, JwtUtil jwtUtil, AuthenticationConfiguration authenticationConfiguration, RefreshRepository refreshRepository) {
         this.customOauth2UserService = customOauth2UserService;
         this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
         this.customOAuth2FailureHandler = customOAuth2FailureHandler;
         this.jwtUtil = jwtUtil;
         this.authenticationConfiguration = authenticationConfiguration;
+        this.refreshRepository = refreshRepository;
     }
 
     @Bean
@@ -98,18 +95,23 @@ public class SecurityConfig {
                         .requestMatchers("/","/home/**","/loginProc","/auth/**","/error",
                                 "/static/**","/favicon.ico","/certifyUser","/certifyUserProc",
                                 "/verifyCode","/verifyCodeProc","/sendCodeProc",
-                                "/editPassword","/updatePasswordProc",
-                                "/v3/api-docs/**", "/swagger/**", "/swagger-ui/**").permitAll()
+                                "/editPassword","/updatePasswordProc","/auth/**",
+                                "/v3/api-docs/**", "/swagger/**", "/swagger-ui/**","/reissue").permitAll()
                         .requestMatchers("/postlist","/post/**","post_detail/**").hasRole("USER")
                         .anyRequest().authenticated()
                 );
 
+//        http
+//                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
         http
-                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
 
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
             // form 로그인 jwt 로직 커스텀화
+        http
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
+
 
         http
                 .sessionManagement((session) -> session
@@ -136,11 +138,6 @@ public class SecurityConfig {
                         .failureHandler(customOAuth2FailureHandler)
         );
 
-
-        http
-                .addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
-
-
         http
                 .exceptionHandling(exception -> {
                     //log.info("Configuring exceptionHandling");
@@ -149,10 +146,6 @@ public class SecurityConfig {
                         response.sendRedirect("/home/login?error=true");
                     });
                 });
-
-//        http
-//                .sessionManagement((session) -> session
-//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
