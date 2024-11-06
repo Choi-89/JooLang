@@ -1,4 +1,4 @@
-package com.project.FreeCycle.Handler;
+package com.project.FreeCycle.Filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

@@ -5,7 +5,9 @@ import com.project.FreeCycle.Dto.*;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Repository.UserRepository;
 import com.project.FreeCycle.Util.HashUtil;
+import com.project.FreeCycle.Util.JwtUtil;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +32,13 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
     private final VerifyService verifyService;
-//    private final LocationService locationService;
     private final HttpSession httpSession;
+    private final JwtUtil jwtUtil;
     private final HttpServletResponse httpServletResponse;
     private final UserService userService;
+
+    private final Long refreshMs = 24 * 60 * 60 * 1000L;    // 24시간
+
 
     @PostConstruct
     public void init() {
@@ -53,6 +58,10 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     }
 
+    /**
+     * processOAuth2User: 새로운 사용자인 경우에만 Refresh Token을 생성하고,
+     * 기존 사용자라면 CustomOAuth2SuccessHandler에서 Refresh Token을 생성하게 합니다.
+     * */
     private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
 
         String provider = userRequest.getClientRegistration().getClientName();
@@ -94,7 +103,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             }
 
             // 새로운 사용자 처리
-            UserDTO userDTO = new UserDTO(userId, name, nickname, email, role, provider, providerId, cleanPhoneNum, 0);
+            UserDTO userDTO = new UserDTO(userId, name, nickname, email, role,
+                    provider, providerId, cleanPhoneNum, 0);
 
             // 번호 해싱화하여 저장
             try{
@@ -109,6 +119,10 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             // 세션에 새로운 회원임을 나타내는 플래그 저장
             httpSession.setAttribute("userId", userId);
 
+            String refresh = jwtUtil.createJwt("refresh", userId, role, refreshMs);
+            httpSession.setAttribute("refreshToken", refresh);
+            httpServletResponse.addCookie(createCookie("refresh",refresh));
+
             try {
                 httpServletResponse.sendRedirect("http://localhost:8080/home/joinPassword"); // 클라이언트 개발자가 리다이렉트 할 URI
                 throw new OAuth2AuthenticationException("비밀번호 설정 페이지로 리다이렉트되었습니다."); // 리다이렉트를 수행했으므로 메서드 종료
@@ -121,5 +135,16 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         user = userOptional.get();
         log.info("기존 사용자 로그인: {}", userId);
         return new CustomUserDetail(user, oAuth2User.getAttributes());
+    }
+
+    private Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(60*60); // 쿠키가 살아있을 시간
+        //cookie.setSecure(true);  //https 일 경우 주석 삭제
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
     }
 }
