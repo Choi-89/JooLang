@@ -3,6 +3,8 @@ package com.project.FreeCycle.Controller;
 import com.project.FreeCycle.Domain.RefreshEntity;
 import com.project.FreeCycle.Dto.ApiResponseDTO;
 import com.project.FreeCycle.Repository.RefreshRepository;
+import com.project.FreeCycle.Util.CookieUtil;
+import com.project.FreeCycle.Util.ExpiredTime;
 import com.project.FreeCycle.Util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,12 +37,14 @@ import java.util.Map;
 public class AuthController {
 
     private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
     private final RefreshRepository refreshRepository;
-    private final Long accessMs = 60 * 60 * 1000L;  // 1시간
-    private final Long refreshMs = 24 * 60 * 60 * 1000L;    // 24시간
+    private final Long accessMs = ExpiredTime.accessMs;  // 1시간
+    private final Long refreshMs = ExpiredTime.refreshMs;    // 24시간
 
-    public AuthController(JwtUtil jwtUtil, RefreshRepository refreshRepository) {
+    public AuthController(JwtUtil jwtUtil, CookieUtil cookieUtil, RefreshRepository refreshRepository) {
         this.jwtUtil = jwtUtil;
+        this.cookieUtil = cookieUtil;
         this.refreshRepository = refreshRepository;
     }
 
@@ -95,7 +99,7 @@ public class AuthController {
             refreshRepository.deleteByRefresh(refresh);
             addRefreshEntity(userId, newRefresh,refreshMs);
 
-            Cookie refreshCookie = createCookie("refresh", newRefresh); // access 토큰 재발급 할 때, refresh 토큰도 함께 재발급하여 쿠키로 전달함.
+            Cookie refreshCookie = cookieUtil.createCookie("refresh", newRefresh); // access 토큰 재발급 할 때, refresh 토큰도 함께 재발급하여 쿠키로 전달함.
             response.addCookie(refreshCookie);
 
             Map<String, String> tokens = new HashMap<>();
@@ -112,16 +116,6 @@ public class AuthController {
         }
     }
 
-    private Cookie createCookie(String key, String value) {
-
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60*60); // 쿠키가 살아있을 시간
-        //cookie.setSecure(true);  //https 일 경우 주석 삭제
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-
-        return cookie;
-    }
 
     private void addRefreshEntity(String userId, String refresh, Long expiredMs) {
 

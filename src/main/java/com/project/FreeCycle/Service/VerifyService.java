@@ -44,7 +44,10 @@ public class VerifyService {
     }
 
 
-    // 가입 되어있는지 회원인지 확인
+    /**
+     * 가입 되어있는지 회원인지 확인
+     * userId와 email을 통해 교차 검증
+     * */
     public boolean existUser(String userId, String eamil){
 
         User user = userRepository.findByUserId(userId);
@@ -55,8 +58,22 @@ public class VerifyService {
         }
         return false;
     }
+
+    public boolean existUserId(String NewUserId){
+
+        User user = userRepository.findByUserId(NewUserId);
+        
+        if(user != null){
+            if(user.getUserId().equals(NewUserId)){
+                return false;
+            }
+        }
+        return true;
+    }
     
-    // 메일 전송
+    /**
+     * 전송 할 메시지 문구 지정 및 메일 전송
+     * */
     public boolean sendEmail(String email) {
         String code = generateCode();
 
@@ -74,15 +91,17 @@ public class VerifyService {
             return false;
         }
     }
-
-    // 문자 전송
+    
+    /**
+     * SMS 인증 코드 생성
+     * */
     public boolean sendSMS(String phone){
         String code = generateCode();
         String apikey = coolSMSApi.getApikey();
         String apiSecret = coolSMSApi.getApiSecret();
         String content = "주랑 {인증번호}" + code + "를 입력해주세요. ";
 
-
+        // sendPhoneMessage 메서드를 통해 사용자에게 문자 전송
         if(sendPhoneMessage(phone,content, apikey, apiSecret)) {
             session.setAttribute("authCode", code);
             session.setMaxInactiveInterval(300);
@@ -91,13 +110,15 @@ public class VerifyService {
         return false;
     }
 
-    // 문자 보낼 메시지 전송
-    public boolean sendPhoneMessage(String phoneNumber,String content,String apiKey, String apiSecret){
+    /**
+     * sendSMS에서 생성된 문자 메시지를 실제로 전송하는 역할
+     * */
+    public boolean sendPhoneMessage(String phone,String content,String apiKey, String apiSecret){
         // 메시지 전송 로직 구현
         Message coolsms = new Message(apiKey,apiSecret);
 
         HashMap<String, String> params = new HashMap<>();
-        params.put("to", phoneNumber);
+        params.put("to", phone);
         params.put("from", "01056563642");
         params.put("type","SMS");
         params.put("text", content);
@@ -112,7 +133,9 @@ public class VerifyService {
         }
     }
 
-    // 인증번호 생성
+    /**
+     * 인증번호 생성 메서드
+     * */
     public String generateCode(){
         Random random = new Random();
         StringBuilder code = new StringBuilder();
@@ -123,7 +146,10 @@ public class VerifyService {
         return code.toString();
     }
 
-    // 이메일 보낼 메시지 전송
+
+    /**
+     * 이메일로 메시지 전송
+     * */
     public void sendEmailMessage(String email, String subject, String content) throws MessagingException {
         MimeMessage message =mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message,false, "UTF-8");
@@ -135,7 +161,10 @@ public class VerifyService {
         mailSender.send(message);
     }
 
-    // 코드 인증
+
+    /**
+     * 인증 코드 인증
+     * */
     public boolean verifyCode(String code){
         String authCode = (String) session.getAttribute("authCode");
         if (authCode != null && authCode.equals(code)) {
@@ -145,7 +174,10 @@ public class VerifyService {
         return false;
     }
 
-    // 휴대폰 중복 확인
+    
+    /**
+     * 휴대폰 번호 중복 확인
+     * */
     public UserDTO verifyPhoneNum(String phoneNum){
         try{
 //            String encryptedPhoneNum = AESUtil.encrypt(phoneNum);
@@ -171,7 +203,11 @@ public class VerifyService {
     }
 
 
-    // 비밀번호 업데이트
+    /**
+     * 비밀번호 업데이트 
+     * NewPassword : 새로운 비밀번호
+     * userId : 사용자 정보 확인 할 userId
+     * */
     @Transactional
     public boolean updatePassword(String NewPassword, String userId){
         log.info("비밀번호 업데이트 요청: userId={}, newPassword={}", userId, NewPassword);
@@ -198,7 +234,11 @@ public class VerifyService {
         return false;
     }
 
-    // 비밀번호 비교
+    /**
+     * 비밀번호 비교 
+     * newPassword : 새로운 비밀번호
+     * confirmPassword : 새로운 비밀번호와 같은지 확인 할 비밀번호
+     * */
     public boolean checkPassword(String newPassword, String confirmPassword){
 
         if(newPassword.equals(confirmPassword)){

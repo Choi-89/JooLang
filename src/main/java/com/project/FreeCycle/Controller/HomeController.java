@@ -1,24 +1,16 @@
 package com.project.FreeCycle.Controller;
 
-//import org.springframework.http.ResponseEntity;
-import com.project.FreeCycle.Domain.User;
+
 import com.project.FreeCycle.Dto.UserDTO;
-import com.project.FreeCycle.Repository.UserRepository;
-//import com.project.FreeCycle.Service.LocationService;
 import com.project.FreeCycle.Service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
-//import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.ui.Model;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
