@@ -166,4 +166,21 @@ public class JoinController {
         return ResponseEntity.badRequest().body(new ApiResponseDTO<>("error","인증번호가 틀렸습니다.",null));
     }
 
+    @Operation(summary = "아이디 중복 확인 ", description = "회원가입 할 때, 아이디 중복 체크 API")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "중복되는 아이디가 없음."),
+            @ApiResponse(responseCode = "400", description = "이미 가입된 회원")
+    })
+    @PostMapping("/checkId")
+    public ResponseEntity<ApiResponseDTO<Void>> checkId(
+            @Parameter(description = "중복 확인 할 userId", required = true)
+            @RequestParam @NotBlank String userId
+    ){
+
+        if(verifyService.existUserId(userId)){
+            return ResponseEntity.ok(new ApiResponseDTO<>("success", "사용가능한 ID 입니다.",null));
+        } else {
+            return ResponseEntity.badRequest().body(new ApiResponseDTO<>("error","중복되는 아이디입니다.", null));
+        }
+    }
 }

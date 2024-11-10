@@ -3,6 +3,7 @@ package com.project.FreeCycle.Filter;
 import com.project.FreeCycle.Domain.RefreshEntity;
 import com.project.FreeCycle.Dto.CustomUserDetail;
 import com.project.FreeCycle.Repository.RefreshRepository;
+import com.project.FreeCycle.Util.CookieUtil;
 import com.project.FreeCycle.Util.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -23,12 +24,13 @@ import java.util.*;
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
     private final RefreshRepository refreshRepository;
-    private final Long accessMs = 60 * 60 * 1000L;  // 1시간
     private final Long refreshMs = 24 * 60 * 60 * 1000L;    // 24시간
 
-    public CustomOAuth2SuccessHandler(JwtUtil jwtUtil, RefreshRepository refreshRepository) {
+    public CustomOAuth2SuccessHandler(JwtUtil jwtUtil, CookieUtil cookieUtil, RefreshRepository refreshRepository) {
         this.jwtUtil = jwtUtil;
+        this.cookieUtil = cookieUtil;
         this.refreshRepository = refreshRepository;
     }
 
@@ -61,7 +63,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
             //Refresh 토큰 저장
             addRefreshEntity(userId, refresh, refreshMs);
-            response.addCookie(createCookie("refresh", refresh));
+            response.addCookie(cookieUtil.createCookie("refresh", refresh));
         }
 
 
@@ -75,16 +77,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         }
     }
 
-    private Cookie createCookie(String key, String value) {
-
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60*60); // 쿠키가 살아있을 시간
-        //cookie.setSecure(true);  //https 일 경우 주석 삭제
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-
-        return cookie;
-    }
 
     private void addRefreshEntity(String userId, String refresh, Long expiredMs) {
 

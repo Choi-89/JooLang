@@ -4,6 +4,7 @@ import com.project.FreeCycle.Filter.*;
 import com.project.FreeCycle.Repository.RefreshRepository;
 import com.project.FreeCycle.Service.CustomOauth2UserService;
 //import com.project.FreeCycle.Service.CustomUserDetailService;
+import com.project.FreeCycle.Util.CookieUtil;
 import com.project.FreeCycle.Util.JwtUtil;
 import edu.emory.mathcs.backport.java.util.Collections;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,17 +40,20 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final RefreshRepository refreshRepository;
+    private final CookieUtil cookieUtil;
 
     @Autowired
     public SecurityConfig(CustomOauth2UserService customOauth2UserService, CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
-                          CustomOAuth2FailureHandler customOAuth2FailureHandler, JwtUtil jwtUtil, AuthenticationConfiguration authenticationConfiguration, RefreshRepository refreshRepository) {
+                          CustomOAuth2FailureHandler customOAuth2FailureHandler, JwtUtil jwtUtil, AuthenticationConfiguration authenticationConfiguration, RefreshRepository refreshRepository, CookieUtil cookieUtil) {
         this.customOauth2UserService = customOauth2UserService;
         this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
         this.customOAuth2FailureHandler = customOAuth2FailureHandler;
         this.jwtUtil = jwtUtil;
         this.authenticationConfiguration = authenticationConfiguration;
         this.refreshRepository = refreshRepository;
+        this.cookieUtil = cookieUtil;
     }
+
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -96,7 +100,7 @@ public class SecurityConfig {
                                 "/static/**","/favicon.ico","/certifyUser","/certifyUserProc",
                                 "/verifyCode","/verifyCodeProc","/sendCodeProc",
                                 "/editPassword","/updatePasswordProc","/auth/**",
-                                "/v3/api-docs/**", "/swagger/**", "/swagger-ui/**","/reissue").permitAll()
+                                "/v3/api-docs/**", "/swagger/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/postlist","/post/**","post_detail/**").hasRole("USER")
                         .anyRequest().authenticated()
                 );
@@ -107,7 +111,7 @@ public class SecurityConfig {
                 .addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
 
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, cookieUtil,refreshRepository), UsernamePasswordAuthenticationFilter.class);
             // form 로그인 jwt 로직 커스텀화
         http
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);

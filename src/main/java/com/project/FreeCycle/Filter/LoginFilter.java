@@ -2,6 +2,8 @@ package com.project.FreeCycle.Filter;
 
 import com.project.FreeCycle.Domain.RefreshEntity;
 import com.project.FreeCycle.Repository.RefreshRepository;
+import com.project.FreeCycle.Util.CookieUtil;
+import com.project.FreeCycle.Util.ExpiredTime;
 import com.project.FreeCycle.Util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,13 +27,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-    private final Long accessMs = 60 * 60 * 1000L;  // 1시간
-    private final Long refreshMs = 24 * 60 * 60 * 1000L;    // 24시간
+    private final CookieUtil cookieUtil;
+    private final Long accessMs = ExpiredTime.accessMs;  // 1시간
+    private final Long refreshMs = ExpiredTime.refreshMs;    // 24시간
     private RefreshRepository refreshRepository;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, RefreshRepository refreshRepository) {
+    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, CookieUtil cookieUtil, RefreshRepository refreshRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.cookieUtil = cookieUtil;
         this.refreshRepository = refreshRepository;
     }
 
@@ -76,7 +80,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         // 응답설정
         response.setHeader("access", access);
-        response.addCookie(createCookie("refresh", refresh));
+        response.addCookie(cookieUtil.createCookie("refresh", refresh));
         response.setStatus(HttpStatus.OK.value());
         
     }
@@ -87,17 +91,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         response.setStatus(401);
 
-    }
-
-    private Cookie createCookie(String key, String value) {
-
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60); // 쿠키가 살아있을 시간 ( 1시간 )
-//        cookie.setSecure(true);  //https 일 경우 주석 삭제
-//        cookie.setPath("/");  // 쿠키가 적용 될 범위
-        cookie.setHttpOnly(true);
-
-        return cookie;
     }
 
     private void addRefreshEntity(String userId, String refresh, Long expiredMs) {
