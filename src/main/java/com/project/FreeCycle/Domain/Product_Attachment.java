@@ -23,7 +23,7 @@ public class Product_Attachment {
 
 
     @ManyToOne
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "product_id", nullable = false ) // <-------------
     private Product product;
 
     @Builder

@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 
 @Getter
@@ -20,15 +19,17 @@ import java.util.concurrent.ConcurrentMap;
 public class ProductDTO {
     private String name; //제목
     private String content; //내용
+    private String category;
 
     private Map<AttachmentType, List<MultipartFile>> attachmentFiles = new ConcurrentHashMap<>();
 
     @Builder
     public ProductDTO(String name , String content
-            , Map<AttachmentType,List<MultipartFile>> attachmentFiles){
+            , Map<AttachmentType,List<MultipartFile>> attachmentFiles , String category){
         this.name = name;
         this.content = content;
         this.attachmentFiles = attachmentFiles;
+        this.category = category;
     }
 
     public Product createProduct(){
@@ -40,10 +41,5 @@ public class ProductDTO {
                 .view(0)
                 .build();
     }
-
-
-
-
-
 }
 

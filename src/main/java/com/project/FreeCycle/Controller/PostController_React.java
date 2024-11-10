@@ -36,8 +36,21 @@ public class PostController_React {
         model.addAttribute("products", products);
 
         // postlist 템플릿으로 이동
-        return "postlist";
+        return "postlist1";
     }
+
+    //카테고리 글 목록 나열
+    @GetMapping(value = "/postlist/{category}")
+    public String categoryList(@PathVariable("category") String category ,Model model){
+
+        List<Product> products = postService.getProducts(category);
+
+        model.addAttribute("products", products);
+        return "postlist1";
+    }
+
+
+
 
     //글 조회 >> 삭제버튼 db별로 다르게 출력
     @GetMapping(value = "/post_detail/{id}")
@@ -59,7 +72,7 @@ public class PostController_React {
     @GetMapping(value = "/post/write")
     public String writePage() {
 
-        return "write";
+        return "write1";
     }
 
     @PostMapping(value = "/post/write")
@@ -68,13 +81,6 @@ public class PostController_React {
         String userId = principal.getName();
         ProductDTO productDTO = productFormDTO.createProductDTO();
         postService.postProduct(productDTO,userId);
-
-
-//        Product product = postService.convertToEntity(productDTO, principal.getName());
-//        String userID = principal.getName();
-
-//        postService.postProduct(product , productDTO.getPictures(), userID);
-//        pictureService.uploadPicture(product, pictures);
 
         return "redirect:/postlist";
     }
@@ -88,8 +94,10 @@ public class PostController_React {
     }
 
     @PostMapping(value = "/post/{id}/edit")
-    public String editPost(@PathVariable("id") long id, String name, String content) {
-        postService.postEdit(id , name, content);
+    public String editPost(@PathVariable("id") long id,
+                           String name,
+                           String content , @RequestParam("category") String category) {
+        postService.postEdit(id , name, content, category);
 //        return ResponseEntity.ok("edit complete");
         return "redirect:/post_detail/"+id;
     }

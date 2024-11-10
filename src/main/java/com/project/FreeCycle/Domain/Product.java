@@ -27,11 +27,10 @@ public class Product {
     @Column(name = "name", nullable = false)
     private String name;
 
-
     @Column(name = "content")
     private String content;
 
-    @Column(name = "view", nullable = false)
+    @Column(name = "view", nullable = false )
     private int view;
 
     @Column(name = "upload_time", nullable = false)

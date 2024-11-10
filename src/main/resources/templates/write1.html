@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 작성</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-group select {
+            height: auto; /* Allow the select box to expand when multiple items are selected */
+        }
+        .form-group textarea {
+            resize: vertical;
+        }
+        .actions {
+            text-align: center;
+        }
+        .actions button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: #fff;
+        }
+        .btn-cancel {
+            background-color: #f44336;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>게시글 작성</h2>
+    <form action="/post/write" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="name">제목:</label>
+            <input type="text" id="name" name="name" placeholder="제목을 입력하세요" required>
+        </div>
+        <div class="form-group">
+            <label for="category">카테고리 선택 (중복 선택 x):</label>
+            <select id="category" name="category" required>
+                <option value="전체">전체</option>
+                <option value="패션">패션</option>
+                <option value="가구">가구/인테리어</option>
+                <option value="식품">식품</option>
+                <option value="가전제품">가전제품</option>
+                <option value="스포츠">스포츠</option>
+                <option value="컴퓨터">컴퓨터/모바일/디지털</option>
+                <option value="티켓">티켓/쿠폰</option>
+                <option value="생활용품">생활용품</option>
+                <option value="취미">취미/문구/악기</option>
+                <option value="도서">도서</option>
+                <option value="레저">레저</option>
+                <option value="건강">건강/의료용품</option>
+                <option value="반려동물">반려동물</option>
+                <option value="기타">기타</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="content">내용:</label>
+            <textarea id="content" name="content" placeholder="내용을 입력하세요." required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="product_attachment_id">사진 업로드:</label>
+            <input type="file" id="product_attachment_id" name="imageFiles" multiple accept="image/*">
+        </div>
+        <div class="actions">
+            <button type="submit">작성</button>
+            <a href="/postlist"><button type="button" class="btn-cancel">취소</button></a>
+        </div>
+    </form>
+</div>
+</body>
+</html>
