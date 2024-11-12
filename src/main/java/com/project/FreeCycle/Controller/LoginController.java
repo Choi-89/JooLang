@@ -3,6 +3,9 @@ package com.project.FreeCycle.Controller;
 
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Dto.ApiResponseDTO;
+import com.project.FreeCycle.Dto.PasswordDTO;
+import com.project.FreeCycle.Dto.VerifyCodeDTO;
+import com.project.FreeCycle.Dto.certifyUserDTO;
 import com.project.FreeCycle.Repository.UserRepository;
 import com.project.FreeCycle.Service.VerifyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,10 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
-//@CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
 @RestController
 @RequestMapping("/home")
@@ -104,13 +105,13 @@ public class LoginController {
                     "서버는 세션을 사용하지 않으므로 JWT 기반에서는 토큰 자체를 삭제하는 것이 곧 로그아웃을 의미")
     @PostMapping("/logout")
     public ResponseEntity<ApiResponseDTO<Void>> logoutProc(){
-        ApiResponseDTO<Void> response = new ApiResponseDTO<>("success", "비밀번호 찾기 페이지로 이동", null);
+        ApiResponseDTO<Void> response = new ApiResponseDTO<>("success", "로그아웃 성공", null);
 
         return ResponseEntity.ok(response);
     }
 
     /**
-     * 비밀번호 찾기
+     * 비밀번호 찾기 홈페이지로 이동
      * */
     @Operation(summary = "비밀번호 찾기 페이지",description = "비밀번호 찾기 페이지로 이동합니다. 인증 코드를 입력받고, " +
             "type 파라미터에 'password'를 지정하여 서버로 요청합니다.")
@@ -128,15 +129,17 @@ public class LoginController {
      * */
 
     @Operation(summary = "사용자 인증 확인 처리", description = "사용자 ID와 이메일을 통해 데이터베이스에 있는 사용자인지 확인합니다." +
+            "json 형식으로 유저 아이디 (userId), 사용자 이메일 (email) 서버로 전달" +
             "사용자 인증 완료 후, 이메일 인증 가능함.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "사용자 인증 성공"),
             @ApiResponse(responseCode = "400", description = "사용자 인증 실패")
     })
     @PostMapping("/certifyUserProc")
-    public ResponseEntity<ApiResponseDTO<Void>> certifyUser(
-            @Parameter(description = "사용자 ID", required = true) @RequestParam(name = "userId") @NotBlank String userId,
-            @Parameter(description = "사용자 이메일", required = true) @RequestParam(name = "email") @NotBlank String email) {
+    public ResponseEntity<ApiResponseDTO<Void>> certifyUser(@RequestBody certifyUserDTO request)
+    {
+        String userId = request.getUserId();
+        String email = request.getEmail();
 
         if (verifyService.existUser(userId, email)) {
             return ResponseEntity.ok(new ApiResponseDTO<>("success","사용자 인증 성공",null));
@@ -154,12 +157,13 @@ public class LoginController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터")
     })
     @Operation(summary = "비밀번호 찾기 인증 코드 입력 페이지", description = "비밀번호 찾기 용도로 이메일 인증 코드를 입력하는 페이지를 반환함." +
-            "\"type 파라미터에 'userId'를 지정하여 서버로 요청합니다.\"")
+            "쿼리 데이터 형식으로 요청 타입 (userId 또는 password), 이메일 ( email ), 유저 아이디 (userId) 서버로 전달")
     @GetMapping("/verifyCode/password")
-    public ResponseEntity<ApiResponseDTO<Map<String,String>>> showVerifyCodePW(@Parameter(description = "사용자 ID", required = true) @RequestParam(name = "userId") String userId,
-                                                 @Parameter(description = "사용자 이메일", required = true) @RequestParam(name = "email") String email,
-                                                 @Parameter(description = "요청 타입 (userId: 아이디 찾기용, password: 비밀번호 찾기용)", required = true) @RequestParam(name = "type") String type
-    ){
+    public ResponseEntity<ApiResponseDTO<Map<String,String>>> showVerifyCodePW(
+            @Parameter(description = "사용자 이메일", required = true) @RequestParam(name = "email") String email,
+            @Parameter(description = "사용자 아이디", required = true) @RequestParam(name = "userId") String userId,
+            @Parameter(description = " 요청 타입 (userId 또는 password)", required = true) @RequestParam(name = "type") String type){
+
 
         Map<String, String> data = Map.of("userId", userId, "email", email, "type", type);
         return ResponseEntity.ok(new ApiResponseDTO<>("success", "인증 코드 입력 페이지로 이동", data));
@@ -171,13 +175,14 @@ public class LoginController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터")
     })
     @Operation(summary = "아이디 찾기 인증 코드 입력 페이지", description = "아이디 찾기 용도로 이메일 인증 코드를 입력하는 페이지를 반환함." +
-            "type 파라미터에 'userId'를 지정하여 서버로 요청합니다." +
+            "쿼리 데이터 형식으로 요청 타입 (userId 또는 password), 이메일 ( email ) 서버로 전달" +
             "이메일 인증을 하고 인증 번호가 맞으면 그 이메일로 가입된 유저 정보가 있는지 확인" +
             "있으면 그 유저의 userId를 화면에 반환 ( 원하면 이메일로 발송되게 수정 가능 )")
     @GetMapping("/verifyCode/userId")
-    public ResponseEntity<ApiResponseDTO<Map<String,String>>> showVerifyCodeID(@Parameter(description = "사용자 이메일", required = true) @RequestParam(name = "email") String email,
-                                                                @Parameter(description = "요청 타입 (userId: 아이디 찾기용, password: 비밀번호 찾기용)", required = true) @RequestParam(name = "type") String type
-    ){
+    public ResponseEntity<ApiResponseDTO<Map<String,String>>> showVerifyCodeID(
+            @Parameter(description = "사용자 이메일", required = true) @RequestParam(name = "email") String email,
+            @Parameter(description = " 요청 타입 (userId 또는 password)", required = true) @RequestParam(name = "type") String type){
+
         Map<String, String> data = Map.of("email", email, "type", type);
         return ResponseEntity.ok(new ApiResponseDTO<>("success", "인증 코드 입력 페이지로 이동", data));
     }
@@ -192,11 +197,13 @@ public class LoginController {
     })
     @Operation(summary = "이메일 인증 코드 전송 처리", description = "인증 코드를 이메일로 전송합니다." +
             "이메일 인증 번호 발송 버튼을 누르면 작동" +
+            "json 형식으로 요청 타입 (userId 또는 password), 이메일 ( email ) 서버로 전달" +
             "type을 통해 아이디 찾기를 위한 인증코드인지, 비밀번호 찾기를 위한 인증코드인지 판단함.")
     @PostMapping("/sendCodeProc")
-    public ResponseEntity<ApiResponseDTO<Void>> sendCodeProc(
-            @Parameter(description = "사용자 이메일", required = true) @RequestParam(name = "email") String email,
-            @Parameter(description = "요청 타입 (userId: 아이디 찾기용, password: 비밀번호 찾기용)", required = true) @RequestParam(name = "type") String type) {
+    public ResponseEntity<ApiResponseDTO<Void>> sendCodeProc(@RequestBody VerifyCodeDTO request) {
+
+        String email = request.getEmail();
+        String type = request.getType();
 
         if (verifyService.sendEmail(email)) {
 
@@ -222,12 +229,13 @@ public class LoginController {
     })
     @Operation(summary = "인증 코드 확인 처리", description = "입력된 인증 코드를 확인합니다." +
             "비밀번호 찾을 때, 아이디 찾을 때 모두 이 API 사용하면 됨" +
+            "json 형식으로 인증번호(code), 요청 타입 (userId 또는 password) type, 이메일 (email) 서버로 전달"+
             "type 파라미터로 전달받은 userId || password 인자를 통해 로직이 구현됨.")
     @PostMapping("/verifyCodeProc")
-    public ResponseEntity<ApiResponseDTO<Object>> verifyCodeProc(
-            @Parameter(description = "인증 코드", required = true) @RequestParam(name = "verifyCode") @NotBlank String code,
-            @Parameter(description = "요청 타입 (userId 또는 password)", required = true) @RequestParam(name = "type") @NotBlank String type,
-            @Parameter(description = "사용자 이메일", required = false) @RequestParam(name = "email", required = false) String email) {
+    public ResponseEntity<ApiResponseDTO<Object>> verifyCodeProc(@RequestBody VerifyCodeDTO request) {
+        String email = request.getEmail();
+        String type = request.getType();
+        String code = request.getCode();
 
         if (verifyService.verifyCode(code)) {
             if ("userId".equals(type) && email != null) {
@@ -263,19 +271,22 @@ public class LoginController {
     /**
      * 비밀번호 수정 로직
      * */
-    @Operation(summary = "비밀번호 수정 처리", description = "사용자의 비밀번호를 수정합니다.")
+    @Operation(summary = "비밀번호 수정 처리", description = "사용자의 비밀번호를 수정합니다." +
+            "json 형식으로 새 비밀번호(newPassword), 비밀번호 확인(confirmPassword), 사용자ID (userId) 서버로 전달")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "비밀번호 수정 성공"),
             @ApiResponse(responseCode = "409", description = "새 비밀번호가 현재 비밀번호와 동일함.")
     })
     @PostMapping("/updatePasswordProc")
-    public ResponseEntity<ApiResponseDTO<Object>> editPasswordProc(
-            @Parameter(description = "새 비밀번호", required = true) @RequestParam(name = "newPassword") String password,
-            @Parameter(description = "비밀번호 확인", required = true) @RequestParam(name = "confirmPassword") String passwordConfirm,
-            @Parameter(description = "사용자 ID", required = true) @RequestParam(name = "userId") String userId) {
+    public ResponseEntity<ApiResponseDTO<Object>> editPasswordProc(@RequestBody PasswordDTO request) {
+        String password = request.getPassword();
+        String confirmPassword = request.getConfirmPassword();
+        String userId = request.getUserId();
 
-        Map<String, Object> response = new HashMap<>();
-        if (verifyService.checkPassword(password, passwordConfirm)) {
+//        Map<String, Object> response = new HashMap<>();
+
+        
+        if (verifyService.checkPassword(password, confirmPassword)) {
             if (verifyService.updatePassword(password, userId)) {
                 Map<String, String> data = Map.of("userId", userId);
 
