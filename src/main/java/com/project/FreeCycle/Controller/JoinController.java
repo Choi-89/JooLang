@@ -1,7 +1,9 @@
 package com.project.FreeCycle.Controller;
 
 import com.project.FreeCycle.Dto.ApiResponseDTO;
+import com.project.FreeCycle.Dto.PasswordDTO;
 import com.project.FreeCycle.Dto.UserDTO;
+import com.project.FreeCycle.Dto.VerifyCodeDTO;
 import com.project.FreeCycle.Service.UserService;
 import com.project.FreeCycle.Service.VerifyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-//@CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
 @RestController
 @RequestMapping("/home")
@@ -75,7 +76,7 @@ public class JoinController {
 
 
     @Operation(summary = "OAuth2 비밀번호 설정 처리", description = "소셜 회원의 비밀번호를 설정합니다." +
-            "등록할 비밀번호를 서버에게 전달." +
+            "등록할 비밀번호 json 형식으로 서버로 전달. 새 비밀번호 ( newPassword ) , 비밀번호 확인 ( confirmPassword )" +
             "소셜 사용자 비밀번호 재설정 할 때만 인증 방식을 세션으로 사용할거임." + "비밀번호 재설정 후, 다시 소셜 로그인을 진행해야함. ")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "비밀번호 설정 성공"),
@@ -83,10 +84,11 @@ public class JoinController {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping("/joinPasswordProc")
-    public ResponseEntity<ApiResponseDTO<Void>> joinPasswordProc(
-            @Parameter(description = "새 비밀번호", required = true) @RequestParam(name = "newPassword") @NotBlank String password,
-            @Parameter(description = "비밀번호 확인", required = true) @RequestParam(name = "confirmPassword") @NotBlank String passwordConfirm
+    public ResponseEntity<ApiResponseDTO<Void>> joinPasswordProc(@RequestBody PasswordDTO request
             ,HttpSession session){
+
+        String password = request.getPassword();
+        String passwordConfirm = request.getConfirmPassword();
 
         String userId = (String) session.getAttribute("userId");
 
@@ -140,42 +142,42 @@ public class JoinController {
         return ResponseEntity.badRequest().body(new ApiResponseDTO<>("error","인증번호 전송에 오류가 발생했습니다.",null));
     }
 
-    @Operation(summary = "인증 코드 확인", description = "사용자가 입력한 인증 코드를 확인하고, " +
-            "해당 번호로 회원가입이 가능한지 여부를 검사합니다.")
+    @Operation(summary = "인증 코드 확인", description = "사용자가 입력한 인증 코드를 확인하고" +
+            "해당 번호로 가입 되어있는지, 회원가입이 가능한지 여부를 검사합니다." +
+            "json 형식으로 인증코드 (code), 휴대폰 번호 (phoneNumber) 서버로 전달")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "인증 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 인증 번호 또는 이미 가입된 회원")
     })
     @PostMapping("/checkProc")
-    public ResponseEntity<ApiResponseDTO<Void>> checkProc(
-            @Parameter(description = "입력된 인증 코드", required = true)
-            @RequestParam @NotBlank String verifyCode,
-            @Parameter(description = "휴대폰 번호", required = true)
-            @RequestParam(name = "phoneNumber") String phoneNumber
-    ){
+    public ResponseEntity<ApiResponseDTO<Void>> checkProc(@RequestBody VerifyCodeDTO request){
+
+        String phoneNumber = request.getPhoneNumber();
+        String code = request.getCode();
         UserDTO userDTO = verifyService.verifyPhoneNum(phoneNumber);
         if(userDTO != null){
 
             return ResponseEntity.badRequest().body(new ApiResponseDTO<>("error","이미 가입 되어있는 회원입니다.", null));
         }
 
-        if(verifyService.verifyCode(verifyCode)) {
+        if(verifyService.verifyCode(code)) {
             return ResponseEntity.ok(new ApiResponseDTO<>("success", "인증 성공하였습니다. 회원가입 페이지로 이동합니다.",null));
         }
 
         return ResponseEntity.badRequest().body(new ApiResponseDTO<>("error","인증번호가 틀렸습니다.",null));
     }
 
-    @Operation(summary = "아이디 중복 확인 ", description = "회원가입 할 때, 아이디 중복 체크 API")
+    
+    @Operation(summary = "아이디 중복 확인 ", description = "회원가입 할 때, 아이디 중복 체크 API" +
+            "json 형식으로 중복 확인 할 유저 아이디(userId) 서버로 전달")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "중복되는 아이디가 없음."),
             @ApiResponse(responseCode = "400", description = "이미 가입된 회원")
     })
     @PostMapping("/checkId")
-    public ResponseEntity<ApiResponseDTO<Void>> checkId(
-            @Parameter(description = "중복 확인 할 userId", required = true)
-            @RequestParam @NotBlank String userId
-    ){
+    public ResponseEntity<ApiResponseDTO<Void>> checkId(@RequestBody VerifyCodeDTO request){
+
+        String userId = request.getUserId();
 
         if(verifyService.existUserId(userId)){
             return ResponseEntity.ok(new ApiResponseDTO<>("success", "사용가능한 ID 입니다.",null));
