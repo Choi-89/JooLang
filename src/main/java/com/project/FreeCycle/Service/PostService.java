@@ -11,13 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.text.Normalizer;
+import java.util.*;
 
 
+import static com.project.FreeCycle.Domain.AttachmentType.IMAGE;
 import static org.springframework.http.ResponseEntity.ok;
 
 @Service
@@ -110,20 +111,73 @@ public class PostService {
     }
 
     //글 수정
-    public void postEdit(long id , String name , String content , String category){
-        Product product = productRepository.findById(id).get();
-        if(!name.isEmpty()){
-            product.setName(name);
-        }
-        product.setContent(content);
+    public void postEdit(long productid, ProductDTO productDTO) throws IOException {
 
-        productCategoryRepository.delete(productCategoryRepository.findByProduct_Id(id));
+        Product product = productRepository.findById(productid).get();
+
+        //이미지 가져와서 파일 저장하는 로직
+        //원래 이미지, 수정한 이미지 비교후 바뀐게 있으면 업데이트해서 저장
+        List<Product_Attachment> stringOriginal = attachmentRepository.findAllByProduct_Id(productid);
+        List<String> originalFilename = new ArrayList<>();
+        for (Product_Attachment imageFile : stringOriginal) {
+            originalFilename.add(imageFile.getOriginFilename());
+        }
+
+        //if ? 1 : 0 나중에 바꿀것 얘는 멀파파 스트링이 아님
+        List<String> insertFilenames = new ArrayList<>();
+        List<MultipartFile> imageFiles = productDTO.getAttachmentFiles().get(IMAGE);
+
+        for (MultipartFile imageFile : imageFiles) {
+            insertFilenames.add(Normalizer.normalize(imageFile.getOriginalFilename(), Normalizer.Form.NFC));
+        }
+        // 원래 있던 프로가 없으면 데베에서 삭제
+
+        List<Product_Attachment> mustBeDeletedFiles = new ArrayList<>();
+        for (String name : originalFilename) {
+            List<Product_Attachment> product_original = new ArrayList<>();
+            if (!insertFilenames.contains(name)) {
+                product_original.addAll(attachmentRepository.findByOriginFilename(name));
+                for(Product_Attachment attachment : product_original){
+                    if(productid == attachment.getProduct().getId()) {
+                        mustBeDeletedFiles.add(attachment);
+                        product.getAttachments().remove(attachment);
+                    }
+                }
+
+            }
+        }
+        fileStoreApi.deleteAttachments(mustBeDeletedFiles);
+
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            Map<AttachmentType, List<MultipartFile>> fileMap = new HashMap<>();
+            for (MultipartFile file : imageFiles) {
+                String fileName = Normalizer.normalize(file.getOriginalFilename(), Normalizer.Form.NFC);
+                // 원래 있던 프로덕트가 아니면 추가
+                if (!originalFilename.contains(fileName)) {
+                    AttachmentType type = attachmentService.determineAttachmentType(file);
+                    fileMap.computeIfAbsent(type, k -> new ArrayList<>()).add(file); // 유형별로 파일 추가
+                }
+            }
+            product.getAttachments().addAll(attachmentService.saveAttachments(productid, fileMap));
+        }
+
+
+        //이름, 내용, 카테고리 수정하는 로직
+//        Product product = productRepository.findById(productid).get();
+        if(!productDTO.getName().isEmpty()){
+            product.setName(productDTO.getName());
+        }
+        product.setContent(productDTO.getContent());
+
+        productCategoryRepository.delete(productCategoryRepository.findByProduct_Id(productid));
         ProductCategory productCategory = new ProductCategory();
-        productCategory.setCategory(categoryRepository.findByCategory(category));
-        productCategory.setProduct(productRepository.findById(id).orElse(null));
+        productCategory.setCategory(categoryRepository.findByCategory(productDTO.getCategory()));
+        productCategory.setProduct(productRepository.findById(productid).orElse(null));
         productCategoryRepository.save(productCategory);
 
         productRepository.save(product);
+
+        //수정을 눌렀을때 파일 선택하는 칸에 이미 이미지가 존재하는 경우에 선택이 가능하도록
     }
 
     //글 삭제
@@ -203,7 +257,7 @@ public class PostService {
     }
 
     public List<Product> getProducts(String categoryname){
-        System.out.println(categoryname);
+//        System.out.println(categoryname);
         Category category = categoryRepository.findByCategory(categoryname);
         List<Product> products = new ArrayList<>();
         if(!categoryname.equals("전체")) {

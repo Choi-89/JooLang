@@ -35,7 +35,7 @@ public class FileStoreApi {
         }
         return false; // 파일이 없으면 false 반환
     }
-
+    //히히 죄송합니다 교수님
     public void deleteAttachments(List<Product_Attachment> attachments) {
         for (Product_Attachment attachment : attachments) {
             String viaPath = (attachment.getAttachmentType() == AttachmentType.IMAGE) ? "images/" : "generals/";

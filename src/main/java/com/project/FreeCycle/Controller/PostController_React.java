@@ -1,5 +1,6 @@
 package com.project.FreeCycle.Controller;
 
+import com.project.FreeCycle.Domain.AttachmentType;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Dto.ProductDTO;
@@ -13,10 +14,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static com.project.FreeCycle.Domain.AttachmentType.GENERAL;
+import static com.project.FreeCycle.Domain.AttachmentType.IMAGE;
 
 @Controller
 @RequiredArgsConstructor
@@ -94,47 +102,22 @@ public class PostController_React {
     }
 
     @PostMapping(value = "/post/{id}/edit")
-    public String editPost(@PathVariable("id") long id,
-                           String name,
-                           String content , @RequestParam("category") String category) {
-        postService.postEdit(id , name, content, category);
-//        return ResponseEntity.ok("edit complete");
-        return "redirect:/post_detail/"+id;
+    public String editPost(@PathVariable("id") long productid,
+//                           @RequestParam(value = "attachmentFiles", required = false) List<MultipartFile> attachmentFiles,
+                           @ModelAttribute ProductFormDTO productFormDTO) throws IOException{
+
+        ProductDTO productDTO = productFormDTO.createProductDTO();
+        postService.postEdit(productid, productDTO);
+
+        return "redirect:/post_detail/"+productid;
     }
 
     //글 삭제
     @PostMapping(value ="/post/{id}/delete")
     public String deletePost(@PathVariable("id") long id) {
-//        if(postService.postDelete(id)) {
-//            request.setAttribute("msg", "삭제되었습니다."); //창
-//            request.setAttribute("url", "/post/write");
-//            return ResponseEntity.ok().body("Post/alert"); // 삭제 완!
-//        }
-//        else{
-//            request.setAttribute("msg", "존재하지 않습니다."); //창
-//            request.setAttribute("url", "/post/list");
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post/alert"); // 이미 삭제된 게시글!
-//        }
         postService.postDelete(id);
         return "redirect:/postlist";
     }
-
-//    //글 찜버튼
-//    @PostMapping(value = "/post/{id}/dibs")
-//    public String dibs(@PathVariable("id") long id, Principal principal) {
-//        String userId = principal.getName();
-//
-//        List<Product> products = userRepository.findByUserId(userId).getDibs();
-//
-//        postService.saveDibs(userId, id);
-//
-//        for(int i = 0 ; i< products.size(); i++){
-//            System.out.println(products.get(i).getId());
-//        }
-//
-//        return "redirect:/post_detail/" + id;
-//
-//    }
 
     //글 찜버튼
     @PostMapping(value = "/post/{id}/dibs")

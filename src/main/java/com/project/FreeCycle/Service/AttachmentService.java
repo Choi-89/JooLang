@@ -47,6 +47,41 @@ public class AttachmentService {
         return result;
     }
 
+    public List<Product_Attachment> saveAttachments(Long postId, Map<AttachmentType, List<MultipartFile>> multipartFileListMap) throws IOException {
+        // 결과를 담을 리스트
+        List<Product_Attachment> savedAttachments = new ArrayList<>();
+
+        // 1. 게시물 조회
+        Product product = productRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid post ID: " + postId));
+
+        // 2. 이미지 파일 저장
+        if (multipartFileListMap.containsKey(AttachmentType.IMAGE)) {
+            List<Product_Attachment> imageFiles = fileStoreApi.storeFiles(multipartFileListMap.get(AttachmentType.IMAGE), AttachmentType.IMAGE);
+            for (Product_Attachment attachment : imageFiles) {
+                attachment.setProduct(product); // 게시물 설정
+                savedAttachments.add(attachment); // 결과 리스트에 추가
+            }
+            product.getAttachments().addAll(savedAttachments);
+            attachmentRepository.saveAll(imageFiles); // 데이터베이스에 저장
+        }
+
+        // 3. 일반 파일 저장
+        if (multipartFileListMap.containsKey(AttachmentType.GENERAL)) {
+            List<Product_Attachment> generalFiles = fileStoreApi.storeFiles(multipartFileListMap.get(AttachmentType.GENERAL), AttachmentType.GENERAL);
+            for (Product_Attachment attachment : generalFiles) {
+                attachment.setProduct(product); // 게시물 설정
+                savedAttachments.add(attachment); // 결과 리스트에 추가
+            }
+            attachmentRepository.saveAll(generalFiles); // 데이터베이스에 저장
+        }
+
+        return savedAttachments;
+    }
+
+
+
+
     public Map<AttachmentType, List<Product_Attachment>> findAttachments() {
         List<Product_Attachment> attachments = attachmentRepository.findAll();
         Map<AttachmentType, List<Product_Attachment>> result = attachments.stream()
@@ -66,6 +101,23 @@ public class AttachmentService {
 
         return pictures;
     }
+    //attachment type 판별 메서드
+    public AttachmentType determineAttachmentType(MultipartFile file) {
+        String contentType = file.getContentType();
+
+        if (contentType != null) {
+            // MIME 타입이 이미지인 경우
+            if (contentType.startsWith("image/")) {
+                return AttachmentType.IMAGE;
+            } else {
+                return AttachmentType.GENERAL;
+            }
+        }
+
+        // 기본값으로 GENERAL 반환
+        return AttachmentType.GENERAL;
+    }
+
 
 }
 
