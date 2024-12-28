@@ -5,6 +5,8 @@ import com.project.FreeCycle.Domain.*;
 
 import com.project.FreeCycle.Dto.ProductDTO;
 import com.project.FreeCycle.Repository.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +18,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.text.Normalizer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 import static com.project.FreeCycle.Domain.AttachmentType.IMAGE;
-import static org.springframework.http.ResponseEntity.ok;
 
 @Service
 public class PostService {
@@ -85,6 +87,9 @@ public class PostService {
 
 
         }
+
+        //찜수 0으로 설정
+        product.setDibsCount(0);
 
         //카테고리 설정
         Category category = categoryRepository.findByCategory(productDTO.getCategory());
@@ -222,8 +227,10 @@ public class PostService {
         for(Dibs dib: dibs){
             if(dib.getDibsId().equals(postId)){
                 dibs.remove(dib);
+                isThat = false;
                 dibsRepository.delete(dib);
-                return;
+                product.setDibsCount(product.getDibsCount()-1);
+                break;
             }
         }
 
@@ -233,9 +240,10 @@ public class PostService {
             newDibs.setDibsId(postId);
             newDibs.setUser(user);
             dibs.add(newDibs);
+            product.setDibsCount(product.getDibsCount()+1);
             dibsRepository.save(newDibs);
         }
-
+        productRepository.save(product);
 
 
 //        user.setDibs(dibs);
@@ -256,18 +264,29 @@ public class PostService {
         return products;
     }
 
-    public List<Product> getProducts(String categoryname){
-//        System.out.println(categoryname);
-        Category category = categoryRepository.findByCategory(categoryname);
+    public List<Product> getProducts(String categoryname, String sort){
+        Category category = categoryRepository.findByCategory(categoryname); // 카테고리id, postid >> 프로덕트카테고리 , 그냥 카테고리는 id, 카테고리이름
         List<Product> products = new ArrayList<>();
-        if(!categoryname.equals("전체")) {
-            List<ProductCategory> productCategories = productCategoryRepository.findAllByCategory(category);
-            for (ProductCategory tmp : productCategories) {
-                products.add(tmp.getProduct());
-            }
+        if(sort.equals("latest")){
+            products = productRepository.findAllByOrderByUploadTimeDesc();
         }
         else{
-            products =  productRepository.findAll();
+            products = productRepository.findAllByOrderByDibsCountDesc();
+        }
+
+        if(!categoryname.equals("전체")) {
+            List<ProductCategory> categoryProducts = productCategoryRepository.findAllByCategory(category);
+            List<Long> postIds = categoryProducts.stream()
+                    .map(productCategory -> productCategory.getProduct().getId())
+                    .collect(Collectors.toList()); // 리스트로 변환
+
+            List<Product> result = new ArrayList<>();
+            for (Product post : products) {
+                if (postIds.contains(post.getId())) {
+                    result.add(post);
+                }
+            }
+            return result;
         }
         return products;
     }

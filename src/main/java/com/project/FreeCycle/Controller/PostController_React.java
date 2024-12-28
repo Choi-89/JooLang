@@ -9,6 +9,8 @@ import com.project.FreeCycle.Repository.UserRepository;
 import com.project.FreeCycle.Service.AttachmentService;
 import com.project.FreeCycle.Service.PostService;
 import com.project.FreeCycle.Service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +28,8 @@ import java.util.Map;
 import static com.project.FreeCycle.Domain.AttachmentType.GENERAL;
 import static com.project.FreeCycle.Domain.AttachmentType.IMAGE;
 
+import java.net.URLEncoder;
+
 @Controller
 @RequiredArgsConstructor
 public class PostController_React {
@@ -35,29 +39,16 @@ public class PostController_React {
     private final UserRepository userRepository;
     private final AttachmentService attachmentService;
 
-    @GetMapping(value = "/postlist")
-    public String postList(Model model) {
-        // Product 리스트를 가져오는 로직 (예: 서비스 레이어에서 가져오기)
-        List<Product> products = postService.getAllProducts(); // productService는 Product를 관리하는 서비스 클래스
-
-        // 모델에 products 리스트를 추가
-        model.addAttribute("products", products);
-
-        // postlist 템플릿으로 이동
-        return "postlist1";
-    }
-
     //카테고리 글 목록 나열
     @GetMapping(value = "/postlist/{category}")
-    public String categoryList(@PathVariable("category") String category ,Model model){
+    public String categoryList(@PathVariable("category") String category ,Model model,
+                               @RequestParam(value = "sort", defaultValue = "latest") String sort){
 
-        List<Product> products = postService.getProducts(category);
+        List<Product> products = postService.getProducts(category, sort);
 
         model.addAttribute("products", products);
         return "postlist1";
     }
-
-
 
 
     //글 조회 >> 삭제버튼 db별로 다르게 출력
@@ -89,8 +80,8 @@ public class PostController_React {
         String userId = principal.getName();
         ProductDTO productDTO = productFormDTO.createProductDTO();
         postService.postProduct(productDTO,userId);
-
-        return "redirect:/postlist";
+        String encodedCategory = URLEncoder.encode("전체", "UTF-8");
+        return "redirect:/postlist/" + encodedCategory;
     }
 
     //글 수정
@@ -124,7 +115,6 @@ public class PostController_React {
     public String dibs(@PathVariable("id") long id, Principal principal){
 
         String userId = principal.getName();
-
 
         postService.saveDibs(userId , id);
 

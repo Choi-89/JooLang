@@ -33,9 +33,12 @@ public class Product {
     @Column(name = "view", nullable = false )
     private int view;
 
-    @Column(name = "upload_time", nullable = false)
+    @Column(name = "uploadTime", nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") //Controller에서 @RequestParam 다음 @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") 어노테이션 사용
-    private LocalDateTime upload_time;
+    private LocalDateTime uploadTime;
+
+    @Column(name = "dibsCount", nullable = false)
+    private int dibsCount;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -51,7 +54,7 @@ public class Product {
         this.name = name;
         this.content = content;
         this.view = view;
-        this.upload_time = upload_time;
+        this.uploadTime = upload_time;
         this.attachments = attachments;
     }
 

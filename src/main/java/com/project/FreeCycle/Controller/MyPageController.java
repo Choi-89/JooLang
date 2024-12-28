@@ -63,7 +63,7 @@ public class MyPageController {
 
         // 모델에 dibs 리스트 삽입
         model.addAttribute("products", products);
-        return "postlist";
+        return "postlist1";
     }
 
     //개인정보 수정

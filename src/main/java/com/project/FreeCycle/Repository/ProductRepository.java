@@ -5,11 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     Optional<Product> findById(Long integer);
     Product findByName(String name);
+    List<Product> findAllByOrderByDibsCountDesc();
+    List<Product> findAllByOrderByUploadTimeDesc();
 
 }
