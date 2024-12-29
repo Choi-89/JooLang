@@ -37,7 +37,7 @@ public class JwtUtil {
 
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
     }
-    
+
     /**
      * 토큰 만료 했는지 검증하는 메서드
      * **/
@@ -70,4 +70,3 @@ public class JwtUtil {
     }
 
 }
-

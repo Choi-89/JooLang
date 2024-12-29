@@ -3,6 +3,7 @@ package com.project.FreeCycle.Service;
 
 import com.project.FreeCycle.Dto.*;
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Repository.OAuth2UserInfo;
 import com.project.FreeCycle.Repository.UserRepository;
 import com.project.FreeCycle.Util.CookieUtil;
 import com.project.FreeCycle.Util.HashUtil;
