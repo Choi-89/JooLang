@@ -4,6 +4,7 @@ import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Domain.Dibs;
+import com.project.FreeCycle.Dto.MyInformDTO;
 import com.project.FreeCycle.Repository.LocationRepository;
 import com.project.FreeCycle.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +52,11 @@ public class UserService{
 
     // 유저 정보 수정
 
-    public void userEdit(String userId, String nickname,
-                         String postcode, String address, String detailAddress ){
+    public void userEdit(String userId, MyInformDTO myInformDTO){
+        String nickname = myInformDTO.getNickname();
+        String address = myInformDTO.getAddress();
+        String postcode = myInformDTO.getPostcode();
+        String detailAddress = myInformDTO.getDetail_address();
         User user = userRepository.findByUserId(userId);
         Location location = user.getLocation();
 //        location.setId(user.getLocation().getId());

@@ -3,6 +3,7 @@ package com.project.FreeCycle.Controller;
 import com.project.FreeCycle.Domain.AttachmentType;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Dto.PostDetailDTO;
 import com.project.FreeCycle.Dto.ProductDTO;
 import com.project.FreeCycle.Dto.ProductFormDTO;
 import com.project.FreeCycle.Repository.UserRepository;
@@ -60,9 +61,11 @@ public class PostController_React {
         User user = userRepository.findByUserId(userId);
         List<String> pictures = attachmentService.getPictures(id);
         String nickname = user.getNickname();   // 프론트에서 nickname이 같으면 수정,삭제 버튼 나오게 사용할 수 있게 model에 추가
-        model.addAttribute("product", product);
-        model.addAttribute("nickname", nickname);
-        model.addAttribute("pictures" , pictures);
+        PostDetailDTO postDetailDTO = new PostDetailDTO(product,nickname,pictures);
+
+        model.addAttribute("product", postDetailDTO.getProduct());
+        model.addAttribute("nickname", postDetailDTO.getNickname());
+        model.addAttribute("pictures",postDetailDTO.getPictures());
 
         return "post_detail";
     }

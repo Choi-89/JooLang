@@ -4,6 +4,7 @@ import com.project.FreeCycle.Domain.Dibs;
 import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Dto.MyInformDTO;
 import com.project.FreeCycle.Repository.LocationRepository;
 import com.project.FreeCycle.Service.PostService;
 import com.project.FreeCycle.Service.UserService;
@@ -15,11 +16,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.net.http.HttpHeaders;
 import java.security.Principal;
 import java.util.Collections;
@@ -79,18 +78,11 @@ public class MyPageController {
 
     @PostMapping("/{id}/myinformodify")
     public String moodify(Principal principal,
-                          @RequestParam("nickname") String nickname,
-                          @RequestParam("postcode") String postcode,
-                          @RequestParam("address") String address,
-                          @RequestParam("detail_address") String detailAddress)
+                          @ModelAttribute MyInformDTO myInformDTO
+                          )
     {
         String userId = principal.getName();
-//        Location location = new Location();
-//        location.setPostcode(postcode);
-//        location.setAddress(address);
-//        location.setDetailAddress(detailAddress);
-
-        userService.userEdit(userId, nickname, postcode, address, detailAddress);
+        userService.userEdit(userId, myInformDTO);
 
         return "redirect:/{id}/mypage";
     }
