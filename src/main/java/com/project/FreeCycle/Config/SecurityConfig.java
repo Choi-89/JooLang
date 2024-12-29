@@ -47,7 +47,7 @@ public class SecurityConfig {
                                 "/joinProc","/loginProc","/auth/**","/error",
                                 "/static/**","/favicon.ico","/certifyUser","/certifyUserProc",
                                 "/verifyCode","/verifyCodeProc","/sendCodeProc",
-                                "/editPassword","/updatePasswordProc").permitAll()
+                                "/editPassword","/updatePasswordProc", "/v3/api-docs/**", "/swagger/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/postlist","/post/**","post_detail/**").hasRole("USER")
                         .anyRequest().authenticated()
                 );
@@ -94,7 +94,6 @@ public class SecurityConfig {
                             response.sendRedirect("/home/login?error=true");
                         })
         );
-
         http
                 .exceptionHandling(exception -> {
                     log.info("Configuring exceptionHandling");
