@@ -12,12 +12,10 @@ import java.util.List;
 @Setter
 public class PostDetailDTO {
     private Product product;
-    private String nickname;
     private List<String> pictures;
 
-    public PostDetailDTO(Product product, String nickname, List<String> pictures){
+    public PostDetailDTO(Product product, List<String> pictures){
         this.product = product;
-        this.nickname = nickname;
         this.pictures = pictures;
     }
 

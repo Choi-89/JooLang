@@ -59,7 +59,7 @@ public class UserService{
         String detailAddress = myInformDTO.getDetail_address();
         User user = userRepository.findByUserId(userId);
         Location location = user.getLocation();
-//        location.setId(user.getLocation().getId());
+
         if(!nickname.isEmpty()){
             user.setNickname(nickname);
         }
@@ -71,8 +71,6 @@ public class UserService{
             location.setDetailAddress(detailAddress);
             location.setPostcode(postcode);
 
-            System.out.println(user.getUserId());
-            System.out.println(user.getPassword());
         }
         userRepository.save(user);
 

@@ -37,7 +37,7 @@ public class ProductDTO {
                 .name(name)
                 .content(content)
                 .attachments(new ArrayList<>())
-                .upload_time(LocalDateTime.now())
+                .uploadTime(LocalDateTime.now())
                 .view(0)
                 .build();
     }

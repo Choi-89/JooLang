@@ -1,5 +1,6 @@
 package com.project.FreeCycle.Domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 

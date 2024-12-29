@@ -64,14 +64,11 @@ public class PostController {
                     " 수정버튼을 누르면 /post/{id}/edit 로 이동하고, 삭제버튼을 누르면 /post/{id}/delete로 이동합니다. id는 productid입니다."
     )
     @GetMapping(value = "/post_detail/{id}")
-    public ResponseEntity<ApiResponseDTO<Map<String,PostDetailDTO>>> viewPost(@PathVariable("id") Long id, Principal principal) {
+    public ResponseEntity<ApiResponseDTO<Map<String, PostDetailDTO>>> viewPost(@PathVariable("id") Long id) {
         Product product = postService.checkViews(id);
 
-        String userId = principal.getName();
-        User user = userRepository.findByUserId(userId);
         List<String> pictures = attachmentService.getPictures(id);
-        String nickname = user.getNickname();   // 프론트에서 nickname이 같으면 수정,삭제 버튼 나오게 사용할 수 있게 model에 추가
-        PostDetailDTO postDetailDTO = new PostDetailDTO(product,nickname,pictures);
+        PostDetailDTO postDetailDTO = new PostDetailDTO(product,pictures);
         Map<String,PostDetailDTO> response = new HashMap<>();
         response.put("post",postDetailDTO);
 
@@ -99,7 +96,7 @@ public class PostController {
     @Operation(summary = "글 작성 확인 버튼",
             description = "사용자가 글 작성 버튼을 클릭했을 때 정보를 저장하고 해당 게시글(")
     @PostMapping(value = "/post/write")
-    public ResponseEntity<ApiResponseDTO<Map<String, ProductDTO>>> writePost(@ModelAttribute ProductFormDTO productFormDTO,
+    public ResponseEntity<ApiResponseDTO<Map<String, ProductDTO>>> writePost(@RequestBody ProductFormDTO productFormDTO,
                             Principal principal) throws IOException {
         String userId = principal.getName();
         ProductDTO productDTO = productFormDTO.createProductDTO();
@@ -130,10 +127,11 @@ public class PostController {
             @ApiResponse(responseCode = "400", description = "글 수정 실패")
     })
     @Operation(summary = "글 수정에서 확인 버튼",
-            description = "사용자가 글 수정에서 확인 버튼을 클릭했을 때 바뀐 정보를 저장하고 /post_detail/{id}로 이동합니다. 이때 id는 productid 입니다.")
+            description = "사용자가 글 수정에서 확인 버튼을 클릭했을 때 바뀐 정보를 저장하고 /post_detail/{id}로 이동합니다. 이때 id는 productid 입니다."
+                    + "카테고리 값은 " + "전체/패션/가구/식품/가전제품/스포츠/컴퓨터/티켓/생활용품/취미/도서/레저/건강/반려동물/기타" + "로 받도록 해야합니다.")
     @PostMapping(value = "/post/{id}/edit")
     public ResponseEntity<ApiResponseDTO<Map<String, ProductDTO>>> editPost(@PathVariable("id") long productid,
-                           @ModelAttribute ProductFormDTO productFormDTO) throws IOException{
+                           @RequestBody ProductFormDTO productFormDTO) throws IOException{
 
         ProductDTO productDTO = productFormDTO.createProductDTO();
         postService.postEdit(productid, productDTO);

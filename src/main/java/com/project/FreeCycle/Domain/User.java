@@ -1,5 +1,6 @@
 package com.project.FreeCycle.Domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,7 +27,7 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "nickname")
+    @Column(name = "nickname", unique = true)
     private String nickname;
 
     @Column(name = "email")
@@ -45,6 +46,7 @@ public class User {
     private String providerId;
 
     @OneToOne(mappedBy = "user")
+    @JsonIgnore
     private Location location;
 
     // 유저가 가지고 있는 게시물
@@ -52,6 +54,7 @@ public class User {
     private List<Product> products = new ArrayList<>();
 
     //찜목록
+    @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Dibs> dibs = new ArrayList<>();
 

@@ -1,6 +1,7 @@
 package com.project.FreeCycle.Domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,6 +42,7 @@ public class Product {
     private int dibsCount;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -49,12 +51,12 @@ public class Product {
     private List<Product_Attachment> attachments;
 
     @Builder
-    public Product(long id, String name, String content, int view, LocalDateTime upload_time, List<Product_Attachment> attachments){
+    public Product(long id, String name, String content, int view, LocalDateTime uploadTime, List<Product_Attachment> attachments){
         this.id = id;
         this.name = name;
         this.content = content;
         this.view = view;
-        this.uploadTime = upload_time;
+        this.uploadTime = uploadTime;
         this.attachments = attachments;
     }
 

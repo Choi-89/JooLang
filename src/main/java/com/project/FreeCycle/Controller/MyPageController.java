@@ -105,7 +105,7 @@ public class MyPageController {
             description = "수정한 개인정보를 저장하고 /{id}/mypage로 넘어갑니다. 이때 id는 userId입니다.")
     @PostMapping("/{id}/myinformodify")
     public ResponseEntity<ApiResponseDTO<Map<String, MyInformDTO>>> moodify(Principal principal,
-                          @ModelAttribute MyInformDTO myInformDTO)
+                                                                            @RequestBody MyInformDTO myInformDTO)
     {
         String userId = principal.getName();
         userService.userEdit(userId, myInformDTO);

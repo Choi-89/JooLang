@@ -76,11 +76,8 @@ public class PostService {
             //이름 바꾼 이미지 정보들 product에 set
             product.setAttachments(attachments);
 
-            System.out.println(product.getAttachments().size());
-
             for(Product_Attachment attachment : attachments){
                 attachment.setProduct(product);
-//                attachmentRepository.save(attachment);
                 log.info(attachment.getOriginFilename());
             }
             attachmentRepository.saveAll(attachments);
@@ -131,9 +128,10 @@ public class PostService {
         //if ? 1 : 0 나중에 바꿀것 얘는 멀파파 스트링이 아님
         List<String> insertFilenames = new ArrayList<>();
         List<MultipartFile> imageFiles = productDTO.getAttachmentFiles().get(IMAGE);
-
-        for (MultipartFile imageFile : imageFiles) {
-            insertFilenames.add(Normalizer.normalize(imageFile.getOriginalFilename(), Normalizer.Form.NFC));
+        if(imageFiles != null) {
+            for (MultipartFile imageFile : imageFiles) {
+                insertFilenames.add(Normalizer.normalize(imageFile.getOriginalFilename(), Normalizer.Form.NFC));
+            }
         }
         // 원래 있던 프로가 없으면 데베에서 삭제
 
@@ -173,7 +171,6 @@ public class PostService {
             product.setName(productDTO.getName());
         }
         product.setContent(productDTO.getContent());
-
         productCategoryRepository.delete(productCategoryRepository.findByProduct_Id(productid));
         ProductCategory productCategory = new ProductCategory();
         productCategory.setCategory(categoryRepository.findByCategory(productDTO.getCategory()));
