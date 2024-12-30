@@ -6,6 +6,7 @@ import com.project.FreeCycle.Domain.User;
 //import com.project.FreeCycle.Repository.LocationRepository;
 import com.project.FreeCycle.Dto.ApiResponseDTO;
 import com.project.FreeCycle.Dto.MyInformDTO;
+import com.project.FreeCycle.Dto.UserDTO;
 import com.project.FreeCycle.Service.PostService;
 import com.project.FreeCycle.Service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -98,11 +99,11 @@ public class MyPageController {
             description = "사용자의 User정보를 가지고 /{id}/modify 로 이동합니다. id는 Userid."
     )
     @GetMapping("/{id}/modify")
-    public ResponseEntity<ApiResponseDTO<Map<String,User>>> modify( Principal principal){
-        User user = userService.getUser(principal.getName());
+    public ResponseEntity<ApiResponseDTO<Map<String,UserDTO>>> modify( Principal principal){
+        UserDTO user = userService.getUser(principal.getName());
 
-        Map<String,User> response = new HashMap<>();
-        response.put("user",user);
+        Map<String,UserDTO> response = new HashMap<>();
+        response.put("userDTO",user);
         return ResponseEntity.ok(new ApiResponseDTO<>("200", "success", response));
     }
 
