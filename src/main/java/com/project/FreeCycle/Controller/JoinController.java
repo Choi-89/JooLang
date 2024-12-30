@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -131,8 +132,8 @@ public class JoinController {
             @ApiResponse(responseCode = "400", description = "인증 번호 전송 실패")
     })
     @PostMapping("/sendSmsProc")
-    public ResponseEntity<ApiResponseDTO<Void>> sendSMSProc(
-            @Parameter(description = "인증할 휴대폰 번호", required = true)
+    public ResponseEntity<ApiResponseDTO<Void>> sendSMSProc(HttpServletRequest request,
+                                                            @Parameter(description = "인증할 휴대폰 번호", required = true)
             @RequestParam(name = "phoneNumber") @NotBlank String phoneNumber){
 
         if(verifyService.sendSMS(phoneNumber)){
@@ -150,7 +151,7 @@ public class JoinController {
             @ApiResponse(responseCode = "400", description = "잘못된 인증 번호 또는 이미 가입된 회원")
     })
     @PostMapping("/checkProc")
-    public ResponseEntity<ApiResponseDTO<Void>> checkProc(@RequestBody VerifyCodeDTO request){
+    public ResponseEntity<ApiResponseDTO<Void>> checkProc(HttpServletRequest servletRequest, @RequestBody VerifyCodeDTO request){
 
         String phoneNumber = request.getPhoneNumber();
         String code = request.getCode();

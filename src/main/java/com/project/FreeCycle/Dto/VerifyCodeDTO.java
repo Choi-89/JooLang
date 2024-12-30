@@ -1,6 +1,8 @@
 package com.project.FreeCycle.Dto;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +10,7 @@ import lombok.Setter;
 @Setter
 public class VerifyCodeDTO {
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String userId;
 
     private String email;
@@ -19,5 +22,6 @@ public class VerifyCodeDTO {
      * */
     private String code;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String phoneNumber;
 }

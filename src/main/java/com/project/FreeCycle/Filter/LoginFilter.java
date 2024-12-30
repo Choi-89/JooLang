@@ -22,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
@@ -47,11 +48,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
+        if (!"POST".equalsIgnoreCase(request.getMethod())) {
+            // POST 요청이 아닌 경우 인증을 시도하지 않음
+            return null;
+        }
         LoginRequestDTO loginRequestDTO = new LoginRequestDTO();
 
         try {
+            InputStream inputStream = request.getInputStream();
             ObjectMapper mapper = new ObjectMapper();
-            ServletInputStream inputStream = request.getInputStream();
+//            ServletInputStream inputStream = request.getInputStream();
             String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
             loginRequestDTO = mapper.readValue(messageBody, LoginRequestDTO.class);
 
