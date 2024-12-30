@@ -70,10 +70,10 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         if (session != null && Boolean.TRUE.equals(session.getAttribute("isNewUser"))){
             session.removeAttribute("userId");
             // 새로운 사용자는 비밀번호 설정을 마친 후 다시 로그인 후 홈 화면으로 리다이렉트
-            response.sendRedirect("http://localhost:8080/home_user"); // 프론트쪽 특정 URI
+            response.sendRedirect("http://localhost:3000/"); // 프론트쪽 특정 URI
         } else{
             // 기존 사용자는 바로 홈 화면으로 리다이렉트
-            response.sendRedirect("http://localhost:8080/home_user"); // 프론트쪽 특정 URI
+            response.sendRedirect("http://localhost:3000/"); // 프론트쪽 특정 URI
         }
     }
 

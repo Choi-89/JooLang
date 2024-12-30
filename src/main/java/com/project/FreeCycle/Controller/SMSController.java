@@ -17,11 +17,6 @@ public class SMSController {
     @Autowired
     private VerifyService verifyService;
 
-    @GetMapping("/home/verifyPhone")
-    public String VerfiyPhone(){
-        return "verifyPhone";
-    }
-
     @PostMapping("/sendSmsProc")
     public String sendSMSProc(@RequestParam(name = "phoneNumber") String phoneNumber, Model model){
         log.info("휴대폰 번호로 인증 번호 전송 시도: {}", phoneNumber);
