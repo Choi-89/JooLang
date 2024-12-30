@@ -40,7 +40,7 @@ public class SMSController {
 
     @PostMapping("/checkProc")
     public String checkProc(@RequestParam String verifyCode, @RequestParam(name = "phoneNumber") String phoneNumber
-                            ,Model model){
+            ,Model model){
         log.info("인증 코드 확인 시도: {}", verifyCode);
 
         UserDTO userDTO = verifyService.verifyPhoneNum(phoneNumber);

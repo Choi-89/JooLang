@@ -1,6 +1,7 @@
 package com.project.FreeCycle.Domain;
 
 import com.project.FreeCycle.Util.HashUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "nickname")
+    @Column(name = "nickname", unique = true)
     private String nickname;
 
     @Column(name = "email")
@@ -51,6 +52,10 @@ public class User {
     @Column(name = "provider_id")
     private String providerId;
 
+    @OneToOne(mappedBy = "user")
+    @JsonIgnore
+    private Location location;
+
     // 유저가 가지고 있는 게시물
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
@@ -60,6 +65,7 @@ public class User {
     private List<Chat> chats = new ArrayList<>();
 
     //찜목록
+    @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Dibs> dibs = new ArrayList<>();
 }

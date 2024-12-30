@@ -3,15 +3,14 @@ package com.project.FreeCycle.Service;
 
 import com.project.FreeCycle.Dto.*;
 import com.project.FreeCycle.Domain.User;
+import com.project.FreeCycle.Repository.OAuth2UserInfo;
 import com.project.FreeCycle.Repository.UserRepository;
 import com.project.FreeCycle.Util.CookieUtil;
 import com.project.FreeCycle.Util.HashUtil;
 import com.project.FreeCycle.Util.JwtUtil;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -75,7 +74,6 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         String provider = userRequest.getClientRegistration().getClientName();
         OAuth2UserInfo oAuth2UserInfo = null;
-
         if(provider.equals("naver")){
             log.info("네이버 로그인");
             oAuth2UserInfo = new NaverUserDetails(oAuth2User.getAttributes());

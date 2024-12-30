@@ -1,10 +1,14 @@
 package com.project.FreeCycle.Service;
 
 //import com.project.FreeCycle.Domain.Location;
+import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Dto.UserConverter;
 import com.project.FreeCycle.Dto.UserDTO;
+//import com.project.FreeCycle.Repository.LocationRepository;
+import com.project.FreeCycle.Domain.Dibs;
+import com.project.FreeCycle.Dto.MyInformDTO;
 //import com.project.FreeCycle.Repository.LocationRepository;
 import com.project.FreeCycle.Repository.UserRepository;
 import com.project.FreeCycle.Util.HashUtil;
@@ -106,27 +110,31 @@ public class UserService{
         }
 
     // 유저 정보 수정
-//    public void userEdit(String userId, String nickname,
-//                         String postcode, String address, String detailAddress ){
-//        User user = userRepository.findByUserId(userId);
-//        Location location = user.getLocation();
-////        location.setId(user.getLocation().getId());
-//        if(!nickname.isEmpty()){
-//            user.setNickname(nickname);
-//        }
-//        if(!(location.getAddress().isEmpty()
-//                || location.getDetailAddress().isEmpty()
-//                ||location.getPostcode().isEmpty()) )
-//        {
-//            location.setAddress(address);
-//            location.setDetailAddress(detailAddress);
-//            location.setPostcode(postcode);
-//
-//            System.out.println(user.getUserId());
-//            System.out.println(user.getPassword());
-//        }
-//        userRepository.save(user);
-//    }
+
+    public void userEdit(String userId, MyInformDTO myInformDTO){
+        String nickname = myInformDTO.getNickname();
+        String address = myInformDTO.getAddress();
+        String postcode = myInformDTO.getPostcode();
+        String detailAddress = myInformDTO.getDetail_address();
+        User user = userRepository.findByUserId(userId);
+        Location location = user.getLocation();
+
+        if(!nickname.isEmpty()){
+            user.setNickname(nickname);
+        }
+        if(!(location.getAddress().isEmpty()
+                || location.getDetailAddress().isEmpty()
+                ||location.getPostcode().isEmpty()) )
+        {
+            location.setAddress(address);
+            location.setDetailAddress(detailAddress);
+            location.setPostcode(postcode);
+
+        }
+        userRepository.save(user);
+
+
+    }
 
     public List<Product> getUserPosts(String userId){
         return userRepository.findByUserId(userId).getProducts();

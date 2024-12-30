@@ -1,33 +1,27 @@
 package com.project.FreeCycle.Service;
 
-import com.project.FreeCycle.Domain.Dibs;
-import com.project.FreeCycle.Domain.Product;
+import com.project.FreeCycle.Api.FileStoreApi;
+import com.project.FreeCycle.Domain.*;
 
-import com.project.FreeCycle.Domain.Product_Attachment;
-import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Dto.ProductDTO;
-import com.project.FreeCycle.Repository.AttachmentRepository;
-import com.project.FreeCycle.Repository.DibsRepository;
-import com.project.FreeCycle.Repository.ProductRepository;
-import com.project.FreeCycle.Repository.UserRepository;
+import com.project.FreeCycle.Repository.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.text.Normalizer;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
-import static org.springframework.http.ResponseEntity.ok;
+import static com.project.FreeCycle.Domain.AttachmentType.IMAGE;
 
 @Service
 public class PostService {
@@ -37,6 +31,10 @@ public class PostService {
     private final UserRepository userRepository; // 안녕
     private final DibsRepository dibsRepository;
     private final AttachmentRepository attachmentRepository;
+    private final CategoryRepository categoryRepository;
+    private final ProductCategoryRepository productCategoryRepository;
+    private final FileStoreApi fileStoreApi;
+
 
     private final AttachmentService attachmentService;
 
@@ -45,13 +43,18 @@ public class PostService {
                        UserRepository userRepository,
                        DibsRepository dibsRepository,
                        AttachmentService attachmentService,
-                       AttachmentRepository attachmentRepository
-                       ){
+                       AttachmentRepository attachmentRepository,
+                       CategoryRepository categoryRepository,
+                       ProductCategoryRepository productCategoryRepository,
+                       FileStoreApi fileStoreApi){
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.dibsRepository = dibsRepository;
         this.attachmentService = attachmentService;
         this.attachmentRepository = attachmentRepository;
+        this.categoryRepository = categoryRepository;
+        this.productCategoryRepository = productCategoryRepository;
+        this.fileStoreApi = fileStoreApi;
     }
 
 
@@ -59,56 +62,43 @@ public class PostService {
     //글 작성
     public void postProduct(ProductDTO productDTO ,String userId) throws IOException {
 
-//        //User 정보 불러오기
-//
-//        User user = userRepository.findByUserId(userId);
-//        product.setUser(user);
-//
-//        //조회수 초기화
-//        product.setView(0);
-//        //글쓴이 작성 시간 저장, 닉네임 저장, (작성 시간 FORMATTER로 형식 변환 후 다시 LocalDateTime으로 타입 변환)
-//
-//        String localDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-//        product.setUpload_time(LocalDateTime.parse(localDateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))) ;
-//
-//        //게시글 저장
-//        Product saveProduct = productRepository.save(product);
-//
-//        //사진 저장
-//        if(!images.isEmpty()) {
-//            attachmentService.uploadPicture(product, images);
-//        }
-//        //해당User의 ProductList에 product추가
-//        user.getProducts().add(saveProduct);
-//        userRepository.save(user);
-
         Product product = productDTO.createProduct();
         product.setUser(userRepository.findByUserId(userId));
         product = productRepository.save(product);
 
+
+        //이미지 저장
         if(!productDTO.getAttachmentFiles().isEmpty()){
+            //빈 attachment 넣어줌
             List<Product_Attachment> attachments = product.getAttachments();
+            //이름 변경 후 다시 저장
             attachments.addAll(attachmentService.saveAttachments(productDTO.getAttachmentFiles()));
+            //이름 바꾼 이미지 정보들 product에 set
             product.setAttachments(attachments);
 
             for(Product_Attachment attachment : attachments){
                 attachment.setProduct(product);
-                attachmentRepository.save(attachment);
                 log.info(attachment.getOriginFilename());
             }
+            attachmentRepository.saveAll(attachments);
+
+
         }
+
+        //찜수 0으로 설정
+        product.setDibsCount(0);
+
+        //카테고리 설정
+        Category category = categoryRepository.findByCategory(productDTO.getCategory());
+
+        ProductCategory productCategory = new ProductCategory();
+        productCategory.setProduct(product);
+        productCategory.setCategory(category);
+        productCategoryRepository.save(productCategory);
+
 
     }
 
-
-//    public Product convertToEntity(ProductDTO productDTO, String userId) {
-//        Product product = new Product();
-//        product.setName(productDTO.getName());
-//        product.setContent(productDTO.getContent());
-//        product.setUser(userRepository.findByUserId(userId));
-//        // 기타 초기화 작업들...
-//        return product;
-//    }
 
     //게시글 목록 조회
     public Page<Product> getPosts(Pageable pageable) {
@@ -116,32 +106,95 @@ public class PostService {
     }
 
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+//        return productRepository.findAll();
+        List<Product> products = productRepository.findAll();
+//        products.sort();
+        return products;
     }
-    // 지선생
 
     //글 수정
-    public void postEdit(long id , String name , String content){
-        Product product = productRepository.findById(id).get();
-        if(!name.isEmpty()){
-            product.setName(name);
+    public void postEdit(long productid, ProductDTO productDTO) throws IOException {
+
+        Product product = productRepository.findById(productid).get();
+
+        //이미지 가져와서 파일 저장하는 로직
+        //원래 이미지, 수정한 이미지 비교후 바뀐게 있으면 업데이트해서 저장
+        List<Product_Attachment> stringOriginal = attachmentRepository.findAllByProduct_Id(productid);
+        List<String> originalFilename = new ArrayList<>();
+        for (Product_Attachment imageFile : stringOriginal) {
+            originalFilename.add(imageFile.getOriginFilename());
         }
-        product.setContent(content);
+
+        //if ? 1 : 0 나중에 바꿀것 얘는 멀파파 스트링이 아님
+        List<String> insertFilenames = new ArrayList<>();
+        List<MultipartFile> imageFiles = productDTO.getAttachmentFiles().get(IMAGE);
+        if(imageFiles != null) {
+            for (MultipartFile imageFile : imageFiles) {
+                insertFilenames.add(Normalizer.normalize(imageFile.getOriginalFilename(), Normalizer.Form.NFC));
+            }
+        }
+        // 원래 있던 프로가 없으면 데베에서 삭제
+
+        List<Product_Attachment> mustBeDeletedFiles = new ArrayList<>();
+        for (String name : originalFilename) {
+            List<Product_Attachment> product_original = new ArrayList<>();
+            if (!insertFilenames.contains(name)) {
+                product_original.addAll(attachmentRepository.findByOriginFilename(name));
+                for(Product_Attachment attachment : product_original){
+                    if(productid == attachment.getProduct().getId()) {
+                        mustBeDeletedFiles.add(attachment);
+                        product.getAttachments().remove(attachment);
+                    }
+                }
+
+            }
+        }
+        fileStoreApi.deleteAttachments(mustBeDeletedFiles);
+
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            Map<AttachmentType, List<MultipartFile>> fileMap = new HashMap<>();
+            for (MultipartFile file : imageFiles) {
+                String fileName = Normalizer.normalize(file.getOriginalFilename(), Normalizer.Form.NFC);
+                // 원래 있던 프로덕트가 아니면 추가
+                if (!originalFilename.contains(fileName)) {
+                    AttachmentType type = attachmentService.determineAttachmentType(file);
+                    fileMap.computeIfAbsent(type, k -> new ArrayList<>()).add(file); // 유형별로 파일 추가
+                }
+            }
+            product.getAttachments().addAll(attachmentService.saveAttachments(productid, fileMap));
+        }
+
+
+        //이름, 내용, 카테고리 수정하는 로직
+//        Product product = productRepository.findById(productid).get();
+        if(!productDTO.getName().isEmpty()){
+            product.setName(productDTO.getName());
+        }
+        product.setContent(productDTO.getContent());
+        productCategoryRepository.delete(productCategoryRepository.findByProduct_Id(productid));
+        ProductCategory productCategory = new ProductCategory();
+        productCategory.setCategory(categoryRepository.findByCategory(productDTO.getCategory()));
+        productCategory.setProduct(productRepository.findById(productid).orElse(null));
+        productCategoryRepository.save(productCategory);
 
         productRepository.save(product);
+
+        //수정을 눌렀을때 파일 선택하는 칸에 이미 이미지가 존재하는 경우에 선택이 가능하도록
     }
 
     //글 삭제
     public void postDelete(long id){
-//        String redirectUrl = "/게시글목록";
-//        if(productRepository.findById(id).isPresent()){
-            productRepository.delete(productRepository.findById(id).get());
-//        }
-//        else{
-//            return new ResponseEntity<>("<script>alert('이미 삭제된 게시글.');"
-//                    + "window.location.href='" + redirectUrl + "';"
-//                    + "</script>", HttpStatus.NOT_FOUND);
-//        }
+        Product product = productRepository.findById(id).get();
+        productCategoryRepository.delete(productCategoryRepository.findByProduct_Id(product.getId()));
+        // 첨부 파일 및 외부 파일 삭제
+        List<Product_Attachment> attachments = product.getAttachments();
+        if (attachments != null && !attachments.isEmpty()) {
+            fileStoreApi.deleteAttachments(attachments); // 파일 시스템에서 파일 삭제
+        }
+        productRepository.delete(product);
+
+
+
     }
 
     //조회수 증가
@@ -151,54 +204,10 @@ public class PostService {
         productRepository.save(product);
         return product;
     }
-
-//    //
     public Optional<Product> getProduct(long id){
         return productRepository.findById(id);
     }
-//
-//
-//    public User findUserId(String userid){
-//        return userRepository.findByUserId(userid);
-//    }
-//
-//    public User findNickname(String nickname){
-//        return userRepository.findByNickname(nickname);
-//    }
 
-
-//    public void saveDibs(String userId , long postId){
-//        //유저의 찜 목록 불러오기
-//        User user = userRepository.findByUserId(userId);
-//        // user 정보 따로 저장
-//        List<Product> userDibs = user.getDibs(); //도메인 dibs 추가 전
-//        System.out.println(userDibs);
-//
-//        for(int i = 0; i < userDibs.size(); i++){
-//            System.out.println(userDibs.get(i).getId());
-//        }
-////        Dibs dibs = user.getMyDibs(); //도메인 dibs 추가 후
-////        List<Product> userDibs = dibs.getDibs();
-//        //해당 글
-//        Product product = productRepository.findById(postId).orElse(null);
-//
-//        if(userDibs.contains(product)){
-//            userDibs.remove(product);
-//            System.out.println("찜 삭제");
-//        }
-//        else {
-//            userDibs.add(product);
-//            System.out.println("찜 등록");
-//        }
-//
-//        product.setView(product.getView() - 1);
-//
-//        //유저정보 갱신
-//        userRepository.findByUserId(userId).setDibs(userDibs);
-//        userRepository.save(user);
-//
-//
-//    }
 
     public void saveDibs(String userId, long postId){
 
@@ -215,8 +224,10 @@ public class PostService {
         for(Dibs dib: dibs){
             if(dib.getDibsId().equals(postId)){
                 dibs.remove(dib);
+                isThat = false;
                 dibsRepository.delete(dib);
-                return;
+                product.setDibsCount(product.getDibsCount()-1);
+                break;
             }
         }
 
@@ -226,9 +237,10 @@ public class PostService {
             newDibs.setDibsId(postId);
             newDibs.setUser(user);
             dibs.add(newDibs);
+            product.setDibsCount(product.getDibsCount()+1);
             dibsRepository.save(newDibs);
         }
-
+        productRepository.save(product);
 
 
 //        user.setDibs(dibs);
@@ -248,5 +260,38 @@ public class PostService {
         }
         return products;
     }
+
+    public List<Product> getProducts(String categoryname, String sort){
+        Category category = categoryRepository.findByCategory(categoryname); // 카테고리id, postid >> 프로덕트카테고리 , 그냥 카테고리는 id, 카테고리이름
+        List<Product> products = new ArrayList<>();
+        if(sort.equals("latest")){
+            products = productRepository.findAllByOrderByUploadTimeDesc();
+        }
+        else{
+            products = productRepository.findAllByOrderByDibsCountDesc();
+        }
+
+        if(!categoryname.equals("전체")) {
+            List<ProductCategory> categoryProducts = productCategoryRepository.findAllByCategory(category);
+            List<Long> postIds = categoryProducts.stream()
+                    .map(productCategory -> productCategory.getProduct().getId())
+                    .collect(Collectors.toList()); // 리스트로 변환
+
+            List<Product> result = new ArrayList<>();
+            for (Product post : products) {
+                if (postIds.contains(post.getId())) {
+                    result.add(post);
+                }
+            }
+            return result;
+        }
+        return products;
+    }
+
+
+
+
+
+
 
 }

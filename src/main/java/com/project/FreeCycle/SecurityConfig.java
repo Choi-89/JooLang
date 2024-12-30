@@ -6,7 +6,7 @@ import com.project.FreeCycle.Service.CustomOauth2UserService;
 //import com.project.FreeCycle.Service.CustomUserDetailService;
 import com.project.FreeCycle.Util.CookieUtil;
 import com.project.FreeCycle.Util.JwtUtil;
-import edu.emory.mathcs.backport.java.util.Collections;
+//import edu.emory.mathcs.backport.java.util.Collections;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +25,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Collections;
 //import org.springframework.web.servlet.config.annotation.CorsRegistry;
 //import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 

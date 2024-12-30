@@ -27,6 +27,23 @@ public class FileStoreApi {
     @Value("${file.dir}")
     private String fileDirPath;
 
+    // 파일 삭제 메서드 추가
+    public boolean deleteFile(String filePath) {
+        File file = new File(filePath);
+        if (file.exists()) {
+            return file.delete(); // 파일 삭제
+        }
+        return false; // 파일이 없으면 false 반환
+    }
+    //히히 죄송합니다 교수님
+    public void deleteAttachments(List<Product_Attachment> attachments) {
+        for (Product_Attachment attachment : attachments) {
+            String viaPath = (attachment.getAttachmentType() == AttachmentType.IMAGE) ? "images/" : "generals/";
+            String fullPath = fileDirPath + viaPath + attachment.getStoreFilename();
+            deleteFile(fullPath);
+        }
+    }
+
     private String extractExt(String originalFilename){
         int idx = originalFilename.lastIndexOf(".");
         String ext = originalFilename.substring(idx);

@@ -167,7 +167,7 @@ public class JoinController {
         return ResponseEntity.badRequest().body(new ApiResponseDTO<>("error","인증번호가 틀렸습니다.",null));
     }
 
-    
+
     @Operation(summary = "아이디 중복 확인 ", description = "회원가입 할 때, 아이디 중복 체크 API" +
             "json 형식으로 중복 확인 할 유저 아이디(userId) 서버로 전달")
     @ApiResponses(value = {

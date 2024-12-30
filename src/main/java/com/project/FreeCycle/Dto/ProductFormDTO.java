@@ -28,15 +28,18 @@ public class ProductFormDTO {
     //not blank
     private String content;
 
+    private String category;
+
     private List<MultipartFile> imageFiles;
     private List<MultipartFile> generalFiles;
 
     @Builder
-    public ProductFormDTO(String name, String content, List<MultipartFile> imageFiles , List<MultipartFile> generalFiles){
+    public ProductFormDTO(String name, String content, List<MultipartFile> imageFiles , List<MultipartFile> generalFiles, String category){
         this.name = name;
         this.content = content;
         this.imageFiles = (imageFiles != null) ? imageFiles : new ArrayList<>();
         this.generalFiles = (generalFiles != null) ? generalFiles : new ArrayList<>();
+        this.category = category;
 
     }
 
@@ -46,6 +49,7 @@ public class ProductFormDTO {
         return ProductDTO.builder()
                 .name(name)
                 .content(content)
+                .category(category)
                 .attachmentFiles(attachments)
                 .build();
     }

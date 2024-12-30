@@ -31,7 +31,7 @@
             font-weight: bold;
             margin-bottom: 5px;
         }
-        .form-group input, .form-group textarea {
+        .form-group input, .form-group textarea, .form-group select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
@@ -62,17 +62,62 @@
 <body>
 <div class="edit-container">
     <h2>게시물 수정</h2>
-    <form th:action="@{/post/{id}/edit(id=${product.id})}" method="post">
+    <form th:action="@{/post/{id}/edit(id=${product.id})}" method="post" enctype="multipart/form-data">
+        <!-- 제목 -->
         <div class="form-group">
             <label for="name">제목</label>
-            <input type="text" id="name" name="name" th:value="${product.name}" >
+            <input type="text" id="name" name="name" th:value="${product.name}" required>
         </div>
+
+        <!-- 카테고리 선택 -->
+        <div class="form-group">
+            <label for="category">카테고리 선택:</label>
+            <select id="category" name="category" required>
+                <option value="전체">전체</option>
+                <option value="패션">패션</option>
+                <option value="가구">가구/인테리어</option>
+                <option value="식품">식품</option>
+                <option value="가전제품">가전제품</option>
+                <option value="스포츠">스포츠</option>
+                <option value="컴퓨터">컴퓨터/모바일/디지털</option>
+                <option value="티켓">티켓/쿠폰</option>
+                <option value="생활용품">생활용품</option>
+                <option value="취미">취미/문구/악기</option>
+                <option value="도서">도서</option>
+                <option value="레저">레저</option>
+                <option value="건강">건강/의료용품</option>
+                <option value="반려동물">반려동물</option>
+                <option value="기타">기타</option>
+            </select>
+        </div>
+
+<!--        &lt;!&ndash; 기존 이미지 리스트와 삭제 옵션 &ndash;&gt;-->
+<!--        <div>-->
+<!--            <label>기존 이미지:</label>-->
+<!--            <ul>-->
+<!--                <li th:each="image : ${product.attachments}">-->
+<!--                    <img th:src="@{/uploads/{image}(image=${image.storePath})}" alt="Image" width="100">-->
+<!--                    <input type="checkbox" name="deleteImages" th:value="${image.id}"> 삭제-->
+<!--                </li>-->
+<!--            </ul>-->
+<!--        </div>-->
+
+        <!-- 새 이미지 추가 -->
+        <div class="form-group">
+            <label for="product_attachment_id">사진 업로드:</label>
+            <input type="file" id="product_attachment_id" name="imageFiles" multiple accept="image/*">
+        </div>
+
+
+        <!-- 내용 -->
         <div class="form-group">
             <label for="content">내용</label>
-            <textarea id="content" name="content"  th:text="${product.content}"></textarea>
+            <textarea id="content" name="content" th:text="${product.content}" required></textarea>
         </div>
+
+        <!-- 저장 및 취소 버튼 -->
         <div class="buttons">
-            <a th:href="@{/post_detail/{id}(id=${product.id})}"><button type="submit">저장</button></a>
+            <button type="submit">저장</button>
             <a th:href="@{/post_detail/{id}(id=${product.id})}" style="text-decoration:none;"><button type="button">취소</button></a>
         </div>
     </form>

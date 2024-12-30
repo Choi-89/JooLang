@@ -31,12 +31,15 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        .form-group input, .form-group textarea {
+        .form-group input, .form-group textarea, .form-group select {
             width: 100%;
             padding: 10px;
             font-size: 16px;
             border: 1px solid #ddd;
             border-radius: 4px;
+        }
+        .form-group select {
+            height: auto; /* Allow the select box to expand when multiple items are selected */
         }
         .form-group textarea {
             resize: vertical;
@@ -66,6 +69,26 @@
         <div class="form-group">
             <label for="name">제목:</label>
             <input type="text" id="name" name="name" placeholder="제목을 입력하세요" required>
+        </div>
+        <div class="form-group">
+            <label for="category">카테고리 선택 (중복 선택 x):</label>
+            <select id="category" name="category" required>
+                <option value="전체">전체</option>
+                <option value="패션">패션</option>
+                <option value="가구">가구/인테리어</option>
+                <option value="식품">식품</option>
+                <option value="가전제품">가전제품</option>
+                <option value="스포츠">스포츠</option>
+                <option value="컴퓨터">컴퓨터/모바일/디지털</option>
+                <option value="티켓">티켓/쿠폰</option>
+                <option value="생활용품">생활용품</option>
+                <option value="취미">취미/문구/악기</option>
+                <option value="도서">도서</option>
+                <option value="레저">레저</option>
+                <option value="건강">건강/의료용품</option>
+                <option value="반려동물">반려동물</option>
+                <option value="기타">기타</option>
+            </select>
         </div>
         <div class="form-group">
             <label for="content">내용:</label>

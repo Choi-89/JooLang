@@ -114,7 +114,7 @@
         <h1 th:text ="${product.name}"></h1>
         <p th:text ="${product.user.nickname}">작성자</p>
         <div class="meta">
-            <p th:text ="${#temporals.format(product.upload_time, 'yyyy-MM-dd HH:mm:ss')}">수정일</p>
+            <p th:text ="${#temporals.format(product.uploadTime, 'yyyy-MM-dd HH:mm:ss')}">수정일</p>
         </div>
         <div class="header-right">
             <div class="view-count">
@@ -156,7 +156,7 @@
     </div>
 
     <div>
-        <a href="/postlist"><button type="button">게시물 리스트</button></a>
+        <a href="/postlist/전체"><button type="button">게시물 리스트</button></a>
     </div>
 </div>
 

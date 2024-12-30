@@ -1,6 +1,7 @@
 package com.project.FreeCycle.Domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,18 +28,21 @@ public class Product {
     @Column(name = "name", nullable = false)
     private String name;
 
-
     @Column(name = "content")
     private String content;
 
-    @Column(name = "view", nullable = false)
+    @Column(name = "view", nullable = false )
     private int view;
 
-    @Column(name = "upload_time", nullable = false)
+    @Column(name = "uploadTime", nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") //Controller에서 @RequestParam 다음 @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") 어노테이션 사용
-    private LocalDateTime upload_time;
+    private LocalDateTime uploadTime;
+
+    @Column(name = "dibsCount", nullable = false)
+    private int dibsCount;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -47,12 +51,12 @@ public class Product {
     private List<Product_Attachment> attachments;
 
     @Builder
-    public Product(long id, String name, String content, int view, LocalDateTime upload_time, List<Product_Attachment> attachments){
+    public Product(long id, String name, String content, int view, LocalDateTime uploadTime, List<Product_Attachment> attachments){
         this.id = id;
         this.name = name;
         this.content = content;
         this.view = view;
-        this.upload_time = upload_time;
+        this.uploadTime = uploadTime;
         this.attachments = attachments;
     }
 
