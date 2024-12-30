@@ -1,5 +1,6 @@
-package com.project.FreeCycle.Dto;
+package com.project.FreeCycle.Service;
 
+import com.project.FreeCycle.Repository.OAuth2UserInfo;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
@@ -8,12 +9,14 @@ import java.util.Map;
 @Slf4j
 public class NaverUserDetails implements OAuth2UserInfo {
 
-    private final Map<String, Object> attributes;
-    private final Map<String, Object> response;
+    private Map<String, Object> attributes;
+    private Map<String, Object> response;
 
     public NaverUserDetails(Map<String, Object> attributes) {
         this.attributes = attributes;
         this.response = (Map<String, Object>) attributes.get("response");
+        log.info("Naver attributes: {}", attributes);
+        log.info("Naver response: {}", response);
     }
 
     @Override
@@ -25,9 +28,9 @@ public class NaverUserDetails implements OAuth2UserInfo {
     @Override
     public String getProviderId() {
         if (response != null && response.containsKey("id")) {
-            return response.get("id").toString();
+            return (String) response.get("id");
         } else if (attributes.containsKey("id")) {
-            return attributes.get("id").toString();
+            return (String) attributes.get("id");
         } else {
             log.error("Provider ID를 찾을 수 없습니다.");
             return null;
@@ -36,22 +39,22 @@ public class NaverUserDetails implements OAuth2UserInfo {
 
     @Override
     public String getEmail(){
-        return response.get("email").toString();
+        return (String) response.get("email");
     }
 
     @Override
     public String getMobile() {
-        return response.get("mobile").toString();
+        return (String) response.get("mobile");
     }
 
     @Override
     public String getName() {
-        return response.get("name").toString();
+        return (String) response.get("name");
     }
 
     @Override
     public String getNickname() {
-        return response.get("nickname").toString();
+        return (String) response.get("nickname");
     }
 
 }
