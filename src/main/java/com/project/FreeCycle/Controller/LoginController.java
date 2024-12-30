@@ -13,29 +13,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+
 
 @Slf4j
 @RestController
 @RequestMapping("/home")
 public class LoginController {
 
-    /**
-     * 로그인 페이지 반환
-     * */
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "로그인 페이지 반환 성공"),
-            @ApiResponse(responseCode = "400", description = "로그인 페이지 오류 발생")
-    })
-    @Operation(summary = "로그인 페이지", description = "로그인 페이지를 반환합니다. 로그인 오류가 있을 경우 오류 메시지를 포함합니다.")
-    @GetMapping("/login")
-    public ResponseEntity<ApiResponseDTO<Void>> showLogin(
-            @Parameter(description = "로그인 오류 메시지", required = false)
-            @RequestParam(value = "error", required = false) String error) {
-        ApiResponseDTO<Void> response = new ApiResponseDTO<>("success","로그인 페이지 요청 성공",null);
-
-        return ResponseEntity.ok(response);
-    }
 
     /**
      * 실제 로그인 로직은 LoginFilter를 통해 구현됨. 이 코드는 프론트앤드 개발자를 위한 명세서를 위해 적은 코드
