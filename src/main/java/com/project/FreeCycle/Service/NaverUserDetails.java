@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
+// OAuth2를 통해 로그인한 사용자의 정보를 다루기 위함
 @Slf4j
 public class NaverUserDetails implements OAuth2UserInfo {
 
@@ -39,6 +40,11 @@ public class NaverUserDetails implements OAuth2UserInfo {
     @Override
     public String getEmail(){
         return (String) response.get("email");
+    }
+
+    @Override
+    public String getMobile() {
+        return (String) response.get("mobile");
     }
 
     @Override

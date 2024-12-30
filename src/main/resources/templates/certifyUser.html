@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko"  xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,26 +49,34 @@
         .form-group input[type="submit"]:hover {
             background-color: #45a049;
         }
+        .error {
+            color: red;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>비밀번호 찾기</h2>
-    <form action="/certifyUserProc" method="POST">
-        <div class="form-group">
-            <label for="userId">사용자 ID:</label>
-            <input type="text" id="userId" name="userId" required>
-        </div>
-        <div class="form-group">
-            <label for="email">이메일:</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-        <div class="form-group">
-            <input type="submit" value="인증하기">
-        </div>
-    </form>
-</div>
+    <div class="container">
+        <h2>비밀번호 찾기</h2>
+        <form action="/certifyUserProc" method="POST">
+            <div class="form-group">
+                <label for="userId">사용자 ID:</label>
+                <input type="text" id="userId" name="userId" required>
+            </div>
+            <div class="form-group">
+                <label for="email">이메일:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="인증하기">
+            </div>
+        </form>
+    </div>
+
+    <div th:if="${errorMsg != null}" class="error">
+        <p th:text="${errorMsg}"></p>
+    </div>
 
 </body>
 </html>

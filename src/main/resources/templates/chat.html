@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>내 채팅방</title>
+    <style>
+        .chatpost .button{
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <form class="chatpost" th:each="chat : ${chat}">
+        <div style="justify-content: space-between">
+            <a th:href="@{/chat/room/{id}(id=${chat.roomId})}">
+                <h5 th:text="${chat.otheruser}"></h5>
+            </a>
+
+            <a th:href="@{/post/chat/delete/{id}(id=${chat.roomId})}">삭제</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

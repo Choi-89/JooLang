@@ -50,6 +50,8 @@
     <h1>회원가입</h1>
     <form action="/joinProc" method="post">
 
+        <input type="hidden" id="phoneNum" name="phoneNum" th:value="${phoneNum}">
+<!--        <input type="hidden" id="phoneNum" name="phoneNum" value="${phoneNumber}">-->
         <div class="form-group">
             <label for="userName">이름</label>
             <input type="text" id="userName" name="userName" placeholder="이름을 입력하세요" required>

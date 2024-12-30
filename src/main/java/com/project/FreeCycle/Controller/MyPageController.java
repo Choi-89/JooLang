@@ -1,7 +1,9 @@
 package com.project.FreeCycle.Controller;
 
+//import com.project.FreeCycle.Domain.Location;
 import com.project.FreeCycle.Domain.Product;
 import com.project.FreeCycle.Domain.User;
+//import com.project.FreeCycle.Repository.LocationRepository;
 import com.project.FreeCycle.Dto.ApiResponseDTO;
 import com.project.FreeCycle.Dto.MyInformDTO;
 import com.project.FreeCycle.Service.PostService;
@@ -10,6 +12,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

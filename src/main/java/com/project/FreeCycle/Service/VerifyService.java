@@ -1,34 +1,54 @@
 package com.project.FreeCycle.Service;
 
+import com.project.FreeCycle.Dto.UserConverter;
+import com.project.FreeCycle.Dto.UserDTO;
+import com.project.FreeCycle.Api.CoolSMSApi;
+import com.project.FreeCycle.Util.HashUtil;
+import com.project.FreeCycle.Util.PasswordUtil;
 import com.project.FreeCycle.Domain.User;
 import com.project.FreeCycle.Repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
+import net.nurigo.java_sdk.api.Message;
+import net.nurigo.java_sdk.exceptions.CoolsmsException;
+import org.json.simple.JSONObject;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
+import java.util.HashMap;
 import java.util.Random;
 
+@Slf4j
 @Service
 public class VerifyService {
 
-    @Autowired
-    UserRepository userRepository;
 
-    @Autowired
-    private JavaMailSenderImpl mailSender;
+    private final UserRepository userRepository;
+    private final JavaMailSenderImpl mailSender;
+    private final HttpSession session;
+    private final CoolSMSApi coolSMSApi;
 
-    @Autowired
-    private HttpSession session;
+    private final PasswordUtil passwordUtil = new PasswordUtil(new BCryptPasswordEncoder());
 
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    public VerifyService(UserRepository userRepository, JavaMailSenderImpl mailSender, HttpSession session,
+                         CoolSMSApi coolSMSApi) {
+        this.userRepository = userRepository;
+        this.mailSender = mailSender;
+        this.session = session;
+        this.coolSMSApi = coolSMSApi;
+    }
 
+
+    /**
+     * 가입 되어있는지 회원인지 확인
+     * userId와 email을 통해 교차 검증
+     * */
     public boolean existUser(String userId, String eamil){
 
         User user = userRepository.findByUserId(userId);
@@ -39,8 +59,22 @@ public class VerifyService {
         }
         return false;
     }
+
+    public boolean existUserId(String NewUserId){
+
+        User user = userRepository.findByUserId(NewUserId);
+        
+        if(user != null){
+            if(user.getUserId().equals(NewUserId)){
+                return false;
+            }
+        }
+        return true;
+    }
     
-    // 메일 전송
+    /**
+     * 전송 할 메시지 문구 지정 및 메일 전송
+     * */
     public boolean sendEmail(String email) {
         String code = generateCode();
 
@@ -58,8 +92,51 @@ public class VerifyService {
             return false;
         }
     }
+    
+    /**
+     * SMS 인증 코드 생성
+     * */
+    public boolean sendSMS(String phone){
+        String code = generateCode();
+        String apikey = coolSMSApi.getApikey();
+        String apiSecret = coolSMSApi.getApiSecret();
+        String content = "주랑 {인증번호}" + code + "를 입력해주세요. ";
 
-    // 인증번호 생성
+        // sendPhoneMessage 메서드를 통해 사용자에게 문자 전송
+        if(sendPhoneMessage(phone,content, apikey, apiSecret)) {
+            session.setAttribute("authCode", code);
+            session.setMaxInactiveInterval(300);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * sendSMS에서 생성된 문자 메시지를 실제로 전송하는 역할
+     * */
+    public boolean sendPhoneMessage(String phone,String content,String apiKey, String apiSecret){
+        // 메시지 전송 로직 구현
+        Message coolsms = new Message(apiKey,apiSecret);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("to", phone);
+        params.put("from", "01056563642");
+        params.put("type","SMS");
+        params.put("text", content);
+
+        try {
+            JSONObject result = coolsms.send(params);
+            System.out.println(result.toString());
+            return true;
+        } catch (CoolsmsException e) {
+            System.out.println("문자 전송 실패" + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 인증번호 생성 메서드
+     * */
     public String generateCode(){
         Random random = new Random();
         StringBuilder code = new StringBuilder();
@@ -70,7 +147,10 @@ public class VerifyService {
         return code.toString();
     }
 
-    // 이메일 보낼 메시지 전송
+
+    /**
+     * 이메일로 메시지 전송
+     * */
     public void sendEmailMessage(String email, String subject, String content) throws MessagingException {
         MimeMessage message =mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message,false, "UTF-8");
@@ -82,7 +162,10 @@ public class VerifyService {
         mailSender.send(message);
     }
 
-    // 코드 인증
+
+    /**
+     * 인증 코드 인증
+     * */
     public boolean verifyCode(String code){
         String authCode = (String) session.getAttribute("authCode");
         if (authCode != null && authCode.equals(code)) {
@@ -92,19 +175,71 @@ public class VerifyService {
         return false;
     }
 
-    // 비밀번호 업데이트
+    
+    /**
+     * 휴대폰 번호 중복 확인
+     * */
+    public UserDTO verifyPhoneNum(String phoneNum){
+        try{
+//            String encryptedPhoneNum = AESUtil.encrypt(phoneNum);
+//            log.info("암호화된 전화번호: " + encryptedPhoneNum);
+
+            String cleanPhoneNum = phoneNum.replaceAll("-", "");
+
+            String encryptedPhoneNum = HashUtil.hashPhoneNumber(cleanPhoneNum);
+
+            User user = userRepository.findByPhoneNum(encryptedPhoneNum);
+
+            if (user == null){
+                log.info("중복된 전화번호 없음");
+                return null;
+            }
+
+            log.info("중복된 전화번호 확인: {}", user.getPhoneNum());
+            return UserConverter.toDTO(user);
+        } catch (Exception e) {
+
+            throw new RuntimeException("휴대폰 번호 중복 확인 중 오류 발생",e);
+        }
+    }
+
+
+    /**
+     * 비밀번호 업데이트 
+     * NewPassword : 새로운 비밀번호
+     * userId : 사용자 정보 확인 할 userId
+     * */
     @Transactional
-    public boolean updatePassword(String password, String userId){
+    public boolean updatePassword(String NewPassword, String userId){
+        log.info("비밀번호 업데이트 요청: userId={}, newPassword={}", userId, NewPassword);
         User user = userRepository.findByUserId(userId);
-        if(user != null){
-            user.setPassword(bCryptPasswordEncoder.encode(password));  // 비밀번호 암호화
-            userRepository.save(user);
-            return true;
+
+        if(user != null) {
+            log.info("사용자 정보가 확인되었습니다: userId={}", userId);
+            if (passwordUtil.matchesPassword(NewPassword, user.getPassword())) {
+                log.warn("새 비밀번호가 현재 비밀번호와 동일합니다: userId={}", userId);
+                System.out.println("새 비밀번호가 현재 비밀번호와 동일합니다. = userId=" + userId);
+                return false;
+            }
+            // 비밀번호 업데이트 할 때 새로 업데이트 할 비밀번호가 현재 비밀번호와 같으면 실패 반환
+            try {
+                user.setPassword(passwordUtil.encodePassword(NewPassword));  // 비밀번호 암호화
+                userRepository.save(user);
+                log.info("비밀번호가 성공적으로 업데이트되었습니다: userId={}", userId);
+                return true;
+            } catch (Exception e) {
+                log.error("비밀번호 업데이트 중 예외 발생: userId={}, error={}", userId, e.getMessage());
+                return false;
+            }
         }
         return false;
     }
 
-    // 비밀번호 비교
+    /**
+     * 비밀번호 비교 
+     * newPassword : 새로운 비밀번호
+     * confirmPassword : 새로운 비밀번호와 같은지 확인 할 비밀번호
+     * */
     public boolean checkPassword(String newPassword, String confirmPassword){
 
         if(newPassword.equals(confirmPassword)){
@@ -112,5 +247,4 @@ public class VerifyService {
         }
         return false;
     }
-
 }

@@ -1,8 +1,10 @@
 package com.project.FreeCycle.Domain;
 
+import com.project.FreeCycle.Util.HashUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +14,12 @@ import java.util.Optional;
 @Entity
 @Table(name = "user")
 @Data
+@Slf4j
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private long id;
 
     @Column(name = "userId",unique = true)
     private String userId;
@@ -32,6 +35,10 @@ public class User {
 
     @Column(name = "email")
     private String email;
+
+    // 중복 회원가입 방지하기 위함
+    @Column(name = "phoneNum")
+    private String phoneNum;
 
     // 시큐리티 활용하여 admin, user 둘로 나눠서 저장 할 예정
     @Column(name = "role")
@@ -53,10 +60,12 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
 
+    //유저가 가지고있는 채팅
+    @OneToMany(mappedBy="user", fetch=FetchType.LAZY,cascade = CascadeType.ALL)
+    private List<Chat> chats = new ArrayList<>();
+
     //찜목록
     @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Dibs> dibs = new ArrayList<>();
-
-
 }
