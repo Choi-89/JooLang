@@ -40,6 +40,7 @@ dependencies {
 	implementation 'org.springframework.security:spring-security-oauth2-jose'
 	implementation 'net.nurigo:sdk:4.3.0'
 	implementation 'net.nurigo:javaSDK:2.2'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 
 	compileOnly 'org.projectlombok:lombok'
